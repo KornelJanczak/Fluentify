@@ -1,0 +1,9 @@
+{
+  "restartable": "rs",
+  "watch": ["src"],
+  "ext": ".ts, .js",
+  "exec": "ts-node ./src/server.ts",
+  "execMap": {
+    "ts": "node -r ts-node/register"
+  }
+}
