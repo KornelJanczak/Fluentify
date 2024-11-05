@@ -1,6 +1,6 @@
 // client/src/app/private/page.tsx
 "use client";
-
+import { getAccessToken, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { useState } from "react";
 
 export default function PrivatePage() {
@@ -12,9 +12,15 @@ export default function PrivatePage() {
 
   const callApi = async () => {
     setState((previous) => ({ ...previous, isLoading: true }));
-
+    
     try {
-      const response = await fetch("/api/private-route");
+      const { accessToken } = await getAccessToken();
+      console.log("click");
+      const response = await fetch("/api/private-route", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       console.log(response);
 
