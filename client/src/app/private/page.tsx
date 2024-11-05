@@ -1,69 +1,29 @@
-// client/src/app/private/page.tsx
-"use client";
-import { getAccessToken, withApiAuthRequired } from "@auth0/nextjs-auth0";
-import { useState } from "react";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
-export default function PrivatePage() {
-  const [state, setState] = useState({
-    isLoading: false,
-    response: undefined,
-    error: undefined,
+export default async function PrivatePage() {
+  const { getAccessTokenRaw } = getKindeServerSession();
+  const accessToken = await getAccessTokenRaw();
+  const response = await fetch("http://localhost:5000/api/protected", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
 
-  const callApi = async () => {
-    setState((previous) => ({ ...previous, isLoading: true }));
-    
-    try {
-      const { accessToken } = await getAccessToken();
-      console.log("click");
-      const response = await fetch("/api/private-route", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+  const data = await response.json();
 
-      console.log(response);
+  console.log(data);
 
-      const data = await response.json();
+  return (
+    <>
+      <h1 className="mt-10 text-4xl font-bold tracking-tight text-white sm:text-6xl">
+        Private Page
+      </h1>
 
-      console.log(data);
+      <button className="mt-10 block rounded bg-pink-800/50 px-2 py-1 text-white hover:opacity-70">
+        Call API
+      </button>
 
-      setState((previous) => ({
-        ...previous,
-        response: data,
-        error: undefined,
-      }));
-    } catch (error) {
-      setState((previous) => ({
-        ...previous,
-        response: undefined,
-        error,
-      }));
-    } finally {
-      setState((previous) => ({ ...previous, isLoading: false }));
-    }
-  };
-
-  const { isLoading, response, error } = state;
-
-  if (!isLoading) {
-    return (
-      <>
-        <h1 className="mt-10 text-4xl font-bold tracking-tight text-white sm:text-6xl">
-          Private Page
-        </h1>
-
-        <button
-          onClick={callApi}
-          className="mt-10 block rounded bg-pink-800/50 px-2 py-1 text-white hover:opacity-70"
-        >
-          Call API
-        </button>
-
-        <div className="mt-20">
-          {response && <div>{JSON.stringify(response)}</div>}
-        </div>
-      </>
-    );
-  }
+      <div className="mt-20"></div>
+    </>
+  );
 }

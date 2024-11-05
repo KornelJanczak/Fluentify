@@ -1,9 +1,11 @@
-// client/src/components/navbar.tsx
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import {
+  RegisterLink,
+  LoginLink,
+  LogoutLink,
+} from "@kinde-oss/kinde-auth-nextjs/components";
 
 const navItems = {
   nextLinks: [
@@ -34,15 +36,6 @@ const navItems = {
 
 export default function Navbar() {
   let pathname = usePathname();
-  const { user, isLoading } = useUser();
-
-  console.log("user", user);
-
-  let authNavItem = navItems.anchorLinks.loginItem;
-
-  if (!isLoading && user) {
-    authNavItem = navItems.anchorLinks.logoutItem;
-  }
 
   return (
     <>
@@ -65,13 +58,9 @@ export default function Navbar() {
                   </Link>
                 );
               })}
-              <a
-                key={authNavItem.href}
-                href={authNavItem.href}
-                className="block rounded hover:opacity-70 text-white bg-pink-800/50 px-2 py-1"
-              >
-                {authNavItem.name}
-              </a>
+              <LoginLink>Sign in</LoginLink>
+              <RegisterLink>Sign up</RegisterLink>
+              <LogoutLink>Logout</LogoutLink>
             </div>
           </div>
         </div>

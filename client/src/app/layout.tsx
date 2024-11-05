@@ -1,11 +1,11 @@
 // client/src/app/layout.tsx
 
-import { Inter } from 'next/font/google';
-import './globals.css';
-import Navbar from '@/components/navbar';
-import { UserProvider } from '@auth0/nextjs-auth0/client';
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/navbar";
+import { AuthProvider } from "@/providers/auth-provider";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -15,12 +15,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <UserProvider>
+        <AuthProvider>
           <Navbar />
           <div className="flex min-h-screen flex-col items-center p-24">
             {children}
           </div>
-        </UserProvider>
+        </AuthProvider>
       </body>
     </html>
   );
