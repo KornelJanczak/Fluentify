@@ -1,31 +1,29 @@
 import "dotenv/config";
-import cors from "cors";
 import cookieParser from "cookie-parser";
 import express, { Application } from "express";
-import flash from "express-flash";
-import morgan from "morgan";
-import {
-  generalErrorHandler,
-  notFoundHandler,
-} from "./middleware/errorMiddleware";
 import routes from "./routes/index";
 import { Express } from "express";
+import { GrantType, setupKinde } from "@kinde-oss/kinde-node-express";
+
+const config = {
+  clientId: process.env.KINDE_CLIENT_ID,
+  issuerBaseUrl: process.env.KINDE_ISSUER_URL,
+  siteUrl: "http://localhost:3000",
+  secret: process.env.KINDE_CLIENT_SECRET,
+  redirectUrl: "http://localhost:3000",
+  scope: "openid profile email",
+  grantType: GrantType.AUTHORIZATION_CODE, //or CLIENT_CREDENTIALS or PKCE
+  unAuthorisedUrl: "http://localhost:3000/unauthorised",
+  postLogoutRedirectUrl: "http://localhost:3000",
+};
 
 export default function createApp(): Application {
   const app: Express = express();
-  const baseUrl = process.env.AUTH0_BASE_URL;
-
-  app.use(morgan("dev"));
-  app.use(cors({ origin: baseUrl }));
   app.use(express.json());
-  app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
-  app.use(flash());
-
   app.use("/api", routes);
 
-  app.use(notFoundHandler);
-  app.use(generalErrorHandler);
+  setupKinde(config, app);
 
   return app;
 }
