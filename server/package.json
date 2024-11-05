@@ -23,6 +23,7 @@
     "pnpm": ">=8.8.0"
   },
   "dependencies": {
+    "@kinde-oss/kinde-node-express": "^1.6.0",
     "cookie-parser": "~1.4.7",
     "cors": "^2.8.5",
     "debug": "~4.3.7",
