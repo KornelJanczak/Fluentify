@@ -16,6 +16,8 @@ router.get(
   (req: Request, res: Response, next: NextFunction) => {
     console.log("token is valid!");
 
+    console.log(req.headers.authorization);
+
     res.status(200).send({ message: "Server Running..." });
   }
 );

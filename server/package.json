@@ -24,15 +24,18 @@
   },
   "dependencies": {
     "@kinde-oss/kinde-node-express": "^1.6.0",
+    "@neondatabase/serverless": "^0.10.3",
     "cookie-parser": "~1.4.7",
     "cors": "^2.8.5",
     "debug": "~4.3.7",
     "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.36.1",
     "express": "^4.21.1",
     "express-async-handler": "^1.2.0",
     "express-flash": "^0.0.2",
     "express-jwt": "^8.4.1",
     "jwks-rsa": "^3.1.0",
+    "latest": "^0.2.0",
     "morgan": "~1.10.0",
     "update": "^0.7.4"
   },
@@ -43,8 +46,10 @@
     "@types/express-flash": "^0.0.5",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.8.7",
+    "drizzle-kit": "^0.28.0",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }
 }
