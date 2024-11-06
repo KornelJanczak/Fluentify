@@ -15,8 +15,8 @@ abstract class ServerError extends Error {
     super();
     this.name = name;
     this.message = message;
-    this.stack = stack;
     this.code = code;
+    this.stack = stack;
 
     Error.captureStackTrace(this, this.constructor);
   }

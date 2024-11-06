@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import ServerError from "../errors/serverError";
 
 interface NotFoundHandler {
   (req: Request, res: Response, next: NextFunction): void;
@@ -11,16 +12,27 @@ export const notFoundHandler: NotFoundHandler = (req, res, next) => {
 };
 
 export const generalErrorHandler = (
-  err: Error,
+  err: Error | ServerError,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const statusCode = res.statusCode == 200 ? 500 : res.statusCode;
 
-  console.log(err.stack);
+  if (err instanceof ServerError) {
+    const errorResponse = {
+      name: err.name,
+      message: err.message,
+      code: err.code,
+      stack: process.env.NODE_ENV === "production" ? null : err.stack,
+    };
 
-  res.status(statusCode).send({
+    const jsonErrorStucture = JSON.stringify(errorResponse, null, 2);
+
+    return res.status(err.code).send(errorResponse);
+  }
+
+  return res.status(statusCode).send({
     message: err.message || "Internal Server Error",
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
   });
