@@ -1,4 +1,3 @@
-import { GrantType, setupKinde } from "@kinde-oss/kinde-node-express";
 import { Application } from "express";
 import createApp from "./app";
 import dotenv from "dotenv";
