@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import AIConversationService from "./service";
 import { StreamData } from "ai";
+import { openai } from "@ai-sdk/openai";
+import { streamText } from "ai";
+import { customAi } from "../../../../common/AI";
+import { google } from "@ai-sdk/google";
 
 export const startConversationWithAI = async (
   req: Request,
@@ -10,13 +14,12 @@ export const startConversationWithAI = async (
   try {
     const userInput = req.body.userInput;
     const data = new StreamData();
-    data.append("initialized call");
 
     const AIConversation = new AIConversationService(userInput, data);
     const conversationResult = await AIConversation.startConversation();
 
+    // conversationResult.pipeTextStreamToResponse(res);
     conversationResult.pipeDataStreamToResponse(res, { data });
-    res.status(200).json({ message: "Conversations retrieved successfully" });
   } catch (error) {
     next(error);
   }

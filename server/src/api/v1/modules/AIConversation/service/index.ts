@@ -4,10 +4,13 @@ import {
   StreamTextResult,
   CoreTool,
   StreamData,
+  tool,
 } from "ai";
 import { openai } from "@ai-sdk/openai";
 import dotenv from "dotenv";
 import * as readline from "node:readline/promises";
+import { customAi } from "../../../../../common/AI";
+import { google } from "@ai-sdk/google";
 dotenv.config();
 
 type AIConversationResult = Promise<
@@ -24,9 +27,9 @@ const terminal = readline.createInterface({
 });
 
 class AIConversationService implements AIConversationAbstract {
-  private messages: CoreMessage[] = [];
   private userInput: string = "";
   private data: StreamData;
+  private messages: CoreMessage[] = [];
 
   constructor(userInput: string, streamData: StreamData) {
     this.userInput = userInput;
@@ -34,35 +37,22 @@ class AIConversationService implements AIConversationAbstract {
   }
 
   async startConversation(): AIConversationResult {
-    while (true) {
-      const userInput = await terminal.question(`You: ${this.userInput}`);
-
-      this.messages.push({ role: "user", content: userInput });
-
-      const result = await this.startStreamingText();
-
-      let fullResponse = "";
-      process.stdout.write("\nAssistant: ");
-      for await (const delta of result.textStream) {
-        fullResponse += delta;
-        process.stdout.write(delta);
-      }
-      process.stdout.write("\n\n");
-
-      this.messages.push({ role: "assistant", content: fullResponse });
-
-      return result;
-    }
+    const result = await this.startStreamingText();
+    return result;
   }
 
   private async startStreamingText(): AIConversationResult {
+    this.messages.push({ role: "user", content: this.userInput });
+
+    const streamingData = this.data;
+
     const result = await streamText({
-      model: openai("gpt-3.5-turbo"),
-      prompt: "You are the English teacher.",
-      messages: this.messages,
+      model: google("gemini-1.5-pro"),
+      system: "You are a english teacher",
+      prompt: this.userInput,
       onFinish() {
-        this.data.append("call completed");
-        this.data.close();
+        streamingData.append({ id: "1" });
+        streamingData.close();
       },
     });
 
