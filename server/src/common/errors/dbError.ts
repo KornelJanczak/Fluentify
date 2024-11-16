@@ -1,14 +1,12 @@
 import ServerError from "./serverError";
 import { ServerErrorProps } from "./serverError";
 
-class AuthenticationError extends ServerError {
+export default class DatabaseError extends ServerError {
   constructor(props: Partial<ServerErrorProps> = {}) {
     super({
-      name: "AuthenticationError",
-      code: 401,
-      ...props
+      name: "DatabaseError",
+      code: 500,
+      ...props,
     });
   }
 }
-
-export default AuthenticationError;

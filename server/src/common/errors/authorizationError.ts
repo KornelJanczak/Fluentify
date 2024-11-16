@@ -1,7 +1,7 @@
 import ServerError from "./serverError";
 import { ServerErrorProps } from "./serverError";
 
-class AuthenticationError extends ServerError {
+class AuthorizationError extends ServerError {
   constructor({ code = 403 }: ServerErrorProps) {
     super({
       name: "AuthenticationError",
@@ -10,4 +10,4 @@ class AuthenticationError extends ServerError {
   }
 }
 
-export default AuthenticationError;
+export default AuthorizationError;
