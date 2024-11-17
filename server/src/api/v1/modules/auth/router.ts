@@ -1,5 +1,7 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router } from "express";
 import passport from "passport";
+import { authStatusController, logOutController } from "./controller";
+import authMiddleware from "../../../../common/middleware/authMiddleware";
 
 const router = Router();
 
@@ -15,26 +17,18 @@ router.get(
   })
 );
 
-router.get("/auth/callback/google", passport.authenticate("google"));
-
-router.get("/auth/status", (req: Request, res: Response) => {
-  console.log(req.user, "STATUS USER");
-  req.user;
-
-  req.user ? res.send(req.user) : res.sendStatus(401);
-});
-
 router.get(
-  "/auth/logout",
-  (req: Request, res: Response, next: NextFunction) => {
-    req.logout((err) => {
-      console.log("chuj");
-
-      if (err) return next(err);
-
-      res.send(200);
-    });
+  "/auth/callback/google",
+  passport.authenticate("google"),
+  (req, res) => {
+    // console.log(req.session);
+    // console.log(req.user);
+    res.redirect("http://localhost:3000");
   }
 );
+
+router.get("/auth/status", authStatusController);
+
+router.get("/auth/logout", authMiddleware, logOutController);
 
 export default router;
