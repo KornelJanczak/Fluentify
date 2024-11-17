@@ -1,5 +1,5 @@
 {
-  "id": "00768f38-1c21-4f28-af40-f9fe25e03233",
+  "id": "4885b2bb-d5d7-4db6-8f81-3f3fafa22144",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,20 +10,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "chats_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "default": "gen_random_uuid()"
         },
         "usedTokens": {
           "name": "usedTokens",
@@ -45,9 +35,9 @@
         },
         "userId": {
           "name": "userId",
-          "type": "integer",
+          "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -78,20 +68,16 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "messages_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "default": "gen_random_uuid()"
+        },
+        "chatId": {
+          "name": "chatId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         },
         "content": {
           "name": "content",
@@ -105,11 +91,11 @@
           "primaryKey": false,
           "notNull": true
         },
-        "chatId": {
-          "name": "chatId",
-          "type": "integer",
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -140,20 +126,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "users_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "notNull": true
         },
         "email": {
           "name": "email",
@@ -163,45 +138,31 @@
         },
         "imagePaths": {
           "name": "imagePaths",
-          "type": "varchar(50)",
+          "type": "varchar(510)",
           "primaryKey": false,
           "notNull": true
         },
         "role": {
           "name": "role",
-          "type": "varchar(50)",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "something": {
+          "name": "something",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
         "subscriptionExpiryDate": {
           "name": "subscriptionExpiryDate",
-          "type": "varchar(50)",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
-        },
-        "chats": {
-          "name": "chats",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "users_chats_chats_id_fk": {
-          "name": "users_chats_chats_id_fk",
-          "tableFrom": "users",
-          "tableTo": "chats",
-          "columnsFrom": [
-            "chats"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "users_email_unique": {
