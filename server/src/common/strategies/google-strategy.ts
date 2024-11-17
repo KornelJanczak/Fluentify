@@ -1,14 +1,14 @@
-import passport from "passport";
+import passport, { use } from "passport";
 import { Strategy, type StrategyOptions } from "passport-google-oauth20";
 import { User } from "../db/schema";
 import userRepository from "../repositories/userRepository";
-import AuthenticationError from "../errors/authenticationError";
 import logger from "../config/logger";
+import AuthenticationError from "../errors/authenticationError";
 
 const strategyOptions: StrategyOptions = {
   clientID: process.env.GOOGLE_CLIENT_ID!,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-  callbackURL: "/api/v1/auth/callback/google",
+  callbackURL: process.env.GOOGLE_CALLBACK_URL!,
   passReqToCallback: false,
   scope: [
     "profile",
@@ -18,55 +18,63 @@ const strategyOptions: StrategyOptions = {
   ],
 };
 
-passport.serializeUser((user, done) => {
-  done(null, user);
+passport.serializeUser(({ id }: User, done) => {
+  logger.info(`User has been serialized: ${id}`);
+  return done(null, id);
 });
 
-passport.deserializeUser(async (user: User, done) => {
+passport.deserializeUser(async (id: string, done) => {
   try {
-    const findedUser = await userRepository.getById(user.id);
+    const currentUser = await userRepository.getById(id);
 
-    if (!findedUser) done(null, false);
+    if (!currentUser) done(null, false);
 
-    done(null, findedUser);
+    logger.info(`User has been deserialized: ${currentUser.id}`);
+    done(null, currentUser);
   } catch (err) {
-    done(err, null);
+    done(
+      new AuthenticationError({
+        message: err.message,
+        stack: err.stack,
+      }),
+      null
+    );
   }
 });
 
 export default passport.use(
   new Strategy(strategyOptions, async (_, __, profile, done) => {
     const account = profile._json;
-    let user;
-    console.log(account);
-
-    console.log("image path", account.picture);
+    let user: User;
 
     try {
-      // const existingUser = await userRepository.getByEmail(account.email);
+      const existingUser: User = await userRepository.getByEmail(account.email);
 
-      // if (!existingUser) {
-      //   const newUser: Partial<User> = {
-      //     id: Number(account.sub),
-      //     email: account.email,
-      //     imagePaths: account.picture,
-      //   };
+      if (existingUser) {
+        user = existingUser;
+      } else {
+        const newUser: User = {
+          id: account.sub,
+          email: account.email,
+          imagePaths: account.picture,
+          role: "user",
+          subscriptionExpiryDate: "2024-11-17",
+        };
 
-      const createdUser = await userRepository.create(account.email, "");
+        user = await userRepository.create(newUser);
+      }
 
-      console.log(createdUser);
-
-      //   await userRepository.getById(existingUser);
-
-      //   user = newUser;
-      // } else {
-      //   user = existingUser;
-      // }
-      console.log("User", user);
-
+      logger.info(`User ${user.email} has been authenticated`);
       done(null, user);
     } catch (err) {
-      done(err);
+      done(
+        new AuthenticationError({
+          message: err.message,
+          stack: err.stack,
+        })
+      );
     }
   })
 );
+
+// http://localhost:5000/api/v1/auth/google
