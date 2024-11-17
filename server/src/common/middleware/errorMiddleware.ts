@@ -10,8 +10,15 @@ export const generalErrorHandler = (
 ) => {
   const statusCode = res.statusCode == 200 ? 500 : res.statusCode;
 
+  let errorResponse = {
+    name: "Internal Server Error",
+    message: err.message || "Internal Server Error",
+    stack: process.env.NODE_ENV === "production" ? null : err.stack,
+    code: statusCode,
+  };
+
   if (err instanceof ServerError) {
-    const errorResponse = {
+    errorResponse = {
       name: err.name,
       message: err.message,
       code: err.code,
@@ -19,12 +26,7 @@ export const generalErrorHandler = (
     };
 
     logger.error(errorResponse);
-
-    res.status(err.code).send(errorResponse);
   }
 
-  res.status(statusCode).send({
-    message: err.message || "Internal Server Error",
-    stack: process.env.NODE_ENV === "production" ? null : err.stack,
-  });
+  res.status(errorResponse.code).send(errorResponse);
 };
