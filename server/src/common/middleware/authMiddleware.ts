@@ -1,7 +1,13 @@
-import { jwtVerify } from "@kinde-oss/kinde-node-express";
+import { NextFunction, Request, Response } from "express";
+import AuthenticationError from "../errors/authenticationError";
 
-const jwtVerifer = jwtVerify(process.env.KINDE_ISSUER_URL || "", {
-  audience: "",
-});
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  console.log("auth", req.isAuthenticated());
 
-export default jwtVerifer;
+  if (!req.isAuthenticated()) {
+    next(new AuthenticationError({ message: "User is not authenticated" }));
+  }
+  next();
+};
+
+export default authMiddleware;
