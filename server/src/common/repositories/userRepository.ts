@@ -2,21 +2,14 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { type User, users } from "../db/schema";
 import DatabaseError from "../errors/dbError";
-import logger from "../config/logger";
 
 class UserRepository {
-  async create(email: string, imagePaths: string) {
-    const newUser = {
-      email,
-      imagePaths,
-      role: "user",
-      subscriptionExpiryDate: "",
-    };
-
+  async create(newUser: User): Promise<User> {
     try {
-      const createdUser = await db.insert(users).values(newUser).returning();
-
-      logger.info(createdUser);
+      const [createdUser]: User[] = await db
+        .insert(users)
+        .values(newUser)
+        .returning();
 
       return createdUser;
     } catch (err) {
@@ -27,9 +20,14 @@ class UserRepository {
     }
   }
 
-  async getByEmail(email: string) {
+  async getByEmail(email: string): Promise<User> {
     try {
-      return await db.select().from(users).where(eq(users.email, email))[0];
+      const [user]: User[] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email));
+
+      return user;
     } catch (err) {
       throw new DatabaseError({
         message: err.message,
@@ -38,9 +36,14 @@ class UserRepository {
     }
   }
 
-  async getById(id: number) {
+  async getById(id: string): Promise<User> {
     try {
-      return await db.select().from(users).where(eq(users.id, id))[0];
+      const [user]: User[] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id));
+
+      return user;
     } catch (err) {
       throw new DatabaseError({
         message: err.message,
