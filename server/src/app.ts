@@ -9,12 +9,20 @@ import config from "./common/config/kindeConfig";
 import passport from "passport";
 import session from "express-session";
 import "./common/strategies/google-strategy";
+import cookieSession from "cookie-session";
 
 const SESSION_EXPIRY_DATE = 60 * 60000;
 
 export default function createApp(): Application {
   const app: Express = express();
   app.use(express.json());
+  app.use(
+    cookieSession({
+      name: "fluentify-server-session",
+      keys: ["mokhtarah"],
+      maxAge: 24 * 60 * 60 * 100,
+    })
+  );
   app.use(cookieParser());
   app.use(
     session({
@@ -36,5 +44,8 @@ export default function createApp(): Application {
   // setupKinde(config, app);
 
   app.use(generalErrorHandler);
+
   return app;
 }
+
+// http://localhost:5000/api/v1/auth/google
