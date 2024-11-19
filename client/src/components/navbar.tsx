@@ -1,11 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  RegisterLink,
-  LoginLink,
-  LogoutLink,
-} from "@kinde-oss/kinde-auth-nextjs/components";
+import { signIn } from "next-auth/react";
 
 const navItems = {
   nextLinks: [
@@ -37,6 +33,10 @@ const navItems = {
 export default function Navbar() {
   let pathname = usePathname();
 
+  const singInHandler = () => {
+    signIn("credentials", { redirect: false });
+  };
+
   return (
     <>
       <nav className="bg-gray-900">
@@ -58,9 +58,14 @@ export default function Navbar() {
                   </Link>
                 );
               })}
-              <LoginLink>Sign in</LoginLink>
-              <RegisterLink>Sign up</RegisterLink>
-              <LogoutLink>Logout</LogoutLink>
+              <button
+                onClick={() => {
+                  signIn("credentials");
+                }}
+              >
+                Login
+              </button>
+              <button>Logout</button>
             </div>
           </div>
         </div>
