@@ -1,18 +1,4 @@
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-
 export default async function PrivatePage() {
-  const { getAccessTokenRaw } = getKindeServerSession();
-  const accessToken = await getAccessTokenRaw();
-  const response = await fetch("http://localhost:5000/api/protected", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  const data = await response.json();
-
-  console.log(data);
-
   return (
     <>
       <h1 className="mt-10 text-4xl font-bold tracking-tight text-white sm:text-6xl">
