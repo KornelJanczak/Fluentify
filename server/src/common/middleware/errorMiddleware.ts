@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import ServerError from "../errors/serverError";
 import logger from "../config/logger";
+import winston from "winston";
+
+const errorLogger = winston.loggers.get("jsonLogger");
 
 export const generalErrorHandler = (
   err: Error | ServerError,
@@ -14,7 +17,8 @@ export const generalErrorHandler = (
     name: "Internal Server Error",
     message: err.message || "Internal Server Error",
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
-    code: statusCode,
+    code: res.statusCode,
+    service: undefined,
   };
 
   if (err instanceof ServerError) {
@@ -22,11 +26,16 @@ export const generalErrorHandler = (
       name: err.name,
       message: err.message,
       code: err.code,
+      service: err.service,
       stack: process.env.NODE_ENV === "production" ? null : err.stack,
     };
-
-    logger.error(errorResponse);
   }
+
+  logger.error(errorResponse);
+  console.log(JSON.stringify(errorResponse.stack));
+  
+
+  errorLogger.info(errorResponse);
 
   res.status(errorResponse.code).send(errorResponse);
 };
