@@ -1,6 +1,6 @@
 import { Router } from "express";
-import AIConversationRouter from "../modules/AIConversation/router";
-import authRouter from "../modules/auth/router";
+import AIConversationRouter from "./AIConversation/AIConversation.router";
+import authRouter from "./auth/auth.router";
 
 const router = Router();
 
