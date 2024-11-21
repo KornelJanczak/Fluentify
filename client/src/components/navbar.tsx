@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn } from "@/common/lib/auth";
 
 const navItems = {
   nextLinks: [
@@ -34,7 +34,7 @@ export default function Navbar() {
   let pathname = usePathname();
 
   const singInHandler = () => {
-    signIn("credentials", { redirect: false });
+    window.open(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`);
   };
 
   return (
@@ -58,13 +58,7 @@ export default function Navbar() {
                   </Link>
                 );
               })}
-              <button
-                onClick={() => {
-                  signIn("credentials");
-                }}
-              >
-                Login
-              </button>
+              <button onClick={singInHandler}>Login</button>
               <button>Logout</button>
             </div>
           </div>

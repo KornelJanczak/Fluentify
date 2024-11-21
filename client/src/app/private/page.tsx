@@ -1,4 +1,14 @@
+import { getSessionToken } from "@/common/lib/auth";
+
 export default async function PrivatePage() {
+  const sessionToken = await getSessionToken();
+
+  console.log(sessionToken);
+
+  const response = await fetch("http://localhost:5000/api/v1/auth/status");
+
+  console.log(response);
+
   return (
     <>
       <h1 className="mt-10 text-4xl font-bold tracking-tight text-white sm:text-6xl">
