@@ -19,7 +19,7 @@ const strategyOptions: StrategyOptions = {
 };
 
 passport.serializeUser(({ id }: User, done) => {
-  logger.info(`User has been serialized: ${id}`);
+  logger.info(`SerializeFC: User has been serialized: ${id}`);
   return done(null, id);
 });
 
@@ -29,7 +29,7 @@ passport.deserializeUser(async (id: string, done) => {
 
     if (!currentUser) done(null, false);
 
-    logger.info(`User has been deserialized: ${currentUser.id}`);
+    logger.info(`DeserializeFC: User has been deserialized: ${currentUser.email}`);
     done(null, currentUser);
   } catch (err) {
     done(
@@ -64,7 +64,7 @@ export default passport.use(
         user = await userRepository.create(newUser);
       }
 
-      logger.info(`User ${user.email} has been authenticated`);
+      logger.info(`GoogleStrategy: User ${user.email} has been authenticated`);
       done(null, user);
     } catch (err) {
       done(
