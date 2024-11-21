@@ -3,14 +3,13 @@ import cookieParser from "cookie-parser";
 import express, { Application } from "express";
 import routes from "./router/index";
 import { Express } from "express";
-import { setupKinde } from "@kinde-oss/kinde-node-express";
 import { generalErrorHandler } from "./common/middleware/errorMiddleware";
-import config from "./common/config/kindeConfig";
 import passport from "passport";
 import session from "express-session";
 import "./common/strategies/google-strategy";
 import cookieSession from "cookie-session";
 
+const SESSION_MAX_AGE = 24 * 60 * 60 * 1000;
 const SESSION_EXPIRY_DATE = 60 * 60000;
 
 export default function createApp(): Application {
@@ -18,9 +17,9 @@ export default function createApp(): Application {
   app.use(express.json());
   app.use(
     cookieSession({
-      name: "fluentify-server-session",
+      name: process.env.COOKIE_SESSION_NAME,
       keys: ["mokhtarah"],
-      maxAge: 24 * 60 * 60 * 100,
+      maxAge: SESSION_MAX_AGE,
     })
   );
   app.use(cookieParser());
@@ -41,11 +40,7 @@ export default function createApp(): Application {
 
   app.use("/api", routes);
 
-  // setupKinde(config, app);
-
   app.use(generalErrorHandler);
 
   return app;
 }
-
-// http://localhost:5000/api/v1/auth/google
