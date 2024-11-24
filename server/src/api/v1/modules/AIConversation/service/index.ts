@@ -11,6 +11,7 @@ import dotenv from "dotenv";
 import * as readline from "node:readline/promises";
 import { customAi } from "../../../../../common/AI";
 import { google } from "@ai-sdk/google";
+import aiCharactersInitialPrompts from "../../../../../common/AI/prompts";
 dotenv.config();
 
 type AIConversationResult = Promise<
@@ -46,9 +47,11 @@ class AIConversationService implements AIConversationAbstract {
 
     const streamingData = this.data;
 
+    const systemPrompt = aiCharactersInitialPrompts.johnFromAmerica("my daily routine")
+
     const result = await streamText({
       model: google("gemini-1.5-pro"),
-      system: "You are a english teacher",
+      system: systemPrompt,
       prompt: this.userInput,
       onFinish() {
         streamingData.append({ id: "1" });
