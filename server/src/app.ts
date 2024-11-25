@@ -1,20 +1,26 @@
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import express, { Application } from "express";
-import routes from "./router/index";
+import routes from "./app.router";
 import { Express } from "express";
 import { generalErrorHandler } from "./common/middleware/errorMiddleware";
 import passport from "passport";
-import session from "express-session";
+import { SESSION_MAX_AGE } from "./common/config/constants";
 import "./common/strategies/google-strategy";
+import cors from "cors";
 import cookieSession from "cookie-session";
-
-const SESSION_MAX_AGE = 24 * 60 * 60 * 1000;
-const SESSION_EXPIRY_DATE = 60 * 60000;
 
 export default function createApp(): Application {
   const app: Express = express();
+  app.use(
+    cors({
+      credentials: true,
+      origin: process.env.CLIENT_URL,
+    })
+  );
   app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.static("public"));
   app.use(
     cookieSession({
       name: process.env.COOKIE_SESSION_NAME,
@@ -23,17 +29,6 @@ export default function createApp(): Application {
     })
   );
   app.use(cookieParser());
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET || "",
-      saveUninitialized: true,
-      resave: false,
-      cookie: {
-        maxAge: SESSION_EXPIRY_DATE,
-        secure: true,
-      },
-    })
-  );
 
   app.use(passport.initialize());
   app.use(passport.session());
