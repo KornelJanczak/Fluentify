@@ -29,6 +29,7 @@
     "@kinde-oss/kinde-auth-nextjs": "^2.4.5",
     "concurrently": "^9.1.0",
     "crypto": "^1.0.1",
+    "jsonwebtoken": "^9.0.2",
     "next": "15.0.2",
     "next-auth": "^4.24.10",
     "react": "^18.3.1",
@@ -36,6 +37,7 @@
     "updated": "^2.1.2"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.8.7",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
