@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import AuthenticationError from "../../../../common/errors/authenticationError";
-import logger from "../../../../common/config/logger";
+
 export const logOutController = (
   req: Request,
   _: Response,
@@ -12,6 +12,7 @@ export const logOutController = (
         new AuthenticationError({
           message: err.message,
           stack: err.stack,
+          service: "logOutController",
         })
       );
   });
@@ -21,13 +22,18 @@ export const authStatusController = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Response => {
   const currentUser = req.user;
 
-  if (!currentUser)
-    next(new AuthenticationError({ message: "User is not authenticated" }));
-
-  console.log("User: ", currentUser);
-
-  res.send(req.user).sendStatus(200);
+  if (!currentUser) {
+    console.log("AuthStatusContoller - User: ", currentUser);
+    next(
+      new AuthenticationError({
+        message: "User is not authenticated",
+        service: "authStatusController",
+      })
+    );
+  } else {
+    return res.status(200).json(currentUser);
+  }
 };
