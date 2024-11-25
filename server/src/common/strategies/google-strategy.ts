@@ -19,7 +19,10 @@ const strategyOptions: StrategyOptions = {
 };
 
 passport.serializeUser(({ id }: User, done) => {
-  logger.info(`SerializeFC: User has been serialized: ${id}`);
+  logger.info({
+    message: `User has been serialized: ${id}`,
+    service: "serializeUser",
+  });
   return done(null, id);
 });
 
@@ -27,15 +30,20 @@ passport.deserializeUser(async (id: string, done) => {
   try {
     const currentUser = await userRepository.getById(id);
 
-    if (!currentUser) done(null, false);
+    if (!currentUser) return done(null, false);
 
-    logger.info(`DeserializeFC: User has been deserialized: ${currentUser.email}`);
-    done(null, currentUser);
+    logger.info({
+      message: `User has been deserialized: ${currentUser.email}`,
+      service: "deserializeUser",
+    });
+
+    return done(null, currentUser);
   } catch (err) {
-    done(
+    return done(
       new AuthenticationError({
         message: err.message,
         stack: err.stack,
+        service: "deserializeUser",
       }),
       null
     );
@@ -64,17 +72,19 @@ export default passport.use(
         user = await userRepository.create(newUser);
       }
 
-      logger.info(`GoogleStrategy: User ${user.email} has been authenticated`);
-      done(null, user);
+      logger.info({
+        message: `User ${user.email} has been authenticated`,
+        service: "googleStrategy",
+      });
+      return done(null, user);
     } catch (err) {
-      done(
+      return done(
         new AuthenticationError({
           message: err.message,
           stack: err.stack,
+          service: "googleStrategy",
         })
       );
     }
   })
 );
-
-// http://localhost:5000/api/v1/auth/google
