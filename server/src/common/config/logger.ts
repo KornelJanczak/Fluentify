@@ -1,4 +1,4 @@
-import { createLogger, format, loggers, transports } from "winston";
+import { createLogger, format, transports } from "winston";
 
 const levels = {
   fatal: 0,
@@ -17,35 +17,19 @@ const logger = createLogger({
     format.timestamp({
       format: "YYYY-MM-DD HH:mm:ss",
     }),
-    format.printf(({ timestamp, level, message, stack }) => {
-      return `${timestamp} ${level}: ${stack || message}`;
-    })
-  ),
-  transports: [new transports.Console()],
-});
-
-loggers.add("jsonLogger", {
-  levels,
-  level: process.env.LOG_LEVEL || "info",
-  format: format.combine(
-    format.colorize(),
     format.errors({ stack: true }),
-    format.timestamp(),
-    format.json()
-  ),
-  transports: [new transports.Console()],
-});
 
-loggers.add("timestampLogger", {
-  levels,
-  level: process.env.LOG_LEVEL || "info",
-  format: format.combine(
-    format.colorize(),
-    format.timestamp({
-      format: "YYYY-MM-DD HH:mm:ss",
-    }),
-    format.printf(({ timestamp, level, message, code, stack }) => {
-      return `${timestamp} ${level} ${code}: ${stack || message}`;
+    format.printf(({ timestamp, level, message, code, service, stack }) => {
+      const ifErrorCodeExist = code ? `(${code})` : "";
+
+      const loggMessage = `${timestamp} ${level}${ifErrorCodeExist} [${
+        service || "server"
+      }]: ${message}`;
+      if (stack) {
+        return `${loggMessage}\nStack: ${stack}`;
+      }
+
+      return loggMessage;
     })
   ),
   transports: [new transports.Console()],
