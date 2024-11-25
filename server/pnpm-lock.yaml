@@ -765,8 +765,8 @@ packages:
   '@types/express-serve-static-core@4.19.6':
     resolution: {integrity: sha512-N4LZ2xG7DatVqhCZzOGb1Yi5lMbXSZcmdLDe9EzSndPV2HpWYWzRbaerl2n27irrm94EPpprqa8KpskPT085+A==}
 
-  '@types/express-serve-static-core@5.0.1':
-    resolution: {integrity: sha512-CRICJIl0N5cXDONAdlTv5ShATZ4HEwk6kDDIW2/w9qOWKg+NU/5F8wYRWCrONad0/UKkloNSmmyN/wX4rtpbVA==}
+  '@types/express-serve-static-core@5.0.2':
+    resolution: {integrity: sha512-vluaspfvWEtE4vcSDlKRNer52DvOGrB2xv6diXy6UKyKW0lqZiWHGNApSyxOv+8DE5Z27IzVvE7hNkxg7EXIcg==}
 
   '@types/express-session@1.18.0':
     resolution: {integrity: sha512-27JdDRgor6PoYlURY+Y5kCakqp5ulC0kmf7y+QwaY+hv9jEFuQOThgkjyA53RP3jmKuBsH5GR6qEfFmvb8mwOA==}
@@ -4219,11 +4219,11 @@ snapshots:
 
   '@types/cookie-parser@1.4.7':
     dependencies:
-      '@types/express': 5.0.0
+      '@types/express': 4.17.21
 
   '@types/cookie-session@2.0.49':
     dependencies:
-      '@types/express': 5.0.0
+      '@types/express': 4.17.21
       '@types/keygrip': 1.0.6
 
   '@types/cors@2.8.17':
@@ -4236,7 +4236,7 @@ snapshots:
 
   '@types/express-flash@0.0.5':
     dependencies:
-      '@types/express': 5.0.0
+      '@types/express': 4.17.21
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
@@ -4245,7 +4245,7 @@ snapshots:
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
 
-  '@types/express-serve-static-core@5.0.1':
+  '@types/express-serve-static-core@5.0.2':
     dependencies:
       '@types/node': 22.8.7
       '@types/qs': 6.9.16
@@ -4254,7 +4254,7 @@ snapshots:
 
   '@types/express-session@1.18.0':
     dependencies:
-      '@types/express': 5.0.0
+      '@types/express': 4.17.21
 
   '@types/express@4.17.21':
     dependencies:
@@ -4266,7 +4266,7 @@ snapshots:
   '@types/express@5.0.0':
     dependencies:
       '@types/body-parser': 1.19.5
-      '@types/express-serve-static-core': 5.0.1
+      '@types/express-serve-static-core': 5.0.2
       '@types/qs': 6.9.16
       '@types/serve-static': 1.15.7
 
@@ -4296,19 +4296,19 @@ snapshots:
 
   '@types/passport-google-oauth20@2.0.16':
     dependencies:
-      '@types/express': 5.0.0
+      '@types/express': 4.17.21
       '@types/passport': 1.0.17
       '@types/passport-oauth2': 1.4.17
 
   '@types/passport-oauth2@1.4.17':
     dependencies:
-      '@types/express': 5.0.0
+      '@types/express': 4.17.21
       '@types/oauth': 0.9.6
       '@types/passport': 1.0.17
 
   '@types/passport@1.0.17':
     dependencies:
-      '@types/express': 5.0.0
+      '@types/express': 4.17.21
 
   '@types/pg@8.11.6':
     dependencies:
