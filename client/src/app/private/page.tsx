@@ -1,11 +1,13 @@
-import { getSessionToken } from "@/common/lib/auth";
+import { getSessionCookie } from "@/common/lib/auth";
 
 export default async function PrivatePage() {
-  const sessionToken = await getSessionToken();
+  const sessionCookie = await getSessionCookie();
 
-  console.log(sessionToken);
-
-  const response = await fetch("http://localhost:5000/api/v1/auth/status");
+  const response = await fetch("http://localhost:5000/api/v1/auth/status", {
+    headers: {
+      Cookie: sessionCookie,
+    },
+  });
 
   console.log(response);
 
