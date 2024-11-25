@@ -24,7 +24,7 @@ router.get(
   })
 );
 
-router.get("/auth/status", authMiddleware, authStatusController);
+router.get("/auth/status", authStatusController);
 
 router.get("/auth/logout", authMiddleware, logOutController);
 
