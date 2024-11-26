@@ -1,15 +1,8 @@
-import { getSessionCookie } from "@/common/lib/auth";
+import { getSession, getSessionCookie } from "@/common/lib/auth";
+import AiChat from "@/components/ai-chat/index";
 
 export default async function PrivatePage() {
-  const sessionCookie = await getSessionCookie();
-
-  const response = await fetch("http://localhost:5000/api/v1/auth/status", {
-    headers: {
-      Cookie: sessionCookie,
-    },
-  });
-
-  console.log(response);
+  const session = await getSession();
 
   return (
     <>
@@ -21,7 +14,9 @@ export default async function PrivatePage() {
         Call API
       </button>
 
-      <div className="mt-20"></div>
+      <div className="mt-20">
+        <AiChat user={session} />
+      </div>
     </>
   );
 }
