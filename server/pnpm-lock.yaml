@@ -22,7 +22,7 @@ importers:
         version: 0.10.3
       ai:
         specifier: ^3.4.33
-        version: 3.4.33(react@18.3.1)(sswr@2.1.0(svelte@5.1.12))(svelte@5.1.12)(vue@3.5.12(typescript@5.6.3))(zod@3.23.8)
+        version: 3.4.33(react@18.3.1)(sswr@2.1.0(svelte@5.1.12))(svelte@5.1.12)(vue@3.5.12(typescript@5.1.6))(zod@3.23.8)
       cookie-parser:
         specifier: ~1.4.7
         version: 1.4.7
@@ -97,8 +97,8 @@ importers:
         specifier: ^2.8.17
         version: 2.8.17
       '@types/express':
-        specifier: ^5.0.0
-        version: 5.0.0
+        specifier: ^4.17.21
+        version: 4.17.21
       '@types/express-flash':
         specifier: ^0.0.5
         version: 0.0.5
@@ -112,8 +112,8 @@ importers:
         specifier: ^1.9.9
         version: 1.9.9
       '@types/node':
-        specifier: ^22.8.7
-        version: 22.8.7
+        specifier: ^22.7.5
+        version: 22.7.5
       '@types/passport':
         specifier: ^1.0.17
         version: 1.0.17
@@ -128,13 +128,13 @@ importers:
         version: 3.1.7
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.8.7)(typescript@5.6.3)
+        version: 10.9.2(@types/node@22.7.5)(typescript@5.1.6)
       tsx:
         specifier: ^4.19.2
         version: 4.19.2
       typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
+        specifier: ^5.1.6
+        version: 5.1.6
 
 packages:
 
@@ -794,6 +794,9 @@ packages:
 
   '@types/morgan@1.9.9':
     resolution: {integrity: sha512-iRYSDKVaC6FkGSpEVVIvrRGw0DfJMiQzIn3qr2G5B3C//AWkulhXgaBd7tS9/J79GWSYMTHGs7PfI5b3Y8m+RQ==}
+
+  '@types/node@22.7.5':
+    resolution: {integrity: sha512-jML7s2NAzMWc//QSJ1a3prpk78cOPchGvXJsC3C6R6PSMoooztvRVQEz89gmBTBY1SPMaqo5teB4uNHPdetShQ==}
 
   '@types/node@22.8.7':
     resolution: {integrity: sha512-LidcG+2UeYIWcMuMUpBKOnryBWG/rnmOHQR5apjn8myTQcx3rinFRn7DcIFhMnS0PPFSC6OafdIKEad0lj6U0Q==}
@@ -3641,8 +3644,8 @@ packages:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
     engines: {node: '>= 0.6'}
 
-  typescript@5.6.3:
-    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
+  typescript@5.1.6:
+    resolution: {integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -3872,13 +3875,13 @@ snapshots:
     optionalDependencies:
       zod: 3.23.8
 
-  '@ai-sdk/vue@0.0.59(vue@3.5.12(typescript@5.6.3))(zod@3.23.8)':
+  '@ai-sdk/vue@0.0.59(vue@3.5.12(typescript@5.1.6))(zod@3.23.8)':
     dependencies:
       '@ai-sdk/provider-utils': 1.0.22(zod@3.23.8)
       '@ai-sdk/ui-utils': 0.0.50(zod@3.23.8)
-      swrv: 1.0.4(vue@3.5.12(typescript@5.6.3))
+      swrv: 1.0.4(vue@3.5.12(typescript@5.1.6))
     optionalDependencies:
-      vue: 3.5.12(typescript@5.6.3)
+      vue: 3.5.12(typescript@5.1.6)
     transitivePeerDependencies:
       - zod
 
@@ -4219,11 +4222,11 @@ snapshots:
 
   '@types/cookie-parser@1.4.7':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.0
 
   '@types/cookie-session@2.0.49':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.0
       '@types/keygrip': 1.0.6
 
   '@types/cors@2.8.17':
@@ -4236,7 +4239,7 @@ snapshots:
 
   '@types/express-flash@0.0.5':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.0
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
@@ -4254,7 +4257,7 @@ snapshots:
 
   '@types/express-session@1.18.0':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.0
 
   '@types/express@4.17.21':
     dependencies:
@@ -4286,6 +4289,10 @@ snapshots:
     dependencies:
       '@types/node': 22.8.7
 
+  '@types/node@22.7.5':
+    dependencies:
+      undici-types: 6.19.8
+
   '@types/node@22.8.7':
     dependencies:
       undici-types: 6.19.8
@@ -4296,19 +4303,19 @@ snapshots:
 
   '@types/passport-google-oauth20@2.0.16':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.0
       '@types/passport': 1.0.17
       '@types/passport-oauth2': 1.4.17
 
   '@types/passport-oauth2@1.4.17':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.0
       '@types/oauth': 0.9.6
       '@types/passport': 1.0.17
 
   '@types/passport@1.0.17':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.0
 
   '@types/pg@8.11.6':
     dependencies:
@@ -4379,11 +4386,11 @@ snapshots:
       '@vue/shared': 3.5.12
       csstype: 3.1.3
 
-  '@vue/server-renderer@3.5.12(vue@3.5.12(typescript@5.6.3))':
+  '@vue/server-renderer@3.5.12(vue@3.5.12(typescript@5.1.6))':
     dependencies:
       '@vue/compiler-ssr': 3.5.12
       '@vue/shared': 3.5.12
-      vue: 3.5.12(typescript@5.6.3)
+      vue: 3.5.12(typescript@5.1.6)
 
   '@vue/shared@3.5.12': {}
 
@@ -4406,7 +4413,7 @@ snapshots:
 
   acorn@8.14.0: {}
 
-  ai@3.4.33(react@18.3.1)(sswr@2.1.0(svelte@5.1.12))(svelte@5.1.12)(vue@3.5.12(typescript@5.6.3))(zod@3.23.8):
+  ai@3.4.33(react@18.3.1)(sswr@2.1.0(svelte@5.1.12))(svelte@5.1.12)(vue@3.5.12(typescript@5.1.6))(zod@3.23.8):
     dependencies:
       '@ai-sdk/provider': 0.0.26
       '@ai-sdk/provider-utils': 1.0.22(zod@3.23.8)
@@ -4414,7 +4421,7 @@ snapshots:
       '@ai-sdk/solid': 0.0.54(zod@3.23.8)
       '@ai-sdk/svelte': 0.0.57(svelte@5.1.12)(zod@3.23.8)
       '@ai-sdk/ui-utils': 0.0.50(zod@3.23.8)
-      '@ai-sdk/vue': 0.0.59(vue@3.5.12(typescript@5.6.3))(zod@3.23.8)
+      '@ai-sdk/vue': 0.0.59(vue@3.5.12(typescript@5.1.6))(zod@3.23.8)
       '@opentelemetry/api': 1.9.0
       eventsource-parser: 1.1.2
       json-schema: 0.4.0
@@ -7679,9 +7686,9 @@ snapshots:
 
   swrev@4.0.0: {}
 
-  swrv@1.0.4(vue@3.5.12(typescript@5.6.3)):
+  swrv@1.0.4(vue@3.5.12(typescript@5.1.6)):
     dependencies:
-      vue: 3.5.12(typescript@5.6.3)
+      vue: 3.5.12(typescript@5.1.6)
 
   tableize-object@0.1.0:
     dependencies:
@@ -7812,21 +7819,21 @@ snapshots:
 
   triple-beam@1.4.1: {}
 
-  ts-node@10.9.2(@types/node@22.8.7)(typescript@5.6.3):
+  ts-node@10.9.2(@types/node@22.7.5)(typescript@5.1.6):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 22.8.7
+      '@types/node': 22.7.5
       acorn: 8.14.0
       acorn-walk: 8.3.4
       arg: 4.1.3
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 5.6.3
+      typescript: 5.1.6
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
@@ -7844,7 +7851,7 @@ snapshots:
       media-typer: 0.3.0
       mime-types: 2.1.35
 
-  typescript@5.6.3: {}
+  typescript@5.1.6: {}
 
   uid-safe@2.1.5:
     dependencies:
@@ -8014,15 +8021,15 @@ snapshots:
       remove-trailing-separator: 1.1.0
       replace-ext: 1.0.1
 
-  vue@3.5.12(typescript@5.6.3):
+  vue@3.5.12(typescript@5.1.6):
     dependencies:
       '@vue/compiler-dom': 3.5.12
       '@vue/compiler-sfc': 3.5.12
       '@vue/runtime-dom': 3.5.12
-      '@vue/server-renderer': 3.5.12(vue@3.5.12(typescript@5.6.3))
+      '@vue/server-renderer': 3.5.12(vue@3.5.12(typescript@5.1.6))
       '@vue/shared': 3.5.12
     optionalDependencies:
-      typescript: 5.6.3
+      typescript: 5.1.6
 
   warning-symbol@0.1.0: {}
 
