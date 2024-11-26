@@ -17,3 +17,19 @@ export const getSessionCookie = async () => {
 
   return sessionCookie;
 };
+
+export const getSession = async () => {
+  const sessionCookie = await getSessionCookie();
+
+  const response = await fetch("http://localhost:5000/api/v1/auth/session", {
+    headers: {
+      Cookie: sessionCookie,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to get session");
+  }
+
+  return response.json();
+};
