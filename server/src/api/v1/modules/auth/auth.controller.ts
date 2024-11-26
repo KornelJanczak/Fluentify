@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, Express } from "express";
 import AuthenticationError from "../../../../common/errors/authenticationError";
 
-export const logOutController = (
+export const logOutController = ((
   req: Request,
   _: Response,
   next: NextFunction
 ) => {
-  req.logout((err) => {
+  return req.logout((err) => {
     if (err)
       next(
         new AuthenticationError({
@@ -16,13 +16,13 @@ export const logOutController = (
         })
       );
   });
-};
+}) as Express;
 
-export const authStatusController = (
+export const authStatusController = ((
   req: Request,
   res: Response,
   next: NextFunction
-): Response => {
+) => {
   const currentUser = req.user;
 
   if (!currentUser) {
@@ -33,7 +33,14 @@ export const authStatusController = (
         service: "authStatusController",
       })
     );
-  } else {
-    return res.status(200).json(currentUser);
   }
-};
+  return res.status(200).json(currentUser);
+}) as Express;
+
+export const authSessionController = ((
+  req: Request,
+  res: Response,
+  __: NextFunction
+) => {
+  return res.status(200).json(req.user);
+}) as Express;
