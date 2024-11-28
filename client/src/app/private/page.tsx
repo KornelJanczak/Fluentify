@@ -1,8 +1,11 @@
 import { getSession, getSessionCookie } from "@/common/lib/auth";
-import AiChat from "@/components/ai-chat/index";
+import Chat from "@/components/chat/index";
+import AiChat from "@/components/chat/index";
 
 export default async function PrivatePage() {
   const session = await getSession();
+
+  if (!session) return;
 
   return (
     <>
@@ -15,7 +18,7 @@ export default async function PrivatePage() {
       </button>
 
       <div className="mt-20">
-        <AiChat user={session} />
+        <Chat />
       </div>
     </>
   );
