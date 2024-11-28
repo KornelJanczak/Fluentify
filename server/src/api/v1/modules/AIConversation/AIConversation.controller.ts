@@ -12,14 +12,17 @@ export const startConversationWithAI = async (
   next: NextFunction
 ) => {
   try {
-    const userInput = req.body.userInput;
+    const messages = req.body.messages;
+
+    console.log(messages);
+
     const data = new StreamData();
 
-    const AIConversation = new AIConversationService(userInput, data);
+    const AIConversation = new AIConversationService(messages, data);
     const conversationResult = await AIConversation.startConversation();
 
-    // conversationResult.pipeTextStreamToResponse(res);
-    conversationResult.pipeDataStreamToResponse(res, { data });
+    return conversationResult.pipeTextStreamToResponse(res);
+    // return conversationResult.toDataStreamResponse();
   } catch (error) {
     next(error);
   }
