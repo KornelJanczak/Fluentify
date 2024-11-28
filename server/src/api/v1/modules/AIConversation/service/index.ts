@@ -32,8 +32,8 @@ class AIConversationService implements AIConversationAbstract {
   private data: StreamData;
   private messages: CoreMessage[] = [];
 
-  constructor(userInput: string, streamData: StreamData) {
-    this.userInput = userInput;
+  constructor(messages: CoreMessage[], streamData: StreamData) {
+    this.messages = messages;
     this.data = streamData;
   }
 
@@ -43,20 +43,24 @@ class AIConversationService implements AIConversationAbstract {
   }
 
   private async startStreamingText(): AIConversationResult {
-    this.messages.push({ role: "user", content: this.userInput });
+    // this.messages.push({ role: "user", content: this.userInput });
 
     const streamingData = this.data;
 
-    const systemPrompt = aiCharactersInitialPrompts.johnFromAmerica("my daily routine")
+    console.log("streamingData", this.messages);
+    
+
+    const systemPrompt =
+      aiCharactersInitialPrompts.johnFromAmerica("my daily routine");
 
     const result = await streamText({
       model: google("gemini-1.5-pro"),
       system: systemPrompt,
-      prompt: this.userInput,
-      onFinish() {
-        streamingData.append({ id: "1" });
-        streamingData.close();
-      },
+      messages: this.messages,
+      // onFinish() {
+      //   streamingData.append({ id: "1" });
+      //   streamingData.close();
+      // },
     });
 
     return result;
