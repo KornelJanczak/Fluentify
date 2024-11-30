@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { startConversationWithAI } from "./AIConversation.controller";
+import aiConversationController from "./aiConversation.controller";
 
 const router = Router();
 
-router.post("/ai-conversation", startConversationWithAI);
+router.post(
+  "/ai-conversation",
+  aiConversationController.startConversationWithAI
+);
 
 export default router;
