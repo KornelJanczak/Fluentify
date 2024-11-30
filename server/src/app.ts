@@ -1,7 +1,7 @@
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import express, { Application } from "express";
-import routes from "./app.router";
+import routes from "./router";
 import { Express } from "express";
 import { generalErrorHandler } from "./common/middleware/errorMiddleware";
 import passport from "passport";
