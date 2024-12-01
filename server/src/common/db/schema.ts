@@ -22,9 +22,9 @@ export type User = InferSelectModel<typeof users>;
 // CHAT TABLE
 export const chats = pgTable("chats", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
+  title: varchar({ length: 255 }).notNull(),
   usedTokens: integer().notNull(),
   startedAt: timestamp().notNull(),
-  workspaceId: varchar({ length: 255 }).notNull(),
   userId: varchar("userId")
     .notNull()
     .references(() => users.id),
