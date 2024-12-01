@@ -1,12 +1,18 @@
 {
   "compilerOptions": {
     "target": "es2017",
+    "baseUrl": ".",
     "module": "commonjs",
     "esModuleInterop": true,
     "strict": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "typeRoots": ["./@types", "./node_modules/@types"]
-  }
+    "typeRoots": ["./@types", "./node_modules/@types", "./src/global.d.ts"],
+    "paths": {
+      "@common/*": ["./src/common/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
