@@ -3,8 +3,13 @@ import { useChat } from "ai/react";
 
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: `${process.env.NEXT_PUBLIC_API_URL}/ai-conversation`,
+    api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
+    body: { id: "123" },
+    onResponse: (res) => {
+      console.log(res);
+    },
   });
+
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
       {messages.map((m) => (
