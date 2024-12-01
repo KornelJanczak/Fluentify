@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction, Express } from "express";
 import AuthenticationError from "../../../../common/errors/authenticationError";
+import { User } from "../../../../common/db/schema";
 
 export const logOutController = ((
   req: Request,
@@ -23,10 +24,10 @@ export const authStatusController = ((
   res: Response,
   next: NextFunction
 ) => {
-  const currentUser = req.user;
+  const currentUser: User = req.user as User;
+  console.log("AuthStatusContoller - User: ", currentUser.id);
 
   if (!currentUser) {
-    console.log("AuthStatusContoller - User: ", currentUser);
     next(
       new AuthenticationError({
         message: "User is not authenticated",
