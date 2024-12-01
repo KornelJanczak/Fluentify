@@ -15,6 +15,20 @@
       "when": 1731855815470,
       "tag": "0001_high_shinobi_shaw",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1733048151246,
+      "tag": "0002_redundant_pyro",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1733053086630,
+      "tag": "0003_known_ben_grimm",
+      "breakpoints": true
     }
   ]
 }
