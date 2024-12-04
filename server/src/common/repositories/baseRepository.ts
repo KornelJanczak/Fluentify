@@ -5,11 +5,21 @@ import { PgTable, TableConfig, PgColumn } from "drizzle-orm/pg-core";
 
 type ReturnValue = { [x: string]: unknown };
 
+type Create<T> = {
+  newItem: T;
+  service: string;
+};
+
+type GetById = {
+  id: string;
+  service: string;
+};
+
 abstract class BaseRepository<T> {
   protected abstract table: PgTable<TableConfig>;
   protected abstract idColumn: PgColumn;
 
-  async create(newItem: T, service: string): Promise<ReturnValue | []> {
+  async create({ newItem, service }: Create<T>): Promise<ReturnValue | T[]> {
     try {
       const [createdItem] = await db
         .insert(this.table)
@@ -26,7 +36,7 @@ abstract class BaseRepository<T> {
     }
   }
 
-  async getById(id: string, service: string): Promise<ReturnValue | []> {
+  async getById({ id, service }: GetById): Promise<ReturnValue | T[]> {
     try {
       const [item] = await db
         .select()
