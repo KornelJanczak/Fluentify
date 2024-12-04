@@ -1,11 +1,27 @@
-import { getSession, getSessionCookie } from "@/common/lib/auth";
+import { getUser, getSessionCookie } from "@/common/lib/auth";
+import CreateChatButton from "@/components/chat/create-chat-button";
 import Chat from "@/components/chat/index";
 import AiChat from "@/components/chat/index";
+import { redirect } from "next/dist/server/api-utils";
 
 export default async function PrivatePage() {
-  const session = await getSession();
+  const currentUser = await getUser();
+  const sessionCookie = await getSessionCookie();
 
-  if (!session) return;
+  if (!currentUser) return;
+
+  const response = await fetch("http://localhost:5000/api/v1/create-chat", {
+    method: "POST",
+    body: JSON.stringify({
+      title: "Private Chat with English Teacher",
+      acab: "adasd",
+    }),
+    headers: {
+      Cookie: sessionCookie,
+    },
+  });
+
+  const chatId = await response.json();
 
   return (
     <>
@@ -13,9 +29,7 @@ export default async function PrivatePage() {
         Private Page
       </h1>
 
-      <button className="mt-10 block rounded bg-pink-800/50 px-2 py-1 text-white hover:opacity-70">
-        Call API
-      </button>
+      <CreateChatButton sessionCookie={chatId} />
 
       <div className="mt-20">
         <Chat />
