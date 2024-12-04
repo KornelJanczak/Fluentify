@@ -3,6 +3,8 @@ import ChatService from "./service";
 import { ChatControllerAbstract, ChatServiceAbstract } from "./chat.interfaces";
 import chatRepository from "../../../../common/repositories/chatRepository";
 import { v4 as uuidv4 } from "uuid";
+import { User } from "@common/db/schema";
+import { type Chat } from "@common/db/schema";
 
 class ChatController implements ChatControllerAbstract {
   async startChat(req: Request, res: Response, next: NextFunction) {
@@ -20,20 +22,25 @@ class ChatController implements ChatControllerAbstract {
 
   async createChat(req: Request, res: Response, next: NextFunction) {
     try {
-      // const userId = req.user.id;
+      const user: User = req.user as User;
 
-      // const newChat = await chatRepository.create(
-      //   {
-      //     id: uuidv4(),
-      //     userId: userId,
-      //     title: req.body.title,
-      //     usedTokens: 0,
-      //     startedAt: new Date(),
-      //   },
-      //   "createChat"
-      // );
+      console.log(req.body);
+      
 
-      // return res.status(201).json(newChat);
+      const newItem = {
+        id: uuidv4(),
+        userId: user.id,
+        title: req.body.title,
+        usedTokens: 0,
+        startedAt: new Date(),
+      };
+
+      const newChat = (await chatRepository.create({
+        service: "createChat",
+        newItem,
+      })) as Chat;
+
+      return res.status(201).json(newChat.id);
     } catch (error) {
       next(error);
     }
@@ -41,7 +48,10 @@ class ChatController implements ChatControllerAbstract {
 
   async getChat(req: Request, res: Response, next: NextFunction) {
     try {
-      const chat = await chatRepository.getById(req.params.id, "getChat");
+      const chat = await chatRepository.getById({
+        service: "getChat",
+        id: req.params.id,
+      });
       return res.status(200).json(chat);
     } catch (error) {
       next(error);
