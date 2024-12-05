@@ -18,9 +18,11 @@ export default function createApp(): Application {
       origin: process.env.CLIENT_URL,
     })
   );
+
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.static("public"));
+  
   app.use(
     cookieSession({
       name: process.env.COOKIE_SESSION_NAME,
