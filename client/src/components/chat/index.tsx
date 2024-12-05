@@ -1,10 +1,22 @@
 "use client";
 import { useChat } from "ai/react";
 
-export default function Chat() {
+interface ChatProps {
+  chatId: string;
+  sessionCookie: string;
+}
+
+export default function Chat({ chatId, sessionCookie }: ChatProps) {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
+    id: chatId,
     api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
-    body: { id: "123" },
+    credentials: "include",
+    body: {
+      chatId,
+    },
+    headers: {
+      Cookie: sessionCookie,
+    },
     onResponse: (res) => {
       console.log(res);
     },
@@ -13,7 +25,7 @@ export default function Chat() {
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
       {messages.map((m) => (
-        <div key={m.id} className="whitespace-pre-wrap">
+        <div key={m.id} className="whitespace-pre-wrap ">
           {m.role === "user" ? "User: " : "AI: "}
           {m.content}
         </div>
@@ -21,7 +33,7 @@ export default function Chat() {
 
       <form onSubmit={handleSubmit}>
         <input
-          className="fixed bottom-0 w-full max-w-md p-2 mb-8 border border-gray-300 rounded shadow-xl"
+          className="text-black fixed bottom-0 w-full max-w-md p-2 mb-8 border border-gray-300 rounded shadow-xl"
           value={input}
           placeholder="Say something..."
           onChange={handleInputChange}
