@@ -1,5 +1,4 @@
 "use client";
-import { getSessionCookie } from "@/common/lib/auth";
 import { redirect } from "next/navigation";
 
 export default function CreateChatButton({
@@ -7,25 +6,28 @@ export default function CreateChatButton({
 }: {
   sessionCookie: string;
 }) {
-  console.log(sessionCookie);
-
   const createChatHandler = async () => {
-    // const chuj = await getSessionCookie();
+    console.log("createChatHandler", sessionCookie);
 
-    // const response = await fetch("http://localhost:5000/api/v1/auth/session", {
-    //   headers: {
-    //     Cookie: sessionCookie
-    //   },
-    // });
+    const response = await fetch("http://localhost:5000/api/v1/create-chat", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: sessionCookie,
+      },
+      body: JSON.stringify({
+        title: "Chat with AI",
+      }),
+    });
 
-    // if (!response.ok) {
-    //   throw new Error("Failed to create chat");
-    // }
+    if (!response.ok) {
+      throw new Error("Failed to create chat");
+    }
+    const chatId = await response.json();
+    console.log(chatId);
 
-    // const chatId = await response.json();
-    // console.log(chatId);
-
-    redirect(`/chat/${sessionCookie}`);
+    redirect(`/chat/${chatId}`);
   };
 
   return (
