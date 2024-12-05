@@ -5,12 +5,18 @@ import chatRepository from "../../../../common/repositories/chatRepository";
 import { v4 as uuidv4 } from "uuid";
 import { User } from "@common/db/schema";
 import { type Chat } from "@common/db/schema";
+import HTTP_STATUS from "http-status-codes";
 
 class ChatController implements ChatControllerAbstract {
   async startChat(req: Request, res: Response, next: NextFunction) {
     try {
       const messages = req.body.messages;
-      const chatService: ChatServiceAbstract = new ChatService(messages);
+      const chatId = req.body.chatId;
+
+      const chatService: ChatServiceAbstract = new ChatService(
+        messages,
+        chatId
+      );
 
       const conversationResult = await chatService.execute();
 
@@ -25,7 +31,6 @@ class ChatController implements ChatControllerAbstract {
       const user: User = req.user as User;
 
       console.log(req.body);
-      
 
       const newItem = {
         id: uuidv4(),
@@ -36,11 +41,11 @@ class ChatController implements ChatControllerAbstract {
       };
 
       const newChat = (await chatRepository.create({
-        service: "createChat",
+        service: "chat.controller: createChat",
         newItem,
       })) as Chat;
 
-      return res.status(201).json(newChat.id);
+      return res.status(HTTP_STATUS.OK).json(newChat.id);
     } catch (error) {
       next(error);
     }
@@ -49,10 +54,10 @@ class ChatController implements ChatControllerAbstract {
   async getChat(req: Request, res: Response, next: NextFunction) {
     try {
       const chat = await chatRepository.getById({
-        service: "getChat",
+        service: "chat.controller: getChat",
         id: req.params.id,
       });
-      return res.status(200).json(chat);
+      return res.status(HTTP_STATUS.OK).json(chat);
     } catch (error) {
       next(error);
     }
