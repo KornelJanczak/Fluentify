@@ -30,16 +30,20 @@ class ChatService implements ChatServiceAbstract {
         service: "chatService: execute",
       });
 
+    console.log(this.messages);
+
+    const lastUserMessage = this.extractLastUserMessage();
+    console.log(lastUserMessage);
+
     await messagesRepository.saveMessages({
-      service: "execute",
+      service: "chatService: execute",
       messages: [
         {
-          ...this.messages,
           id: uuidv4(),
+          ...lastUserMessage,
           createdAt: new Date(),
           chatId: this.chatId,
           usedTokens: 0,
-          content: "",
         },
       ],
     });
@@ -61,6 +65,14 @@ class ChatService implements ChatServiceAbstract {
     console.log(result);
 
     return result;
+  }
+
+  private extractLastUserMessage(): CoreMessage {
+    const lastUserMessage = this.messages
+      .filter((message: CoreMessage) => message.role === "user")
+      .at(-1);
+
+    return lastUserMessage;
   }
 }
 
