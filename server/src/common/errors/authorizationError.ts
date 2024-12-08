@@ -1,11 +1,13 @@
 import ServerError from "./serverError";
 import { ServerErrorProps } from "./serverError";
+import HTTP_STATUS from "http-status-codes";
 
 class AuthorizationError extends ServerError {
-  constructor({ code = 403 }: ServerErrorProps) {
+  constructor(props: Partial<ServerErrorProps> = {}) {
     super({
       name: "AuthenticationError",
-      code,
+      code: HTTP_STATUS.UNAUTHORIZED,
+      ...props,
     });
   }
 }
