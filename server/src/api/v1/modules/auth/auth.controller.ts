@@ -1,47 +1,47 @@
-import { Request, Response, NextFunction, Express } from "express";
+import { Request, Response, NextFunction } from "express";
 import AuthenticationError from "../../../../common/errors/authenticationError";
 import { User } from "../../../../common/db/schema";
+import { AuthControllerAbstract } from "./auth.interfaces";
+import HTTP_STATUS from "http-status-codes";
 
-export const logOutController = ((
-  req: Request,
-  _: Response,
-  next: NextFunction
-) => {
-  return req.logout((err) => {
-    if (err)
+class AuthController implements AuthControllerAbstract {
+  public logOut(req: Request, res: Response, next: NextFunction) {
+    req.logout((err) => {
+      if (err) {
+        next(
+          new AuthenticationError({
+            message: err.message,
+            stack: err.stack,
+            service: "autController: logout",
+          })
+        );
+      } else {
+        return res
+          .status(HTTP_STATUS.OK)
+          .json({ message: "Logged out successfully" });
+      }
+    });
+  }
+
+  public authStatus(req: Request, res: Response, next: NextFunction) {
+    const currentUser: User = req.user as User;
+    console.log("AuthStatusController - User: ", currentUser.id);
+
+    if (!currentUser) {
       next(
         new AuthenticationError({
-          message: err.message,
-          stack: err.stack,
-          service: "logOutController",
+          message: "User is not authenticated",
+          service: "authController: authStatus",
         })
       );
-  });
-}) as Express;
-
-export const authStatusController = ((
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const currentUser: User = req.user as User;
-  console.log("AuthStatusContoller - User: ", currentUser.id);
-
-  if (!currentUser) {
-    next(
-      new AuthenticationError({
-        message: "User is not authenticated",
-        service: "authStatusController",
-      })
-    );
+    }
+    return res.status(HTTP_STATUS.OK).json(currentUser);
   }
-  return res.status(200).json(currentUser);
-}) as Express;
 
-export const authSessionController = ((
-  req: Request,
-  res: Response,
-  __: NextFunction
-) => {
-  return res.status(200).json(req.user);
-}) as Express;
+  public authSession(req: Request, res: Response, __: NextFunction) {
+    return res.status(HTTP_STATUS.OK).json(req.user);
+  }
+}
+
+const authController = new AuthController();
+export default authController;
