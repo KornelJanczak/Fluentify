@@ -1,11 +1,13 @@
 import ServerError from "./serverError";
+import HTTP_STATUS from "http-status-codes";
 import { ServerErrorProps } from "./serverError";
 
 class NotFoundError extends ServerError {
-  constructor({ code = 404 }: ServerErrorProps) {
+  constructor(props: Partial<ServerErrorProps> = {}) {
     super({
       name: "NotFoundError",
-      code,
+      code: HTTP_STATUS.NOT_FOUND,
+      ...props,
     });
   }
 }
