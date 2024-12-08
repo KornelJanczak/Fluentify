@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { User } from "@common/db/schema";
 import { type Chat } from "@common/db/schema";
 import HTTP_STATUS from "http-status-codes";
+import NotFoundError from "../../../../common/errors/notFoundError";
 
 class ChatController implements ChatControllerAbstract {
   async startChat(req: Request, res: Response, next: NextFunction) {
@@ -22,7 +23,12 @@ class ChatController implements ChatControllerAbstract {
 
       return conversationResult.pipeDataStreamToResponse(res);
     } catch (error) {
-      next(error);
+      next(
+        new NotFoundError({
+          service: "chat.controller: startChat",
+          ...error,
+        })
+      );
     }
   }
 
@@ -47,7 +53,12 @@ class ChatController implements ChatControllerAbstract {
 
       return res.status(HTTP_STATUS.OK).json(newChat.id);
     } catch (error) {
-      next(error);
+      next(
+        new NotFoundError({
+          service: "chat.controller: createChat",
+          ...error,
+        })
+      );
     }
   }
 
@@ -59,7 +70,12 @@ class ChatController implements ChatControllerAbstract {
       });
       return res.status(HTTP_STATUS.OK).json(chat);
     } catch (error) {
-      next(error);
+      next(
+        new NotFoundError({
+          service: "chat.controller: getChat",
+          ...error,
+        })
+      );
     }
   }
 }
