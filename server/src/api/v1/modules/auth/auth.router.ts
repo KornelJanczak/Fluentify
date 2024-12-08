@@ -1,10 +1,6 @@
-import { Express, Router } from "express";
+import { Router } from "express";
 import passport from "passport";
-import {
-  authStatusController,
-  logOutController,
-  authSessionController,
-} from "./auth.controller";
+import authController from "./auth.controller";
 import authMiddleware from "../../../../common/middleware/authMiddleware";
 
 const router = Router();
@@ -28,8 +24,8 @@ router.get(
   })
 );
 
-router.get("/auth/status", authStatusController);
-router.get("/auth/logout", authMiddleware, logOutController);
-router.get("/auth/session", authMiddleware, authSessionController);
+router.get("/auth/status", authController.authStatus);
+router.get("/auth/logout", authMiddleware, authController.logOut);
+router.get("/auth/session", authMiddleware, authController.authSession);
 
 export default router;
