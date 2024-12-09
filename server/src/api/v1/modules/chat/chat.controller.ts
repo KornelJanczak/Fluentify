@@ -7,6 +7,7 @@ import { User } from "@common/db/schema";
 import { type Chat } from "@common/db/schema";
 import HTTP_STATUS from "http-status-codes";
 import NotFoundError from "../../../../common/errors/notFoundError";
+import messagesRepository from "../../../../common/repositories/messagesRepository";
 
 class ChatController implements ChatControllerAbstract {
   async startChat(req: Request, res: Response, next: NextFunction) {
@@ -68,11 +69,32 @@ class ChatController implements ChatControllerAbstract {
         service: "chat.controller: getChat",
         id: req.params.id,
       });
+
+      console.log(chat);
+
       return res.status(HTTP_STATUS.OK).json(chat);
     } catch (error) {
       next(
         new NotFoundError({
           service: "chat.controller: getChat",
+          ...error,
+        })
+      );
+    }
+  }
+
+  async getMessagesByChatId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const messages = await messagesRepository.getMessagesByChatId({
+        service: "chat.controller: getMessagesByChatId",
+        chatId: req.params.id,
+      });
+
+      return res.status(HTTP_STATUS.OK).json(messages);
+    } catch (error) {
+      next(
+        new NotFoundError({
+          service: "chat.controller: getMessagesByChatId",
           ...error,
         })
       );
