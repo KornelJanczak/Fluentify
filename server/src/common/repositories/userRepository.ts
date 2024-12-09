@@ -12,10 +12,10 @@ class UserRepository {
         .returning();
 
       return createdUser;
-    } catch (err) {
+    } catch (error) {
       throw new DatabaseError({
-        message: err.message,
-        stack: err.stack,
+        service: "userRepository: create",
+        ...error,
       });
     }
   }
