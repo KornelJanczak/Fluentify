@@ -27,11 +27,10 @@ abstract class BaseRepository<T> {
         .returning();
 
       return createdItem;
-    } catch (err) {
+    } catch (error) {
       throw new DatabaseError({
-        message: err.message,
-        stack: err.stack,
         service,
+        ...error,
       });
     }
   }
@@ -44,11 +43,10 @@ abstract class BaseRepository<T> {
         .where(eq(this.idColumn, id));
 
       return item;
-    } catch (err) {
+    } catch (error) {
       throw new DatabaseError({
-        message: err.message,
-        stack: err.stack,
         service,
+        ...error,
       });
     }
   }
