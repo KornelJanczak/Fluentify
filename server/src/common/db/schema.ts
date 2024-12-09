@@ -1,5 +1,5 @@
 import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
-import { timestamp, uuid } from "drizzle-orm/pg-core";
+import { timestamp, uuid, json } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { type InferSelectModel } from "drizzle-orm";
 
@@ -43,7 +43,8 @@ export const messages = pgTable("messages", {
   chatId: uuid("chatId")
     .notNull()
     .references(() => chats.id),
-  content: varchar({ length: 255 }).notNull(),
+  role: varchar({ length: 255 }).notNull(),
+  content: json("content").notNull(),
   usedTokens: integer().notNull(),
   createdAt: timestamp("createdAt").notNull(),
 });
