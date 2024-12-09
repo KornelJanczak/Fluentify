@@ -13,4 +13,5 @@ export interface ChatControllerAbstract {
   startChat(req: Request, res: Response, next: NextFunction): void;
   createChat(req: Request, res: Response, next: NextFunction): void;
   getChat(req: Request, res: Response, next: NextFunction): void;
+  getMessagesByChatId(req: Request, res: Response, next: NextFunction): void;
 }
