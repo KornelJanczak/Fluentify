@@ -24,11 +24,30 @@ class MessagesRepository extends BaseRepository<Message> {
   }) {
     try {
       return await db.insert(this.table).values(messages).returning();
-    } catch (err) {
+    } catch (error) {
       throw new DatabaseError({
-        message: err.message,
-        stack: err.stack,
         service,
+        ...error,
+      });
+    }
+  }
+
+  async getMessagesByChatId({
+    chatId,
+    service,
+  }: {
+    chatId: string;
+    service: string;
+  }) {
+    try {
+      return await db
+        .select()
+        .from(this.table)
+        .where(eq(messages.chatId, chatId));
+    } catch (error) {
+      throw new DatabaseError({
+        service,
+        ...error,
       });
     }
   }
