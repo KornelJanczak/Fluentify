@@ -1,5 +1,5 @@
 {
-  "id": "4885b2bb-d5d7-4db6-8f81-3f3fafa22144",
+  "id": "f00462c5-3f53-4da7-8786-e97da29f8178",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -15,6 +15,12 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "usedTokens": {
           "name": "usedTokens",
           "type": "integer",
@@ -24,12 +30,6 @@
         "startedAt": {
           "name": "startedAt",
           "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "workspaceId": {
-          "name": "workspaceId",
-          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -79,9 +79,15 @@
           "primaryKey": false,
           "notNull": true
         },
+        "role": {
+          "name": "role",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "content": {
           "name": "content",
-          "type": "varchar(255)",
+          "type": "json",
           "primaryKey": false,
           "notNull": true
         },
@@ -144,12 +150,6 @@
         },
         "role": {
           "name": "role",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "something": {
-          "name": "something",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
