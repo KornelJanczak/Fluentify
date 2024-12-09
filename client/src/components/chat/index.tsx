@@ -4,11 +4,17 @@ import { useChat } from "ai/react";
 interface ChatProps {
   chatId: string;
   sessionCookie: string;
+  initialMessages: any;
 }
 
-export default function Chat({ chatId, sessionCookie }: ChatProps) {
+export default function Chat({
+  chatId,
+  sessionCookie,
+  initialMessages,
+}: ChatProps) {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     id: chatId,
+    initialMessages,
     api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
     credentials: "include",
     body: {
