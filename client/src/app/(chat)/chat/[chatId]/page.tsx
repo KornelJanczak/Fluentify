@@ -9,5 +9,22 @@ export default async function ChatPage({ params }: ChatPageProps) {
   const chatId = params.chatId;
   const sessionCookie = await getSessionCookie();
 
-  return <Chat chatId={chatId} sessionCookie={sessionCookie} />;
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/chat/${chatId}/messages`,
+    {
+      headers: {
+        Cookie: sessionCookie,
+      },
+    }
+  );
+
+  const initialMessages = await response.json();
+
+  return (
+    <Chat
+      chatId={chatId}
+      sessionCookie={sessionCookie}
+      initialMessages={initialMessages}
+    />
+  );
 }
