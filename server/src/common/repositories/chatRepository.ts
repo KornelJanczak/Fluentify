@@ -23,10 +23,10 @@ class ChatRepository extends BaseRepository<Chat> {
         .where(eq(chats.userId, userId));
 
       return chatList;
-    } catch (err) {
+    } catch (error) {
       throw new DatabaseError({
-        message: err.message,
-        stack: err.stack,
+        service: "chatRepository: getByUserId",
+        ...error,
       });
     }
   }
