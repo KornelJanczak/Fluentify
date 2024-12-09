@@ -6,13 +6,12 @@ import HTTP_STATUS from "http-status-codes";
 
 class AuthController implements AuthControllerAbstract {
   public logOut(req: Request, res: Response, next: NextFunction) {
-    req.logout((err) => {
-      if (err) {
+    req.logout((error) => {
+      if (error) {
         next(
           new AuthenticationError({
-            message: err.message,
-            stack: err.stack,
             service: "autController: logout",
+            ...error,
           })
         );
       } else {
