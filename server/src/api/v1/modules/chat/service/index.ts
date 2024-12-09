@@ -29,23 +29,20 @@ class ChatService implements ChatServiceAbstract {
         service: "chatService: execute",
       });
 
-    console.log(this.messages);
-
     const lastUserMessage = this.extractLastUserMessage();
-    console.log(lastUserMessage);
 
-    // await messagesRepository.saveMessages({
-    //   service: "chatService: execute",
-    //   messages: [
-    //     {
-    //       id: uuidv4(),
-    //       ...lastUserMessage,
-    //       createdAt: new Date(),
-    //       chatId: this.chatId,
-    //       usedTokens: 0,
-    //     },
-    //   ],
-    // });
+    await messagesRepository.saveMessages({
+      service: "chatService: saveChatMessages",
+      messages: [
+        {
+          id: uuidv4(),
+          ...lastUserMessage,
+          createdAt: new Date(),
+          chatId: this.chatId,
+          usedTokens: 0,
+        },
+      ],
+    });
 
     const result = await this.startStreamingText();
     return result;
@@ -59,6 +56,21 @@ class ChatService implements ChatServiceAbstract {
       model: google("gemini-1.5-pro"),
       system: systemPrompt,
       messages: this.messages,
+      onFinish: async ({ text }) => {
+        await messagesRepository.saveMessages({
+          service: "chatService: saveChatMessages",
+          messages: [
+            {
+              id: uuidv4(),
+              content: text,
+              createdAt: new Date(),
+              role: "assistant",
+              chatId: this.chatId,
+              usedTokens: 0,
+            },
+          ],
+        });
+      },
     });
 
     console.log(result);
