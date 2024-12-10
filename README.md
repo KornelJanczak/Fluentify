@@ -1,4 +1,4 @@
-# Comprehensive App to learn English
+# Comprehensive App for learning English
 
 Realized soon...
 
