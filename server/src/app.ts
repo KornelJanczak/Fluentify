@@ -1,43 +1,61 @@
-import "dotenv/config";
-import cookieParser from "cookie-parser";
-import express, { Application } from "express";
-import routes from "./router";
-import { Express } from "express";
-import { generalErrorHandler } from "./common/middleware/errorMiddleware";
-import passport from "passport";
-import { SESSION_MAX_AGE } from "./common/config/constants";
-import "./common/strategies/google-strategy";
-import cors from "cors";
-import cookieSession from "cookie-session";
+import express, { Express } from "express";
+import config from "@root/config";
+import { FluentifyServer } from "@root/setupServer";
+import "@shared/strategies/google-strategy";
 
-export default function createApp(): Application {
-  const app: Express = express();
-  app.use(
-    cors({
-      credentials: true,
-      origin: process.env.CLIENT_URL,
-    })
-  );
+const logger = config.createLogger();
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(express.static("public"));
-  
-  app.use(
-    cookieSession({
-      name: process.env.COOKIE_SESSION_NAME,
-      keys: ["mokhtarah"],
-      maxAge: SESSION_MAX_AGE,
-    })
-  );
-  app.use(cookieParser());
+class Application {
+  public initialize(): void {
+    this.loadConfig();
+    const app: Express = express();
+    const server: FluentifyServer = new FluentifyServer(app);
+    server.start();
+    Application.handleExit();
+  }
 
-  app.use(passport.initialize());
-  app.use(passport.session());
+  private loadConfig(): void {
+    config.validateConfig();
+  }
 
-  app.use("/api", routes);
+  private static handleExit(): void {
+    process.on("uncaughtException", (error: Error) => {
+      logger.error(`There was an uncaught error: ${error}`);
+      Application.shutDownProperly(1);
+    });
 
-  app.use(generalErrorHandler);
+    process.on("unhandleRejection", (reason: Error) => {
+      logger.error(`Unhandled rejection at promise: ${reason}`);
+      Application.shutDownProperly(2);
+    });
 
-  return app;
+    process.on("SIGTERM", () => {
+      logger.error("Caught SIGTERM");
+      Application.shutDownProperly(2);
+    });
+
+    process.on("SIGINT", () => {
+      logger.error("Caught SIGINT");
+      Application.shutDownProperly(2);
+    });
+
+    process.on("exit", () => {
+      logger.error("Exiting");
+    });
+  }
+
+  private static shutDownProperly(exitCode: number): void {
+    Promise.resolve()
+      .then(() => {
+        logger.info("Shutdown complete");
+        process.exit(exitCode);
+      })
+      .catch((error) => {
+        logger.error(`Error during shutdown: ${error}`);
+        process.exit(1);
+      });
+  }
 }
+
+const application: Application = new Application();
+application.initialize();

@@ -96,9 +96,8 @@ export class FluentifyServer {
   }
 
   private startHttpServer(httpServer: http.Server): void {
-    httpServer.listen(5000, () => {
-      console.log("Server started on port 5000");
-      `Server started on port ${config.PORT}`;
+    httpServer.listen(config.PORT, () => {
+      logger.info(`Server started on port ${config.PORT}`);
     });
   }
 }

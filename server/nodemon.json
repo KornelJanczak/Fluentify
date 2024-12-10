@@ -2,7 +2,7 @@
   "restartable": "rs",
   "watch": ["src"],
   "ext": ".ts, .js",
-  "exec": "ts-node ./src/server.ts",
+  "exec": "ts-node",
   "execMap": {
     "ts": "node -r ts-node/register"
   }
