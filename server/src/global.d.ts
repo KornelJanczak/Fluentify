@@ -1,4 +1,4 @@
-import { User } from "./common/db/schema";
+import { User } from "./shared/db/schema";
 
 declare module "express" {
   interface Request {
