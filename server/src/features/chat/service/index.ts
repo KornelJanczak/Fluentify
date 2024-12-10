@@ -1,12 +1,12 @@
 import { CoreMessage, streamText } from "ai";
 import { google } from "@ai-sdk/google";
-import aiCharactersInitialPrompts from "../../../../../common/AI/prompts";
+import aiCharactersInitialPrompts from "@shared/AI/prompts";
 import { ChatServiceAbstract, ChatResult } from "../chat.interfaces";
-import chatRepository from "../../../../../common/repositories/chatRepository";
-import NotFoundError from "../../../../../common/errors/notFoundError";
+import chatRepository from "@shared/repositories/chatRepository";
+import NotFoundError from "@shared/errors/notFoundError";
 import HTTP_STATUS from "http-status-codes";
 import { v4 as uuidv4 } from "uuid";
-import messagesRepository from "../../../../../common/repositories/messagesRepository";
+import messagesRepository from "@shared/repositories/messagesRepository";
 
 class ChatService implements ChatServiceAbstract {
   private messages: CoreMessage[] = [];

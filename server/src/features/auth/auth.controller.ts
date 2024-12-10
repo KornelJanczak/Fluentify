@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import AuthenticationError from "../../../../common/errors/authenticationError";
-import { User } from "../../../../common/db/schema";
+import AuthenticationError from "@shared/errors/authenticationError";
+import { User } from "@shared/db/schema";
 import { AuthControllerAbstract } from "./auth.interfaces";
 import HTTP_STATUS from "http-status-codes";
 

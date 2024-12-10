@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import ServerError from "../errors/serverError";
-import logger from "../config/logger";
+import config from "@root/config";
 
-export const generalErrorHandler = (
+const logger = config.createLogger();
+
+export const globalErrorMiddleware = (
   err: Error | ServerError,
   _: Request,
   res: Response,
@@ -28,6 +30,5 @@ export const generalErrorHandler = (
 
   logger.error(errorResponse);
 
-  res.status(errorResponse.code).send(errorResponse);
-  
+  return res.status(errorResponse.code).send(errorResponse);
 };

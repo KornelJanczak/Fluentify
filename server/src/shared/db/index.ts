@@ -7,7 +7,7 @@ config({ path: ".env" });
 
 neonConfig.fetchConnectionCache = true;
 const sql: NeonQueryFunction<boolean, boolean> = neon(
-  process.env.DATABASE_URL!
+  process.env.DATABASE_URL || ""
 );
 
 //@ts-ignore

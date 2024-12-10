@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import ChatService from "./service";
 import { ChatControllerAbstract, ChatServiceAbstract } from "./chat.interfaces";
-import chatRepository from "../../../../common/repositories/chatRepository";
+import chatRepository from "@shared/repositories/chatRepository";
 import { v4 as uuidv4 } from "uuid";
-import { User } from "@common/db/schema";
-import { type Chat } from "@common/db/schema";
+import { User } from "src/shared/db/schema";
+import { type Chat } from "src/shared/db/schema";
 import HTTP_STATUS from "http-status-codes";
-import NotFoundError from "../../../../common/errors/notFoundError";
-import messagesRepository from "../../../../common/repositories/messagesRepository";
+import NotFoundError from "@shared/errors/notFoundError";
+import messagesRepository from "@shared/repositories/messagesRepository";
 
 class ChatController implements ChatControllerAbstract {
   async startChat(req: Request, res: Response, next: NextFunction) {
