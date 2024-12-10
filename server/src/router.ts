@@ -1,8 +1,14 @@
-import { Router } from "express";
-import V1Router from "./api/v1/modules/router";
+import { Application } from "express";
+import authMiddleware from "@shared/middleware/authMiddleware";
+import authRouter from "@auth/auth.router";
+import chatRouter from "@chat/chat.router";
 
-const router = Router();
+const BASE_PATH = "/api/v1";
 
-router.use("/v1", V1Router);
-
-export default router;
+export default (app: Application) => {
+  const routes = () => {
+    app.use(BASE_PATH, authMiddleware, authRouter);
+    app.use(BASE_PATH, authMiddleware, chatRouter);
+  };
+  routes();
+};
