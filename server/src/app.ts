@@ -3,7 +3,7 @@ import config from "@root/config";
 import { FluentifyServer } from "@root/setupServer";
 import "@shared/strategies/google-strategy";
 
-const logger = config.createLogger();
+const logger = config.createLogger("app");
 
 class Application {
   public initialize(): void {
@@ -20,38 +20,61 @@ class Application {
 
   private static handleExit(): void {
     process.on("uncaughtException", (error: Error) => {
-      logger.error(`There was an uncaught error: ${error}`);
+      logger.error({
+        service: "uncaughtException",
+        message: `There was an uncaught error: ${error.message}`,
+        stack: error.stack,
+      });
       Application.shutDownProperly(1);
     });
 
-    process.on("unhandleRejection", (reason: Error) => {
-      logger.error(`Unhandled rejection at promise: ${reason}`);
+    process.on("unhandledRejection", (reason: any) => {
+      logger.error({
+        service: "unhandledRejection",
+        message: `Unhandled rejection at promise: ${reason}`,
+        stack: reason instanceof Error ? reason.stack : undefined,
+      });
       Application.shutDownProperly(2);
     });
 
     process.on("SIGTERM", () => {
-      logger.error("Caught SIGTERM");
+      logger.error({
+        service: "SIGTERM",
+        message: "Caught SIGTERM",
+      });
       Application.shutDownProperly(2);
     });
 
     process.on("SIGINT", () => {
-      logger.error("Caught SIGINT");
+      logger.error({
+        service: "SIGINT",
+        message: "Caught SIGINT",
+      });
       Application.shutDownProperly(2);
     });
 
     process.on("exit", () => {
-      logger.error("Exiting");
+      logger.error({
+        service: "exit",
+        message: "Exiting",
+      });
     });
   }
 
   private static shutDownProperly(exitCode: number): void {
     Promise.resolve()
       .then(() => {
-        logger.info("Shutdown complete");
+        logger.info({
+          service: "shutDownProperly",
+          message: "Shutdown complete",
+        });
         process.exit(exitCode);
       })
       .catch((error) => {
-        logger.error(`Error during shutdown: ${error}`);
+        logger.error({
+          service: "shutDownProperly",
+          message: `Error during shutdown: ${error}`,
+        });
         process.exit(1);
       });
   }
