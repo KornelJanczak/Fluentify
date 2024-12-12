@@ -1,13 +1,13 @@
-import ServerError from "./serverError";
-import { ServerErrorProps } from "./serverError";
+import ServerError, { ServerErrorArguments } from "./serverError";
 import HTTP_STATUS from "http-status-codes";
 
 class AuthorizationError extends ServerError {
-  constructor(props: Partial<ServerErrorProps> = {}) {
-    super({
-      name: "AuthenticationError",
-      code: HTTP_STATUS.UNAUTHORIZED,
-      ...props,
+  constructor({ fileName, service, message, stack }: ServerErrorArguments) {
+    super("AuthorizationError", HTTP_STATUS.UNAUTHORIZED, {
+      fileName,
+      message,
+      service,
+      stack,
     });
   }
 }
