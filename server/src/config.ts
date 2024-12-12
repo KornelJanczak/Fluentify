@@ -1,5 +1,6 @@
 import winston from "winston";
 import dotenv from "dotenv";
+import NotFoundError from "@shared/errors/notFoundError";
 
 dotenv.config();
 
@@ -48,12 +49,15 @@ class Config {
   public validateConfig(): void {
     for (const [key, value] of Object.entries(this)) {
       if (value === undefined) {
-        throw new Error(`Configuration ${key} is undefined.`);
+        throw new NotFoundError({
+          service: "validateConfig",
+          message: `Configuration ${key} is undefined.`,
+        });
       }
     }
   }
 
-  public createLogger() {
+  public createLogger(name: string) {
     return winston.createLogger({
       levels: this.loggerLevels,
       level: process.env.LOG_LEVEL || "info",
@@ -65,12 +69,13 @@ class Config {
         winston.format.errors({ stack: true }),
 
         winston.format.printf(
-          ({ timestamp, level, message, code, service, stack }) => {
+          ({ timestamp, level, message, code, service, fileName, stack }) => {
             const ifErrorCodeExist = code ? `(${code})` : "";
+            const logLocation = fileName
+              ? `${fileName}-${service}`
+              : `${name}-${service}`;
 
-            const loggMessage = `${timestamp} ${level}${ifErrorCodeExist} [${
-              service || "server"
-            }]: ${message}`;
+            const loggMessage = `${timestamp} ${level}${ifErrorCodeExist} [${logLocation}]: ${message}`;
             if (stack) {
               return `${loggMessage}\nStack: ${stack}`;
             }
