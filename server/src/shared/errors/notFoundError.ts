@@ -1,13 +1,13 @@
-import ServerError from "./serverError";
+import ServerError, { ServerErrorArguments } from "./serverError";
 import HTTP_STATUS from "http-status-codes";
-import { ServerErrorProps } from "./serverError";
 
 class NotFoundError extends ServerError {
-  constructor(props: Partial<ServerErrorProps> = {}) {
-    super({
-      name: "NotFoundError",
-      code: HTTP_STATUS.NOT_FOUND,
-      ...props,
+  constructor({ fileName, service, message, stack }: ServerErrorArguments) {
+    super("NotFoundError", HTTP_STATUS.UNAUTHORIZED, {
+      fileName,
+      message,
+      service,
+      stack,
     });
   }
 }
