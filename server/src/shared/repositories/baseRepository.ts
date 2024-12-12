@@ -30,6 +30,7 @@ abstract class BaseRepository<T> {
     } catch (error) {
       throw new DatabaseError({
         service,
+
         ...error,
       });
     }
