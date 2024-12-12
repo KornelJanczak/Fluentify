@@ -1,27 +1,35 @@
-export type ServerErrorProps = {
-  name: string;
-  message?: string;
+export type ServerErrorArguments = {
+  fileName: string;
+  service: string;
+  message: string;
   stack?: string;
-  service?: string;
-  code: number;
 };
 
 abstract class ServerError extends Error {
-  name: string;
-  message: string;
-  stack: string;
-  service: string;
-  code: number;
+  public code: number;
 
-  constructor({ name, message, stack, service, code }: ServerErrorProps) {
-    super();
+  constructor(
+    name: string,
+    code: number,
+    { fileName, service, message, stack }: ServerErrorArguments
+  ) {
+    super(message);
     this.name = name;
-    this.message = message;
     this.code = code;
-    this.service = service;
-    this.stack = stack;
 
-    Error.captureStackTrace(this, this.constructor);
+    if (fileName) {
+      (this as any).fileName = fileName;
+    }
+
+    if (service) {
+      (this as any).service = service;
+    }
+
+    if (stack) {
+      (this as any).stack = stack;
+    }
+
+    Error.captureStackTrace(this, ServerError);
   }
 }
 
