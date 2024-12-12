@@ -4,9 +4,10 @@ import aiCharactersInitialPrompts from "@shared/AI/prompts";
 import { ChatServiceAbstract, ChatResult } from "../chat.interfaces";
 import chatRepository from "@shared/repositories/chatRepository";
 import NotFoundError from "@shared/errors/notFoundError";
-import HTTP_STATUS from "http-status-codes";
 import { v4 as uuidv4 } from "uuid";
 import messagesRepository from "@shared/repositories/messagesRepository";
+
+const fileName = "chat.service";
 
 class ChatService implements ChatServiceAbstract {
   private messages: CoreMessage[] = [];
@@ -25,14 +26,15 @@ class ChatService implements ChatServiceAbstract {
 
     if (!chat)
       throw new NotFoundError({
+        fileName,
+        service: "execute",
         message: "Chat not found",
-        service: "chatService: execute",
       });
 
     const lastUserMessage = this.extractLastUserMessage();
 
     await messagesRepository.saveMessages({
-      service: "chatService: saveChatMessages",
+      service: "saveChatMessages",
       messages: [
         {
           id: uuidv4(),
@@ -58,7 +60,7 @@ class ChatService implements ChatServiceAbstract {
       messages: this.messages,
       onFinish: async ({ text }) => {
         await messagesRepository.saveMessages({
-          service: "chatService: saveChatMessages",
+          service: "saveChatMessages",
           messages: [
             {
               id: uuidv4(),
