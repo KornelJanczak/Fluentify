@@ -4,13 +4,16 @@ import { User } from "@shared/db/schema";
 import { AuthControllerAbstract } from "./auth.interfaces";
 import HTTP_STATUS from "http-status-codes";
 
+const fileName = "auth.controller";
+
 class AuthController implements AuthControllerAbstract {
   public logOut(req: Request, res: Response, next: NextFunction) {
     req.logout((error) => {
       if (error) {
         next(
           new AuthenticationError({
-            service: "autController: logout",
+            fileName,
+            service: "logOut",
             ...error,
           })
         );
@@ -29,8 +32,9 @@ class AuthController implements AuthControllerAbstract {
     if (!currentUser) {
       next(
         new AuthenticationError({
+          fileName,
+          service: "authStatus",
           message: "User is not authenticated",
-          service: "authController: authStatus",
         })
       );
     }
