@@ -13,8 +13,9 @@ import { globalErrorMiddleware } from "@shared/middleware/errorMiddleware";
 import HTTP_STATUS from "http-status-codes";
 import passport from "passport";
 import "@shared/strategies/google-strategy";
+import session from "express-session";
 
-const logger = config.createLogger();
+const logger = config.createLogger("setupServer");
 
 export class FluentifyServer {
   private app: Application;
@@ -40,10 +41,23 @@ export class FluentifyServer {
         name: config.COOKIE_SESSION_NAME,
         keys: [config.SECRET_KEY_ONE, config.SECRET_KEY_TWO],
         maxAge: 24 * 60 * 60 * 1000,
-        secure: config.NODE_ENV !== "development",
-        sameSite: "none",
+        // secure: config.NODE_ENV !== "development",
+        // sameSite: "none",
       })
     );
+    // app.use(
+    //   session({
+    //     secret: "anson the dev",
+    //     saveUninitialized: true,
+    //     resave: false,
+    //     cookie: {
+    //       maxAge: 60000 * 60,
+    //     },
+    //     // store: MongoStore.create({
+    //     //   client: mongoose.connection.getClient(),
+    //     // }),
+    //   })
+    // );
     app.use(cookieParser());
     app.use(hpp());
     app.use(helmet());
