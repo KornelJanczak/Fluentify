@@ -25,7 +25,7 @@ class ChatRepository extends BaseRepository<Chat> {
       return chatList;
     } catch (error) {
       throw new DatabaseError({
-        service: "chatRepository: getByUserId",
+        service: "getByUserId",
         ...error,
       });
     }
