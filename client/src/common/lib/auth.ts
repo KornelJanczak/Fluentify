@@ -8,7 +8,6 @@ export const getSessionCookie = async () => {
   const sessionSignature = cookieStore.get(
     "fluentify-server-session.sig"
   ).value;
-  
 
   const sessionCookie =
     "fluentify-server-session=" +
@@ -22,9 +21,10 @@ export const getSessionCookie = async () => {
 export const getUser = async () => {
   const sessionCookie = await getSessionCookie();
 
-  console.log(sessionCookie);
+  // console.log(sessionCookie);
 
   const response = await fetch("http://localhost:5000/api/v1/auth/session", {
+    credentials: "include",
     headers: {
       Cookie: sessionCookie,
     },
