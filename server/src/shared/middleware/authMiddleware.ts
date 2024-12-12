@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import AuthenticationError from "../errors/authenticationError";
-import logger from "../config/logger";
+import AuthenticationError from "@shared/errors/authenticationError";
+import config from "@root/config";
+
+const logger = config.createLogger(__filename);
 
 const authMiddleware = (req: Request, _: Response, next: NextFunction) => {
   if (!req.isAuthenticated()) {
@@ -12,7 +14,7 @@ const authMiddleware = (req: Request, _: Response, next: NextFunction) => {
     );
   }
 
-  logger.info("AuthMiddleware: User is authenticated");
+  logger.info("User is authenticated");
   return next();
 };
 
