@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import ServerError from "../errors/serverError";
 import config from "@root/config";
 
-const logger = config.createLogger();
+const logger = config.createLogger("errorMiddleware");
 
 export const globalErrorMiddleware = (
   err: Error | ServerError,
@@ -11,19 +11,21 @@ export const globalErrorMiddleware = (
   __: NextFunction
 ) => {
   let errorResponse = {
+    code: res.statusCode,
     name: "Internal Server Error",
+    fileName: undefined,
+    service: undefined,
     message: err.message || "Internal Server Error",
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
-    code: res.statusCode,
-    service: undefined,
   };
 
   if (err instanceof ServerError) {
     errorResponse = {
+      code: err.code,
       name: err.name,
+      fileName: err.fileName,
       service: err.service,
       message: err.message,
-      code: err.code,
       stack: process.env.NODE_ENV === "production" ? null : err.stack,
     };
   }
