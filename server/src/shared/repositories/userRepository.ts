@@ -1,7 +1,9 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db";
-import { type User, users } from "../db/schema";
+import { db } from "../services/db";
+import { type User, users } from "../services/db/schema";
 import DatabaseError from "../errors/dbError";
+
+const fileName = "userRepository";
 
 class UserRepository {
   async create(newUser: User): Promise<User> {
@@ -14,8 +16,10 @@ class UserRepository {
       return createdUser;
     } catch (error) {
       throw new DatabaseError({
-        service: "userRepository: create",
-        ...error,
+        fileName,
+        service: "create",
+        message: error.message,
+        stack: error.stack,
       });
     }
   }
@@ -28,10 +32,12 @@ class UserRepository {
         .where(eq(users.email, email));
 
       return user;
-    } catch (err) {
+    } catch (error) {
       throw new DatabaseError({
-        message: err.message,
-        stack: err.stack,
+        fileName,
+        service: "getByEmail",
+        message: error.message,
+        stack: error.stack,
       });
     }
   }
@@ -44,10 +50,12 @@ class UserRepository {
         .where(eq(users.id, id));
 
       return user;
-    } catch (err) {
+    } catch (error) {
       throw new DatabaseError({
-        message: err.message,
-        stack: err.stack,
+        fileName,
+        service: "getById",
+        message: error.message,
+        stack: error.stack,
       });
     }
   }
