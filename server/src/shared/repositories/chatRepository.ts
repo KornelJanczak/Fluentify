@@ -1,9 +1,11 @@
-import { db } from "../db";
-import { type Chat, chats } from "../db/schema";
+import { db } from "../services/db";
+import { type Chat, chats } from "../services/db/schema";
 import { eq } from "drizzle-orm";
 import DatabaseError from "../errors/dbError";
 import BaseRepository from "./baseRepository";
 import { PgColumn, PgTable, TableConfig } from "drizzle-orm/pg-core";
+
+const fileName = "chatRepository";
 
 class ChatRepository extends BaseRepository<Chat> {
   protected table: PgTable<TableConfig>;
@@ -25,8 +27,10 @@ class ChatRepository extends BaseRepository<Chat> {
       return chatList;
     } catch (error) {
       throw new DatabaseError({
+        fileName,
         service: "getByUserId",
-        ...error,
+        message: error.message,
+        stack: error.stack,
       });
     }
   }
