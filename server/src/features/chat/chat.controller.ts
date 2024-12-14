@@ -3,8 +3,8 @@ import ChatService from "./service";
 import { ChatControllerAbstract, ChatServiceAbstract } from "./chat.interfaces";
 import chatRepository from "@shared/repositories/chatRepository";
 import { v4 as uuidv4 } from "uuid";
-import { User } from "src/shared/db/schema";
-import { type Chat } from "src/shared/db/schema";
+import { User } from "@shared/services/db/schema";
+import { type Chat } from "@shared/services/db/schema";
 import HTTP_STATUS from "http-status-codes";
 import messagesRepository from "@shared/repositories/messagesRepository";
 
