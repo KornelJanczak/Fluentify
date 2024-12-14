@@ -1,6 +1,6 @@
 import { CoreMessage, streamText } from "ai";
 import { google } from "@ai-sdk/google";
-import aiCharactersInitialPrompts from "@shared/AI/prompts";
+import aiCharactersInitialPrompts from "@shared/services/ai/prompts";
 import { ChatServiceAbstract, ChatResult } from "../chat.interfaces";
 import chatRepository from "@shared/repositories/chatRepository";
 import NotFoundError from "@shared/errors/notFoundError";
