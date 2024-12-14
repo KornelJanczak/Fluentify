@@ -1,9 +1,11 @@
-import { db } from "../db";
-import { type Message, messages } from "../db/schema";
+import { db } from "../services/db";
+import { type Message, messages } from "../services/db/schema";
 import { eq } from "drizzle-orm";
 import DatabaseError from "../errors/dbError";
 import BaseRepository from "./baseRepository";
 import { PgColumn, PgTable, TableConfig } from "drizzle-orm/pg-core";
+
+const fileName = "messagesRepository";
 
 class MessagesRepository extends BaseRepository<Message> {
   protected table: PgTable<TableConfig>;
@@ -26,8 +28,10 @@ class MessagesRepository extends BaseRepository<Message> {
       return await db.insert(this.table).values(messages).returning();
     } catch (error) {
       throw new DatabaseError({
+        fileName,
         service,
-        ...error,
+        message: error.message,
+        stack: error.stack,
       });
     }
   }
@@ -46,8 +50,10 @@ class MessagesRepository extends BaseRepository<Message> {
         .where(eq(messages.chatId, chatId));
     } catch (error) {
       throw new DatabaseError({
+        fileName,
         service,
-        ...error,
+        message: error.message,
+        stack: error.stack,
       });
     }
   }
