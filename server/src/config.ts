@@ -4,6 +4,8 @@ import NotFoundError from "@shared/errors/notFoundError";
 
 dotenv.config();
 
+const fileName = "config";
+
 class Config {
   public PORT: string | undefined;
   public DATABASE_URL: string | undefined;
@@ -50,6 +52,7 @@ class Config {
     for (const [key, value] of Object.entries(this)) {
       if (value === undefined) {
         throw new NotFoundError({
+          fileName,
           service: "validateConfig",
           message: `Configuration ${key} is undefined.`,
         });
@@ -72,8 +75,8 @@ class Config {
           ({ timestamp, level, message, code, service, fileName, stack }) => {
             const ifErrorCodeExist = code ? `(${code})` : "";
             const logLocation = fileName
-              ? `${fileName}-${service}`
-              : `${name}-${service}`;
+              ? `${fileName}/${service}`
+              : `${name}/${service}`;
 
             const loggMessage = `${timestamp} ${level}${ifErrorCodeExist} [${logLocation}]: ${message}`;
             if (stack) {
