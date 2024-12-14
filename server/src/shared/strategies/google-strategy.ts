@@ -1,9 +1,11 @@
 import passport, { use } from "passport";
 import { Strategy, type StrategyOptions } from "passport-google-oauth20";
-import { User } from "../db/schema";
+import { User } from "../services/db/schema";
 import userRepository from "../repositories/userRepository";
-import logger from "../config/logger";
+import config from "@root/config";
 import AuthenticationError from "../errors/authenticationError";
+
+const logger = config.createLogger("googleStrategy");
 
 const strategyOptions: StrategyOptions = {
   clientID: process.env.GOOGLE_CLIENT_ID!,
