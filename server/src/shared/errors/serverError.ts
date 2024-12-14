@@ -1,5 +1,5 @@
 export type ServerErrorArguments = {
-  fileName: string;
+  fileName?: string;
   service: string;
   message: string;
   stack?: string;
@@ -7,6 +7,8 @@ export type ServerErrorArguments = {
 
 abstract class ServerError extends Error {
   public code: number;
+  public fileName?: string;
+  public service: string;
 
   constructor(
     name: string,
