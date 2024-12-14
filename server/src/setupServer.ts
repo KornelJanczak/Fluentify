@@ -111,7 +111,10 @@ export class FluentifyServer {
 
   private startHttpServer(httpServer: http.Server): void {
     httpServer.listen(config.PORT, () => {
-      logger.info(`Server started on port ${config.PORT}`);
+      logger.info({
+        message: `Server started on port ${config.PORT}`,
+        service: "startHttpServer",
+      });
     });
   }
 }
