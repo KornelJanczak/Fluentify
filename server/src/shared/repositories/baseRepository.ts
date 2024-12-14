@@ -1,19 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db";
+import { db } from "../services/db";
 import DatabaseError from "../errors/dbError";
 import { PgTable, TableConfig, PgColumn } from "drizzle-orm/pg-core";
-
-type ReturnValue = { [x: string]: unknown };
-
-type Create<T> = {
-  newItem: T;
-  service: string;
-};
-
-type GetById = {
-  id: string;
-  service: string;
-};
 
 abstract class BaseRepository<T> {
   protected abstract table: PgTable<TableConfig>;
@@ -30,7 +18,6 @@ abstract class BaseRepository<T> {
     } catch (error) {
       throw new DatabaseError({
         service,
-
         ...error,
       });
     }
@@ -54,3 +41,15 @@ abstract class BaseRepository<T> {
 }
 
 export default BaseRepository;
+
+type ReturnValue = { [x: string]: unknown };
+
+type Create<T> = {
+  newItem: T;
+  service: string;
+};
+
+type GetById = {
+  id: string;
+  service: string;
+};
