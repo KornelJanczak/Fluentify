@@ -52,6 +52,7 @@
     "morgan": "~1.10.0",
     "passport": "^0.5.3",
     "passport-google-oauth20": "^2.0.0",
+    "redis": "^4.7.0",
     "session": "^0.1.0",
     "swagger-stats": "^0.99.7",
     "typescript-transform-paths": "^3.5.2",
