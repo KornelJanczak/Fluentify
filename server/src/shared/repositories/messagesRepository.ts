@@ -7,51 +7,33 @@ import { PgColumn, PgTable, TableConfig } from "drizzle-orm/pg-core";
 
 const fileName = "messagesRepository";
 
-class MessagesRepository extends BaseRepository<Message> {
+class MessagesRepository {
   protected table: PgTable<TableConfig>;
   protected idColumn: PgColumn;
 
-  constructor(table: PgTable<TableConfig>, idColumn: PgColumn) {
-    super();
-    this.table = table;
-    this.idColumn = idColumn;
-  }
-
-  async saveMessages({
-    messages,
-    service,
-  }: {
-    service: string;
-    messages: Message[];
-  }) {
+  async saveMessages(newMessages: Message[]): Promise<Message[]> {
     try {
-      return await db.insert(this.table).values(messages).returning();
+      return await db.insert(messages).values(newMessages).returning();
     } catch (error) {
       throw new DatabaseError({
         fileName,
-        service,
+        service: "saveMessages",
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async getMessagesByChatId({
-    chatId,
-    service,
-  }: {
-    chatId: string;
-    service: string;
-  }) {
+  async getMessagesByChatId(chatId: string): Promise<Message[]> {
     try {
       return await db
         .select()
-        .from(this.table)
+        .from(messages)
         .where(eq(messages.chatId, chatId));
     } catch (error) {
       throw new DatabaseError({
         fileName,
-        service,
+        service: "getMessagesByChatId",
         message: error.message,
         stack: error.stack,
       });
@@ -59,5 +41,5 @@ class MessagesRepository extends BaseRepository<Message> {
   }
 }
 
-const messagesRepository = new MessagesRepository(messages, messages.id);
+const messagesRepository = new MessagesRepository();
 export default messagesRepository;

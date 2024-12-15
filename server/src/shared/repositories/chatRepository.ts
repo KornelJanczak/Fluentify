@@ -7,14 +7,39 @@ import { PgColumn, PgTable, TableConfig } from "drizzle-orm/pg-core";
 
 const fileName = "chatRepository";
 
-class ChatRepository extends BaseRepository<Chat> {
+class ChatRepository {
   protected table: PgTable<TableConfig>;
   protected idColumn: PgColumn;
 
-  constructor(table: PgTable<TableConfig>, idColumn: PgColumn) {
-    super();
-    this.table = table;
-    this.idColumn = idColumn;
+
+  async create(newItem: Chat): Promise<Chat> {
+    try {
+      const [createdItem] = await db.insert(chats).values(newItem).returning();
+
+      return createdItem;
+    } catch (error) {
+      throw new DatabaseError({
+        fileName,
+        service: "create",
+        message: error.message,
+        stack: error.stack,
+      });
+    }
+  }
+
+  async getById(id: string): Promise<Chat> {
+    try {
+      const [item] = await db.select().from(chats).where(eq(chats.id, id));
+
+      return item;
+    } catch (error) {
+      throw new DatabaseError({
+        fileName,
+        service: "getById",
+        message: error.message,
+        stack: error.stack,
+      });
+    }
   }
 
   async getByUserId(userId: string): Promise<Chat[]> {
@@ -36,5 +61,5 @@ class ChatRepository extends BaseRepository<Chat> {
   }
 }
 
-const chatRepository = new ChatRepository(chats, chats.id);
+const chatRepository = new ChatRepository();
 export default chatRepository;
