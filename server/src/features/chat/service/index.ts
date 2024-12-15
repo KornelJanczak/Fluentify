@@ -19,10 +19,7 @@ class ChatService implements ChatServiceAbstract {
   }
 
   async execute(): ChatResult {
-    const chat = await chatRepository.getById({
-      service: "execute",
-      id: this.chatId,
-    });
+    const chat = await chatRepository.getById(this.chatId);
 
     if (!chat)
       throw new NotFoundError({
@@ -33,18 +30,15 @@ class ChatService implements ChatServiceAbstract {
 
     const lastUserMessage = this.extractLastUserMessage();
 
-    await messagesRepository.saveMessages({
-      service: "saveChatMessages",
-      messages: [
-        {
-          id: uuidv4(),
-          ...lastUserMessage,
-          createdAt: new Date(),
-          chatId: this.chatId,
-          usedTokens: 0,
-        },
-      ],
-    });
+    await messagesRepository.saveMessages([
+      {
+        id: uuidv4(),
+        ...lastUserMessage,
+        createdAt: new Date(),
+        chatId: this.chatId,
+        usedTokens: 0,
+      },
+    ]);
 
     const result = await this.startStreamingText();
     return result;
@@ -59,19 +53,16 @@ class ChatService implements ChatServiceAbstract {
       system: systemPrompt,
       messages: this.messages,
       onFinish: async ({ text }) => {
-        await messagesRepository.saveMessages({
-          service: "saveChatMessages",
-          messages: [
-            {
-              id: uuidv4(),
-              content: text,
-              createdAt: new Date(),
-              role: "assistant",
-              chatId: this.chatId,
-              usedTokens: 0,
-            },
-          ],
-        });
+        await messagesRepository.saveMessages([
+          {
+            id: uuidv4(),
+            content: text,
+            createdAt: new Date(),
+            role: "assistant",
+            chatId: this.chatId,
+            usedTokens: 0,
+          },
+        ]);
       },
     });
 
