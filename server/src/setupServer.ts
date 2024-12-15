@@ -14,6 +14,7 @@ import HTTP_STATUS from "http-status-codes";
 import passport from "passport";
 import "@shared/strategies/google-strategy";
 import session from "express-session";
+import {redisStore} from "@shared/services/redis/baseCahe";
 
 const logger = config.createLogger("setupServer");
 
@@ -36,28 +37,27 @@ export class FluentifyServer {
 
   private securityMiddleware(app: Application): void {
     app.set("trust proxy", 1);
-    app.use(
-      cookieSession({
-        name: config.COOKIE_SESSION_NAME,
-        keys: [config.SECRET_KEY_ONE, config.SECRET_KEY_TWO],
-        maxAge: 24 * 60 * 60 * 1000,
-        // secure: config.NODE_ENV !== "development",
-        // sameSite: "none",
-      })
-    );
     // app.use(
-    //   session({
-    //     secret: "anson the dev",
-    //     saveUninitialized: true,
-    //     resave: false,
-    //     cookie: {
-    //       maxAge: 60000 * 60,
-    //     },
-    //     // store: MongoStore.create({
-    //     //   client: mongoose.connection.getClient(),
-    //     // }),
+    //   cookieSession({
+    //     name: config.COOKIE_SESSION_NAME,
+    //     keys: [config.SECRET_KEY_ONE, config.SECRET_KEY_TWO],
+    //     maxAge: 24 * 60 * 60 * 1000,
+    //     // secure: config.NODE_ENV !== "development",
+    //     // sameSite: "none",
     //   })
     // );
+    app.use(
+      session({
+        secret: "anson the dev",
+        saveUninitialized: true,
+        resave: false,
+        cookie: {
+          maxAge: 60000 * 60,
+        },
+        store: redisStore,
+      })
+      
+    );
     app.use(cookieParser());
     app.use(hpp());
     app.use(helmet());
