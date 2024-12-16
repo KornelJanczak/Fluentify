@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ChatService from "./service";
+import ChatService from "./chat.service";
 import { ChatControllerAbstract, ChatServiceAbstract } from "./chat.interfaces";
 import chatRepository from "@shared/repositories/chatRepository";
 import { v4 as uuidv4 } from "uuid";
