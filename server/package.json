@@ -26,6 +26,7 @@
   "dependencies": {
     "@ai-sdk/google": "^0.0.55",
     "@ai-sdk/openai": "^0.0.72",
+    "@google-cloud/text-to-speech": "^5.6.0",
     "@kinde-oss/kinde-node-express": "^1.6.0",
     "@neondatabase/serverless": "^0.10.3",
     "ai": "^3.4.33",
