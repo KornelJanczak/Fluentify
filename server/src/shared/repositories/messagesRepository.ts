@@ -2,7 +2,6 @@ import { db } from "../services/db";
 import { type Message, messages } from "../services/db/schema";
 import { eq } from "drizzle-orm";
 import DatabaseError from "../errors/dbError";
-import BaseRepository from "./baseRepository";
 import { PgColumn, PgTable, TableConfig } from "drizzle-orm/pg-core";
 
 const fileName = "messagesRepository";
