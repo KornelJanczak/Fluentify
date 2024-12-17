@@ -10,6 +10,8 @@ export const validateZodSchema = (
       return next();
     } catch (error) {
       if (error instanceof ZodError) {
+        console.log("error", error);
+
         throw new Error("Zod error");
       }
     }
