@@ -22,6 +22,7 @@ class Config {
   public SECRET_KEY_ONE: string | undefined;
   public SECRET_KEY_TWO: string | undefined;
   public REDIS_HOST_URL: string | undefined;
+  public GOOGLE_API_KEY: string | undefined;
   readonly loggerLevels = {
     fatal: 0,
     error: 1,
@@ -48,6 +49,7 @@ class Config {
     this.SECRET_KEY_ONE = process.env.SECRET_KEY_ONE || "";
     this.SECRET_KEY_TWO = process.env.SECRET_KEY_TWO || "";
     this.REDIS_HOST_URL = process.env.REDIS_HOST_URL || "";
+    this.GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
   }
 
   public validateConfig(): void {
