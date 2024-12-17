@@ -13,9 +13,9 @@ class ChatController implements ChatControllerAbstract {
     const chatId = req.body.chatId;
 
     const chatService: ChatServiceAbstract = new ChatService(messages, chatId);
-    const conversationResult = await chatService.execute();
+    const chatResult = await chatService.execute();
 
-    return conversationResult.pipeDataStreamToResponse(res);
+    return chatResult.pipeDataStreamToResponse(res);
   }
 
   async createChat(req: Request, res: Response) {
