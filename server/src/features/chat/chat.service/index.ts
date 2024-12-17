@@ -6,6 +6,7 @@ import chatRepository from "@shared/repositories/chatRepository";
 import NotFoundError from "@shared/errors/notFoundError";
 import { v4 as uuidv4 } from "uuid";
 import messagesRepository from "@shared/repositories/messagesRepository";
+import textToSpeechClient from "@shared/services/textToSpeech";
 
 const fileName = "chat.service";
 
@@ -48,11 +49,17 @@ class ChatService implements ChatServiceAbstract {
     const systemPrompt =
       aiCharactersInitialPrompts.johnFromAmerica("my daily routine");
 
+    const ttsResult = await this.createTextToSpeechStream("Hello, what's up?");
+
+    console.log(ttsResult);
+
     const result = await streamText({
       model: google("gemini-1.5-pro"),
       system: systemPrompt,
       messages: this.messages,
       onFinish: async ({ text }) => {
+        console.log(text);
+
         await messagesRepository.saveMessages([
           {
             id: uuidv4(),
@@ -69,6 +76,16 @@ class ChatService implements ChatServiceAbstract {
     console.log(result);
 
     return result;
+  }
+
+  private async createTextToSpeechStream(text: string) {
+    const [response] = await textToSpeechClient.synthesizeSpeech({
+      input: { text },
+      voice: { languageCode: "en-US", ssmlGender: "NEUTRAL" },
+      audioConfig: { audioEncoding: "MP3" },
+    });
+
+    return response.audioContent;
   }
 
   private extractLastUserMessage(): CoreMessage {
