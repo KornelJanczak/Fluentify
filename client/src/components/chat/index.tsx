@@ -12,7 +12,7 @@ export default function Chat({
   sessionCookie,
   initialMessages,
 }: ChatProps) {
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, data } = useChat({
     id: chatId,
     initialMessages,
     api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
@@ -24,12 +24,15 @@ export default function Chat({
       Cookie: sessionCookie,
     },
     onResponse: (res) => {
-      console.log(res);
+      console.log("data: ", data);
     },
   });
 
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
+      <div>
+        <audio src="http://localhost:5000/audio" controls={true} />
+      </div>
       {messages.map((m) => (
         <div key={m.id} className="whitespace-pre-wrap ">
           {m.role === "user" ? "User: " : "AI: "}

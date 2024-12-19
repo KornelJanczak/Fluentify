@@ -1,5 +1,6 @@
 import { getSessionCookie } from "@/common/lib/auth";
 import Chat from "@/components/chat";
+import ai from "ai";
 
 interface ChatPageProps {
   params: { chatId: string };
@@ -8,6 +9,7 @@ interface ChatPageProps {
 export default async function ChatPage({ params }: ChatPageProps) {
   const chatId = params.chatId;
   const sessionCookie = await getSessionCookie();
+
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/chat/${chatId}/messages`,
