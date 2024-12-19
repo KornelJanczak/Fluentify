@@ -1,17 +1,29 @@
-import ai, { CoreMessage, streamText } from "ai";
+import {
+  generateId,
+  streamText,
+  CoreMessage,
+  createDataStreamResponse,
+  DataStreamWriter,
+} from "ai";
 import { google } from "@ai-sdk/google";
 import aiCharactersInitialPrompts from "@shared/services/ai/prompts";
-import { ChatServiceAbstract, ChatResult } from "../chat.interfaces";
+import {
+  ChatServiceAbstract,
+  ChatResult,
+  executeReturnType,
+} from "../chat.interfaces";
 import chatRepository from "@shared/repositories/chatRepository";
 import NotFoundError from "@shared/errors/notFoundError";
 import { v4 as uuidv4 } from "uuid";
 import messagesRepository from "@shared/repositories/messagesRepository";
 import textToSpeechClient from "@shared/services/textToSpeech";
-import fs from "fs";
+import fs, { WriteStream } from "fs";
+import config from "@root/config";
 
 const fileName = "chat.service";
+const logger = config.createLogger(fileName);
 
-class ChatService implements ChatServiceAbstract {
+class ChatService {
   private messages: CoreMessage[] = [];
   private chatId: string;
 
@@ -20,7 +32,7 @@ class ChatService implements ChatServiceAbstract {
     this.chatId = chatId;
   }
 
-  async execute(): ChatResult {
+  async execute(streamWriter: DataStreamWriter) {
     const chat = await chatRepository.getById(this.chatId);
 
     if (!chat)
@@ -42,24 +54,22 @@ class ChatService implements ChatServiceAbstract {
       },
     ]);
 
-    const result = await this.startStreamingText();
-    return result;
+    this.startStreamingText(streamWriter);
   }
 
-  private async mergeStreams() {}
+  private async startStreamingText(streamWriter: DataStreamWriter) {
+    let ttsStream: DataStreamWriter;
 
-  private async startStreamingText(): ChatResult {
     const systemPrompt =
       aiCharactersInitialPrompts.johnFromAmerica("my daily routine");
 
-    const result = await streamText({
+    const result = streamText({
       model: google("gemini-1.5-pro"),
       system: systemPrompt,
       messages: this.messages,
 
       onFinish: async ({ text }) => {
-        await this.ttsRealtime(text.split(" "));
-
+        this.ttsRealtime(text.split(" "), streamWriter);
         await messagesRepository.saveMessages([
           {
             id: uuidv4(),
@@ -71,39 +81,49 @@ class ChatService implements ChatServiceAbstract {
           },
         ]);
       },
+      onChunk: async ({ chunk }) => {
+        console.log("chunk", chunk);
+      },
     });
 
-    return result;
+    // const text =  (await result.text).split("");
+
+    result.mergeIntoDataStream(streamWriter);
   }
 
-  private async ttsRealtime(texts: string[]) {
+  private ttsRealtime(texts: string[], streamWriterr: DataStreamWriter) {
     const ttsStream = textToSpeechClient.streamingSynthesize();
 
+    console.log(ttsStream);
+
     // Write the response to a file, replace with your desired output stream
-    const writeStream = fs.createWriteStream("output.wav");
+    const streamWriter = fs.createWriteStream("output.wav");
 
     // The audio data is headerless LINEAR16 audio with a sample rate of 24000.
     const sampleRate = 24000;
     const numChannels = 1; // Mono audio
     const byteRate = sampleRate * numChannels * 2;
     const header = this.createWavHeader(sampleRate, numChannels, byteRate, 0);
-    writeStream.write(header);
+    streamWriter.write(header);
 
+    console.log(streamWriter);
+
+    
     // Handle the TTS response stream
     ttsStream.on("data", (response: any) => {
       if (response.audioContent) {
-        writeStream.write(response.audioContent);
+        streamWriter.write(response.audioContent);
       }
     });
 
     ttsStream.on("error", (err: any) => {
       console.error("Error during Text-to-Speech:", err);
-      writeStream.end();
+      streamWriter.end();
     });
 
     ttsStream.on("end", () => {
       console.log("Finished streaming Text-to-Speech");
-      writeStream.end();
+      streamWriter.end();
     });
 
     // Note: Only Journey voices support streaming for now.
