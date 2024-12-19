@@ -1,12 +1,11 @@
 import { StreamTextResult, CoreTool } from "ai";
 import { Request, Response, NextFunction } from "express";
 
-export type ChatResult = Promise<
-  StreamTextResult<Record<string, CoreTool<any, any>>>
->;
+export type ChatResult = StreamTextResult<Record<string, CoreTool<any, any>>>;
+export type executeReturnType = Promise<Response<any, Record<string, any>>>;
 
 export interface ChatServiceAbstract {
-  execute(): ChatResult;
+  execute(): executeReturnType
 }
 
 export interface ChatControllerAbstract {

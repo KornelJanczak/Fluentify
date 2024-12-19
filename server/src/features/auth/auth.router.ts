@@ -11,10 +11,11 @@ const scope = [
   "openid",
   "https://www.googleapis.com/auth/cloud-platform",
 ];
-
+//@ts-ignore
 router.get("/auth/status", authController.authStatus);
-router.get("/auth/logout", authMiddleware, authController.logOut);
+//@ts-ignore
 router.get("/auth/session", authMiddleware, authController.authSession);
+router.get("/auth/logout", authMiddleware, authController.logOut);
 router.get(
   "/auth/google",
   passport.authenticate("google", {

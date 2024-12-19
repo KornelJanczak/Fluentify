@@ -99,6 +99,7 @@ export class FluentifyServer {
         .json({ message: `${req.originalUrl} not found` });
     });
 
+    //@ts-ignore
     app.use(globalErrorMiddleware);
   }
 
