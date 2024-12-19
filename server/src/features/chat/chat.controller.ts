@@ -6,16 +6,21 @@ import { v4 as uuidv4 } from "uuid";
 import { User } from "@shared/services/db/schema";
 import HTTP_STATUS from "http-status-codes";
 import messagesRepository from "@shared/repositories/messagesRepository";
+import { pipeDataStreamToResponse } from "ai";
 
 class ChatController implements ChatControllerAbstract {
   async startChat(req: Request, res: Response) {
     const messages = req.body.messages;
     const chatId = req.body.chatId;
 
-    const chatService: ChatServiceAbstract = new ChatService(messages, chatId);
-    const chatResult = await chatService.execute();
+    const chatService = new ChatService(messages, chatId);
 
-    return chatResult.pipeDataStreamToResponse(res);
+    // return chatResult.pipeDataStreamToResponse(res);
+    pipeDataStreamToResponse(res, {
+      execute: async (streamWriter) => {
+        await chatService.execute(streamWriter);
+      },
+    });
   }
 
   async createChat(req: Request, res: Response) {
