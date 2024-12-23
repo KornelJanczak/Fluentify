@@ -1,5 +1,6 @@
 "use client";
 import { useChat } from "ai/react";
+import AudioStreamPlayer from "./audio-stream-player";
 
 interface ChatProps {
   chatId: string;
@@ -24,15 +25,18 @@ export default function Chat({
       Cookie: sessionCookie,
     },
     onResponse: (res) => {
+      console.log(res);
+
       console.log("data: ", data);
     },
   });
 
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
-      <div>
+      {/* <div>
         <audio src="http://localhost:5000/audio" controls={true} />
-      </div>
+      </div> */}
+      <AudioStreamPlayer />
       {messages.map((m) => (
         <div key={m.id} className="whitespace-pre-wrap ">
           {m.role === "user" ? "User: " : "AI: "}
