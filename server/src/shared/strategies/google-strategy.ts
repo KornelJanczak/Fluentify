@@ -32,6 +32,9 @@ passport.deserializeUser(async (id: string, done) => {
   try {
     const currentUser = await userRepository.getById(id);
 
+    console.log(currentUser);
+    
+
     if (!currentUser) return done(null, false);
 
     logger.info({
@@ -66,9 +69,11 @@ export default passport.use(
         const newUser: User = {
           id: account.sub,
           email: account.email,
-          imagePaths: account.picture,
+          imagePath: account.picture,
           role: "user",
           subscriptionExpiryDate: "2024-11-17",
+          studingLanguageLevel: "B1",
+          nativeLanguage: "PL",
         };
 
         user = await userRepository.create(newUser);
