@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from "uuid";
 import messagesRepository from "@shared/repositories/messagesRepository";
 import textToSpeechClient from "@shared/services/textToSpeech";
 import fs, { WriteStream } from "fs";
+import { Stream } from "node:stream";
 import config from "@root/config";
 
 const fileName = "chat.service";
@@ -57,7 +58,7 @@ class ChatService {
     this.startStreamingText(streamWriter);
   }
 
-  private async startStreamingText(streamWriter: DataStreamWriter) {
+  private startStreamingText(streamWriter: DataStreamWriter) {
     let ttsStream: DataStreamWriter;
 
     const systemPrompt =
@@ -69,7 +70,7 @@ class ChatService {
       messages: this.messages,
 
       onFinish: async ({ text }) => {
-        this.ttsRealtime(text.split(" "), streamWriter);
+        this.ttsRealtime("Hello world".split(" "), streamWriter);
         await messagesRepository.saveMessages([
           {
             id: uuidv4(),
@@ -86,44 +87,37 @@ class ChatService {
       },
     });
 
-    // const text =  (await result.text).split("");
-
     result.mergeIntoDataStream(streamWriter);
   }
 
   private ttsRealtime(texts: string[], streamWriterr: DataStreamWriter) {
     const ttsStream = textToSpeechClient.streamingSynthesize();
-
     console.log(ttsStream);
 
     // Write the response to a file, replace with your desired output stream
-    const streamWriter = fs.createWriteStream("output.wav");
+
+    // const streamWriter = fs.createWriteStream("output.wav");
 
     // The audio data is headerless LINEAR16 audio with a sample rate of 24000.
     const sampleRate = 24000;
     const numChannels = 1; // Mono audio
     const byteRate = sampleRate * numChannels * 2;
     const header = this.createWavHeader(sampleRate, numChannels, byteRate, 0);
-    streamWriter.write(header);
+    // streamWriter.write(header);
 
-    console.log(streamWriter);
-
-    
     // Handle the TTS response stream
     ttsStream.on("data", (response: any) => {
-      if (response.audioContent) {
-        streamWriter.write(response.audioContent);
-      }
+      console.log(response);
+
     });
 
     ttsStream.on("error", (err: any) => {
       console.error("Error during Text-to-Speech:", err);
-      streamWriter.end();
+      // streamWriterr.onError(err);
     });
 
     ttsStream.on("end", () => {
       console.log("Finished streaming Text-to-Speech");
-      streamWriter.end();
     });
 
     // Note: Only Journey voices support streaming for now.
