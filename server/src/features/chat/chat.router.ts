@@ -13,7 +13,7 @@ router.post(
   chatController.startChat
 );
 
-router.get("/stream-audio", chatController.streamAudio);
+// router.get("/stream-audio", chatController.streamAudio);
 
 router.post(
   "/create-chat",
