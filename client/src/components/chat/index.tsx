@@ -1,6 +1,6 @@
 "use client";
 import { useChat } from "ai/react";
-import AudioStreamPlayer from "./audio-stream-player";
+import { useRef } from "react";
 
 interface ChatProps {
   chatId: string;
@@ -13,7 +13,8 @@ export default function Chat({
   sessionCookie,
   initialMessages,
 }: ChatProps) {
-  const { messages, input, handleInputChange, handleSubmit, data } = useChat({
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
     id: chatId,
     initialMessages,
     api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
@@ -24,23 +25,32 @@ export default function Chat({
     headers: {
       Cookie: sessionCookie,
     },
-    onResponse: (res) => {
-      console.log(res);
+    onFinish(message, options) {
+      //@ts-ignore
+      const audio = JSON.parse(message.annotations.at(-1).data);
 
-      console.log("data: ", data);
+      const audioArray = new Uint8Array(audio.data);
+
+      const audioBlob = new Blob([audioArray], { type: "audio/wav" });
+
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      if (audioRef !== null) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.play();
+      }
     },
   });
 
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
-      {/* <div>
-        <audio src="http://localhost:5000/audio" controls={true} />
-      </div> */}
-      <AudioStreamPlayer />
       {messages.map((m) => (
-        <div key={m.id} className="whitespace-pre-wrap ">
-          {m.role === "user" ? "User: " : "AI: "}
-          {m.content}
+        <div key={m.id}>
+          <div className="whitespace-pre-wrap ">
+            {m.role === "user" ? "User: " : "AI: "}
+            {m.content}
+          </div>
+          <audio controls={true} ref={audioRef} />
         </div>
       ))}
 
