@@ -1,9 +1,47 @@
 {
-  "id": "f00462c5-3f53-4da7-8786-e97da29f8178",
+  "id": "fca03a49-de5d-471f-ae37-b62aa1778ef6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.chatSettings": {
+      "name": "chatSettings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "autoCorrect": {
+          "name": "autoCorrect",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "autoRecord": {
+          "name": "autoRecord",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "autoSend": {
+          "name": "autoSend",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.chats": {
       "name": "chats",
       "schema": "",
@@ -73,12 +111,6 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "chatId": {
-          "name": "chatId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
         "role": {
           "name": "role",
           "type": "varchar(255)",
@@ -100,6 +132,12 @@
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chatId": {
+          "name": "chatId",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         }
@@ -126,6 +164,44 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.tutorProfiles": {
+      "name": "tutorProfiles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "ssmlGender": {
+          "name": "ssmlGender",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "languageCode": {
+          "name": "languageCode",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -142,8 +218,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "imagePaths": {
-          "name": "imagePaths",
+        "imagePath": {
+          "name": "imagePath",
           "type": "varchar(510)",
           "primaryKey": false,
           "notNull": true
@@ -156,6 +232,18 @@
         },
         "subscriptionExpiryDate": {
           "name": "subscriptionExpiryDate",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "studingLanguageLevel": {
+          "name": "studingLanguageLevel",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nativeLanguage": {
+          "name": "nativeLanguage",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true

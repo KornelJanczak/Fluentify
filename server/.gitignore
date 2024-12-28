@@ -13,7 +13,6 @@ npm-debug.log*
 blog
 
 /dist
-/drizzle
-.drizzle
+
 meta
 fluentify-google-key.json
