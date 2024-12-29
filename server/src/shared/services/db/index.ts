@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon, neonConfig } from "@neondatabase/serverless";
 import type { NeonQueryFunction } from "@neondatabase/serverless";
-import config from "@root/config";
+import { config } from "@root/config";
 // import { config } from "dotenv";
 
 // config({ path: ".env" });
