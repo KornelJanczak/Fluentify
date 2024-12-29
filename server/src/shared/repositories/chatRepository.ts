@@ -2,16 +2,10 @@ import { db } from "../services/db";
 import { type Chat, chats } from "../services/db/schema";
 import { eq } from "drizzle-orm";
 import DatabaseError from "../errors/dbError";
-import BaseRepository from "./baseRepository";
-import { PgColumn, PgTable, TableConfig } from "drizzle-orm/pg-core";
 
 const fileName = "chatRepository";
 
 class ChatRepository {
-  protected table: PgTable<TableConfig>;
-  protected idColumn: PgColumn;
-
-
   async create(newItem: Chat): Promise<Chat> {
     try {
       const [createdItem] = await db.insert(chats).values(newItem).returning();
@@ -61,5 +55,4 @@ class ChatRepository {
   }
 }
 
-const chatRepository = new ChatRepository();
-export default chatRepository;
+export const chatRepository = new ChatRepository();
