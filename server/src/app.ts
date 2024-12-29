@@ -1,5 +1,5 @@
 import express, { Express } from "express";
-import config from "@root/config";
+import { config } from "@root/config";
 import { FluentifyServer } from "@root/setupServer";
 import "@shared/strategies/google-strategy";
 
