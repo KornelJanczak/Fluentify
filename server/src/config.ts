@@ -96,5 +96,5 @@ class Config {
   }
 }
 
-const config: Config = new Config();
-export default config;
+export const config: Config = new Config();
+
