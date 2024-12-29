@@ -40,5 +40,4 @@ class MessagesRepository {
   }
 }
 
-const messagesRepository = new MessagesRepository();
-export default messagesRepository;
+export const messagesRepository = new MessagesRepository();
