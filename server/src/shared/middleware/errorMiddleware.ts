@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import ServerError from "../errors/serverError";
-import config from "@root/config";
+import { config } from "@root/config";
 
 const logger = config.createLogger("errorMiddleware");
 
