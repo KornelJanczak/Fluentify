@@ -22,7 +22,7 @@ export type User = InferSelectModel<typeof users>;
 // #################################################################### //
 
 // TUTOR PROFILE TABLE
-export const tutorProfile = pgTable("tutorProfiles", {
+export const tutorProfile = pgTable("tutorProfile", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   ssmlGender: varchar({ length: 255 }).notNull(),
   name: varchar({ length: 255 }).notNull(),
@@ -59,6 +59,7 @@ export const chatSettings = pgTable("chatSettings", {
   autoCorrect: boolean().notNull(),
   autoRecord: boolean().notNull(),
   autoSend: boolean().notNull(),
+  chatId: uuid("chatId").references(() => chats.id),
 });
 
 export const insertChatSettingsSchema = createInsertSchema(chatSettings);
@@ -86,14 +87,17 @@ export type Message = InferSelectModel<typeof messages>;
 // #################################################################### //
 
 // RELATIONS
-export const usersRelations = relations(users, ({ one }) => ({
-  tutorProfile: one(tutorProfile),
-}));
+// export const usersRelations = relations(users, ({ one }) => ({
+//   tutorProfile: one(tutorProfile),
+// }));
 
-export const tutorProfilesRelations = relations(tutorProfile, ({ one }) => ({
+export const tutorProfileRelations = relations(tutorProfile, ({ one }) => ({
   user: one(users, { fields: [tutorProfile.userId], references: [users.id] }),
 }));
 
-export const chatsRelations = relations(chats, ({ one }) => ({
-  chatSettings: one(chatSettings),
+// export const chatsRelations = relations(chats, ({ one }) => ({
+//   chatSettings: one(chatSettings),
+// }));
+
+export const chatSettingsRelations = relations(chatSettings, ({ one }) => ({
 }));
