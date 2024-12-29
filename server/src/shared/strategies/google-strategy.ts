@@ -1,8 +1,8 @@
 import passport, { use } from "passport";
 import { Strategy, type StrategyOptions } from "passport-google-oauth20";
 import { User } from "../services/db/schema";
-import userRepository from "../repositories/userRepository";
-import config from "@root/config";
+import { userRepository } from "../repositories/userRepository";
+import { config } from "@root/config";
 import AuthenticationError from "../errors/authenticationError";
 
 const logger = config.createLogger("googleStrategy");
@@ -33,7 +33,6 @@ passport.deserializeUser(async (id: string, done) => {
     const currentUser = await userRepository.getById(id);
 
     console.log(currentUser);
-    
 
     if (!currentUser) return done(null, false);
 
