@@ -1,7 +1,7 @@
 import { Application, json, urlencoded, Response, Request } from "express";
 import cookieSession from "cookie-session";
 import cookieParser from "cookie-parser";
-import config from "@root/config";
+import { config } from "@root/config";
 import hpp from "hpp";
 import http from "http";
 import helmet from "helmet";
