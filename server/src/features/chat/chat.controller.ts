@@ -1,19 +1,39 @@
 import { Request, Response } from "express";
-import ChatService from "./chat.service";
+import ChatService from "./chat.services/index.service";
 import { IChatController } from "./chat.interfaces";
-import chatRepository from "@shared/repositories/chatRepository";
+import { chatRepository } from "@shared/repositories/chatRepository";
 import { v4 as uuidv4 } from "uuid";
 import { User } from "@shared/services/db/schema";
 import HTTP_STATUS from "http-status-codes";
-import messagesRepository from "@shared/repositories/messagesRepository";
+import { messagesRepository } from "@shared/repositories/messagesRepository";
 import { pipeDataStreamToResponse } from "ai";
+import AudioGenerator from "./chat.services/audioGenerator.service";
+import ChatStreamService from "./chat.services/chatStream.service";
+import AudioGeneratorService from "./chat.services/audioGenerator.service";
+import MainService from "./chat.services/main.service";
 
 class ChatController implements IChatController {
   async startChat(req: Request, res: Response) {
     const messages = req.body.messages;
     const chatId = req.body.chatId;
+    const user: User = req.user as User;
+
+    // const audioGeneratorService = new AudioGeneratorService(user.id);
+    // const chatStreamService = new ChatStreamService(
+    //   messages,
+    //   chatId,
+    //   "system prompt"
+    // );
+
+    // const mainService = new MainService(
+    //   audioGeneratorService,
+    //   chatStreamService
+    // );
 
     const chatService = new ChatService(messages, chatId);
+
+    // return chatStreamService.execute(res, audioGeneratorService.execute.bind(this));
+    // // const audioGenerator = new AudioGenerator();
 
     return pipeDataStreamToResponse(res, {
       execute: async (streamWriter) => {
