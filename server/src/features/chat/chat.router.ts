@@ -6,14 +6,14 @@ import { createChatSchema, startChatSchema } from "./chat.schema";
 
 const router = Router();
 
+router.get("/chat/:id", authMiddleware, chatController.getChat);
+
 router.post(
   "/chat",
   authMiddleware,
   validateZodSchema(startChatSchema),
   chatController.startChat
 );
-
-// router.get("/stream-audio", chatController.streamAudio);
 
 router.post(
   "/create-chat",
@@ -22,7 +22,6 @@ router.post(
   chatController.createChat
 );
 
-router.get("/chat/:id", authMiddleware, chatController.getChat);
 router.get(
   "/chat/:id/messages",
   authMiddleware,
