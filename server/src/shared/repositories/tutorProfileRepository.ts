@@ -44,7 +44,7 @@ class TutorProfileRepository {
     }
   }
 
-  async updateTutorProfile(
+  async updateTutorProfileByUserId(
     userId: string,
     updatedProfile: Omit<TutorProfile, "id">
   ): Promise<TutorProfile> {
