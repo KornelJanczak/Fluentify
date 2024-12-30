@@ -18,28 +18,30 @@ class ChatController implements IChatController {
     const chatId = req.body.chatId;
     const user: User = req.user as User;
 
-    // const audioGeneratorService = new AudioGeneratorService(user.id);
-    // const chatStreamService = new ChatStreamService(
-    //   messages,
-    //   chatId,
-    //   "system prompt"
-    // );
+    const chatStreamService = new ChatStreamService(
+      new AudioGeneratorService(user.id),
+      messages,
+      chatId,
+      "system prompt"
+    );
+
+    return chatStreamService.startChatStream(res);
 
     // const mainService = new MainService(
     //   audioGeneratorService,
     //   chatStreamService
     // );
 
-    const chatService = new ChatService(messages, chatId);
+    // const chatService = new ChatService(messages, chatId);
 
     // return chatStreamService.execute(res, audioGeneratorService.execute.bind(this));
     // // const audioGenerator = new AudioGenerator();
 
-    return pipeDataStreamToResponse(res, {
-      execute: async (streamWriter) => {
-        await chatService.execute(streamWriter);
-      },
-    });
+    // return pipeDataStreamToResponse(res, {
+    //   execute: async (streamWriter) => {
+    //     await chatService.execute(streamWriter);
+    //   },
+    // });
   }
 
   async createChat(req: Request, res: Response) {
