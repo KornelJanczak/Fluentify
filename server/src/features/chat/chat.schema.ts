@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const startChatSchema = z.object({
+export const startChatSchema = z.object({ 
   messages: z.array(z.object({ content: z.string(), role: z.string() })),
   chatId: z.string(),
 });
