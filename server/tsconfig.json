@@ -16,10 +16,11 @@
     "paths": {
       "@auth/*": ["src/features/auth/*"],
       "@chat/*": ["src/features/chat/*"],
+      "@tutorProfile/*": ["src/features/tutorProfile/*"],
       "@shared/*": ["src/shared/*"],
       "@root/*": ["src/*"]
     }
-  },
+  }
   // "include": ["src/**/*"],
   // "exclude": ["node_modules", "dist"]
 }
