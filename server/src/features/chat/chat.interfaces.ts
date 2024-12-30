@@ -10,23 +10,23 @@ export interface IChatService {
 }
 
 export interface IChatController {
-  startChat(req: Request, res: Response, next: NextFunction): void;
-  createChat(req: Request, res: Response, next: NextFunction): void;
-  getChat(req: Request, res: Response, next: NextFunction): void;
-  getMessagesByChatId(req: Request, res: Response, next: NextFunction): void;
+  startChat(req: Request, res: Response): void;
+  createChat(req: Request, res: Response): void;
+  getChat(req: Request, res: Response): void;
+  getMessagesByChatId(req: Request, res: Response): void;
 }
 
 export interface IChatService {}
 
 export interface IChatStreamService {
-  execute(
+  startChatStream(
     res: Response,
     generateAudio: (text: string) => Promise<IAudioContent>
   ): void;
 }
 
 export interface IAudioGeneratorService {
-  execute(text: string): Promise<IAudioContent>;
+  generateAudio(text: string): Promise<IAudioContent>;
 }
 
 export interface IGenerateAudioRequest
