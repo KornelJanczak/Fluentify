@@ -18,12 +18,12 @@ class AudioGeneratorService implements IAudioGeneratorService {
     this.userId = userId;
   }
 
-  async execute(text: string): Promise<IAudioContent> {
+  async generateAudio(text: string): Promise<IAudioContent> {
     const request = await this.createRequest(text);
-    return await this.generateAudio(request);
+    return await this.syntheziseAudio(request);
   }
 
-  private async generateAudio(
+  private async syntheziseAudio(
     request: IGenerateAudioRequest
   ): Promise<IAudioContent> {
     try {
@@ -45,8 +45,18 @@ class AudioGeneratorService implements IAudioGeneratorService {
   }
 
   private async createRequest(text: string): Promise<IGenerateAudioRequest> {
-    const { languageCode, ssmlGender, name } =
-      await tutorProfileRepository.getTutorProfileByUserId(this.userId);
+    const tutorProfile = await tutorProfileRepository.getTutorProfileByUserId(
+      this.userId
+    );
+
+    if (!tutorProfile)
+      throw new NotFoundError({
+        fileName,
+        service: "createRequest",
+        message: "Tutor profile not found",
+      });
+
+    const { languageCode, ssmlGender, name } = tutorProfile;
 
     const request: IGenerateAudioRequest = {
       input: { text: text },

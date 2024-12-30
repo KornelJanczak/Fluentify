@@ -38,7 +38,7 @@ class ChatStreamService implements IChatStreamService {
     this.systemPrompt = systemPrompt;
   }
 
-  async execute(
+  async startChatStream(
     res: Response
     // generateAudio: (text: string) => Promise<IAudioContent>
   ): Promise<void> {
@@ -63,13 +63,13 @@ class ChatStreamService implements IChatStreamService {
       },
     ]);
 
-    this.startStreamingChat(res);
+    this.streamChatToResponse(res);
   }
 
-  private startStreamingChat(res: Response): void {
+  private streamChatToResponse(res: Response): void {
     logger.info({
       message: "Start streaming chat...",
-      service: "startStreamingChat",
+      service: "streamChatToResponse",
     });
 
     return pipeDataStreamToResponse(res, {
@@ -96,7 +96,9 @@ class ChatStreamService implements IChatStreamService {
       service: "onFinishStream",
     });
 
-    const { audioContent } = await this.audioGeneratorService.execute(text);
+    const { audioContent } = await this.audioGeneratorService.generateAudio(
+      text
+    );
 
     await messagesRepository.saveMessages([
       {
