@@ -1,52 +1,67 @@
 import { Request, Response } from "express";
-import ChatService from "./chat.services/index.service";
-import { IChatController } from "./chat.interfaces";
-import { chatRepository } from "@shared/repositories/chatRepository";
+import {
+  IChatController,
+  IChatControllerDependencies,
+  IChatStreamService,
+} from "./chat.interfaces";
 import { v4 as uuidv4 } from "uuid";
 import { User } from "@shared/services/db/schema";
 import HTTP_STATUS from "http-status-codes";
-import { messagesRepository } from "@shared/repositories/messagesRepository";
-import { pipeDataStreamToResponse } from "ai";
-import AudioGenerator from "./chat.services/audioGenerator.service";
-import ChatStreamService from "./chat.services/chatStream.service";
-import AudioGeneratorService from "./chat.services/audioGenerator.service";
-import MainService from "./chat.services/main.service";
+import { IMessagesRepository } from "@shared/repositories/messagesRepository";
+import { IChatRepository } from "@shared/repositories/chatRepository";
+import { asValue } from "awilix";
+import container from "./chat.container";
 
 class ChatController implements IChatController {
+  private readonly messagesRepository: IMessagesRepository;
+  private readonly chatRepository: IChatRepository;
+  private readonly chatStreamService: IChatStreamService;
+
+  constructor({
+    chatStreamService,
+    messagesRepository,
+    chatRepository,
+  }: IChatControllerDependencies) {
+    this.chatStreamService = chatStreamService;
+    this.messagesRepository = messagesRepository;
+    this.chatRepository = chatRepository;
+  }
+
   async startChat(req: Request, res: Response) {
     const messages = req.body.messages;
     const chatId = req.body.chatId;
-    const user: User = req.user as User;
+    // const user: User = req.user as User;
 
-    const chatStreamService = new ChatStreamService(
-      new AudioGeneratorService(user.id),
-      messages,
-      chatId,
-      "system prompt"
-    );
+    // //@ts-ignore
+    // req.container = container.createScope();
+    // //@ts-ignore
+    // req.container.register({
+    //   messages: asValue(messages),
+    //   userId: asValue(user.id),
+    //   chatId: asValue(chatId),
+    // });
 
-    return chatStreamService.startChatStream(res);
-
-    // const mainService = new MainService(
-    //   audioGeneratorService,
-    //   chatStreamService
+    // const chatStreamService = new ChatStreamService(
+    //   new AudioGeneratorService(user.id),
+    //   messages,
+    //   chatId,
+    //   "system prompt"
     // );
 
-    // const chatService = new ChatService(messages, chatId);
-
-    // return chatStreamService.execute(res, audioGeneratorService.execute.bind(this));
-    // // const audioGenerator = new AudioGenerator();
-
-    // return pipeDataStreamToResponse(res, {
-    //   execute: async (streamWriter) => {
-    //     await chatService.execute(streamWriter);
-    //   },
-    // });
+    try {
+      return await this.chatStreamService.startChatStream(
+        res,
+        chatId,
+        messages
+      );
+    } catch (error) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(error);
+    }
   }
 
   async createChat(req: Request, res: Response) {
     const user: User = req.user as User;
-    const newChat = await chatRepository.create({
+    const newChat = await this.chatRepository.create({
       id: uuidv4(),
       userId: user.id,
       title: req.body.title,
@@ -57,17 +72,16 @@ class ChatController implements IChatController {
   }
 
   async getChat(req: Request, res: Response) {
-    const chat = await chatRepository.getById(req.params.id);
+    const chat = await this.chatRepository.getById(req.params.id);
     return res.status(HTTP_STATUS.OK).json(chat);
   }
 
   async getMessagesByChatId(req: Request, res: Response) {
-    const messages = await messagesRepository.getMessagesByChatId(
+    const messages = await this.messagesRepository.getMessagesByChatId(
       req.params.id
     );
     return res.status(HTTP_STATUS.OK).json(messages);
   }
 }
 
-const chatController: IChatController = new ChatController();
-export default chatController;
+export default ChatController;
