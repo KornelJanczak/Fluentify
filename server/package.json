@@ -30,6 +30,8 @@
     "@kinde-oss/kinde-node-express": "^1.6.0",
     "@neondatabase/serverless": "^0.10.4",
     "ai": "^4.0.20",
+    "awilix": "^12.0.4",
+    "awilix-express": "^9.0.2",
     "compression": "^1.7.5",
     "connect-redis": "^8.0.1",
     "cookie-parser": "~1.4.7",
