@@ -9,12 +9,16 @@ import cors from "cors";
 import compression from "compression";
 import apiStats from "swagger-stats";
 import applicationRouter from "@root/router";
+import applicationContainer from "@root/container";
+import { asValue } from "awilix";
 import { globalErrorMiddleware } from "@shared/middleware/errorMiddleware";
 import HTTP_STATUS from "http-status-codes";
 import passport from "passport";
 import "@shared/strategies/google-strategy";
+import { scopePerRequest } from "awilix-express";
 import session from "express-session";
 import { redisStore } from "@shared/services/redis/baseCahe";
+import { createContainer } from "awilix";
 
 const logger = config.createLogger("setupServer");
 
@@ -31,6 +35,7 @@ export class FluentifyServer {
     this.apiMonitoring(this.app);
     this.passportMiddleware(this.app);
     this.routesMiddleware(this.app);
+    this.awilixContainer(this.app);
     this.globalErrorHandler(this.app);
     this.startServer(this.app);
   }
@@ -84,6 +89,9 @@ export class FluentifyServer {
     applicationRouter(app);
   }
 
+  private awilixContainer(app: Application): void {
+    applicationContainer(app);
+  }
   private apiMonitoring(app: Application): void {
     app.use(
       apiStats.getMiddleware({
