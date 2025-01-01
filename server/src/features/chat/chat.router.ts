@@ -1,31 +1,38 @@
 import { Router } from "express";
-import chatController from "./chat.controller";
+import chatContainer from "./chat.container";
 import authMiddleware from "@shared/middleware/authMiddleware";
 import { validateZodSchema } from "@shared/middleware/validateZodMiddleware";
 import { createChatSchema, startChatSchema } from "./chat.schema";
+import { IChatController } from "./chat.interfaces";
 
 const router = Router();
 
-router.get("/chat/:id", authMiddleware, chatController.getChat);
+const chatController = chatContainer.resolve<IChatController>("chatController");
+
+router.get(
+  "/chat/:id",
+  authMiddleware,
+  chatController.getChat.bind(chatController)
+);
 
 router.post(
   "/chat",
   authMiddleware,
   validateZodSchema(startChatSchema),
-  chatController.startChat
+  chatController.startChat.bind(chatController)
 );
 
 router.post(
   "/create-chat",
   authMiddleware,
   validateZodSchema(createChatSchema),
-  chatController.createChat
+  chatController.createChat.bind(chatController)
 );
 
 router.get(
   "/chat/:id/messages",
   authMiddleware,
-  chatController.getMessagesByChatId
+  chatController.getMessagesByChatId.bind(chatController)
 );
 
 export default router;
