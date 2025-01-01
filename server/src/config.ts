@@ -64,7 +64,7 @@ class Config {
     }
   }
 
-  public createLogger(name: string) {
+  public createLogger(name?: string) {
     return winston.createLogger({
       levels: this.loggerLevels,
       level: process.env.LOG_LEVEL || "info",
