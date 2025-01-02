@@ -10,15 +10,10 @@ import compression from "compression";
 import apiStats from "swagger-stats";
 import applicationRouter from "@root/router";
 import applicationContainer from "@root/container";
-import { asValue } from "awilix";
 import { globalErrorMiddleware } from "@shared/middleware/errorMiddleware";
 import HTTP_STATUS from "http-status-codes";
 import passport from "passport";
-import "@shared/strategies/google-strategy";
-import { scopePerRequest } from "awilix-express";
-import session from "express-session";
-import { redisStore } from "@shared/services/redis/baseCahe";
-import { createContainer } from "awilix";
+import "@auth/strategies/google-strategy";
 
 const logger = config.createLogger("setupServer");
 
