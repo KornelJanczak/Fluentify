@@ -30,30 +30,15 @@ class ChatController implements IChatController {
   async startChat(req: Request, res: Response) {
     const messages = req.body.messages;
     const chatId = req.body.chatId;
-    // const user: User = req.user as User;
-
-    // //@ts-ignore
-    // req.container = container.createScope();
-    // //@ts-ignore
-    // req.container.register({
-    //   messages: asValue(messages),
-    //   userId: asValue(user.id),
-    //   chatId: asValue(chatId),
-    // });
-
-    // const chatStreamService = new ChatStreamService(
-    //   new AudioGeneratorService(user.id),
-    //   messages,
-    //   chatId,
-    //   "system prompt"
-    // );
+    const user: User = req.user as User;
 
     try {
-      return await this.chatStreamService.startChatStream(
+      return await this.chatStreamService.startChatStream({
         res,
         chatId,
-        messages
-      );
+        messages,
+        userId: user.id,
+      });
     } catch (error) {
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(error);
     }
