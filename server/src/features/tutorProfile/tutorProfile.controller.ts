@@ -1,15 +1,23 @@
-import { ITutorProfileController } from "./tutorProfile.interfaces";
+import {
+  ITutorProfileController,
+  ITutorProfileControllerDependencies,
+} from "./tutorProfile.interfaces";
 import { Request, Response } from "express";
-import { tutorProfileRepository } from "@shared/repositories/tutorProfileRepository";
 import { User } from "@shared/services/db/schema";
 import HTTP_STATUS from "http-status-codes";
+import { ITutorProfileRepository } from "@shared/repositories/tutorProfileRepository";
 
 class TutorProfileController implements ITutorProfileController {
+  private tutorProfileRepository: ITutorProfileRepository;
+
+  constructor({ tutorProfileRepository }: ITutorProfileControllerDependencies) {
+    this.tutorProfileRepository = tutorProfileRepository;
+  }
+
   async getTutorProfile(req: Request, res: Response) {
     const user: User = req.user as User;
-    const tutorProfile = await tutorProfileRepository.getTutorProfileByUserId(
-      user.id
-    );
+    const tutorProfile =
+      await this.tutorProfileRepository.getTutorProfileByUserId(user.id);
 
     return res.status(HTTP_STATUS.OK).json(tutorProfile);
   }
@@ -17,7 +25,7 @@ class TutorProfileController implements ITutorProfileController {
   async updateTutorProfile(req: Request, res: Response) {
     const user: User = req.user as User;
     const updatedProfile =
-      await tutorProfileRepository.updateTutorProfileByUserId(user.id, {
+      await this.tutorProfileRepository.updateTutorProfileByUserId(user.id, {
         userId: user.id,
         ...req.body,
       });
@@ -26,5 +34,4 @@ class TutorProfileController implements ITutorProfileController {
   }
 }
 
-export const tutorProfileController: ITutorProfileController =
-  new TutorProfileController();
+export default TutorProfileController;
