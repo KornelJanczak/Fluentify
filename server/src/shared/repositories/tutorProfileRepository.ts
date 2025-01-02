@@ -3,9 +3,20 @@ import { db } from "../services/db";
 import { type TutorProfile, tutorProfile } from "../services/db/schema";
 import DatabaseError from "../errors/dbError";
 
-const fileName = "tutorProfileRepository";
+export interface ITutorProfileRepository {
+  getTutorProfileByUserId(userId: string): Promise<TutorProfile>;
+  createTutorProfile(
+    newProfile: Omit<TutorProfile, "id">
+  ): Promise<TutorProfile>;
+  updateTutorProfileByUserId(
+    userId: string,
+    updatedProfile: Omit<TutorProfile, "id">
+  ): Promise<TutorProfile>;
+}
 
-class TutorProfileRepository {
+class TutorProfileRepository implements ITutorProfileRepository {
+  private readonly fileName = "tutorProfileRepository";
+
   async getTutorProfileByUserId(userId: string): Promise<TutorProfile> {
     try {
       const [profile]: TutorProfile[] = await db
@@ -16,7 +27,7 @@ class TutorProfileRepository {
       return profile;
     } catch (error) {
       throw new DatabaseError({
-        fileName,
+        fileName: this.fileName,
         service: "getTutorByUserId",
         message: error.message,
         stack: error.stack,
@@ -36,7 +47,7 @@ class TutorProfileRepository {
       return createdProfile;
     } catch (error) {
       throw new DatabaseError({
-        fileName,
+        fileName: this.fileName,
         service: "createTutorProfile",
         message: error.message,
         stack: error.stack,
@@ -58,7 +69,7 @@ class TutorProfileRepository {
       return profile;
     } catch (error) {
       throw new DatabaseError({
-        fileName,
+        fileName: this.fileName,
         service: "updateTutorProfile",
         message: error.message,
         stack: error.stack,
@@ -67,4 +78,4 @@ class TutorProfileRepository {
   }
 }
 
-export const tutorProfileRepository = new TutorProfileRepository();
+export default TutorProfileRepository;
