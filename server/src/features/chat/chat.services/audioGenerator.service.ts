@@ -5,27 +5,25 @@ import {
   IGenerateAudioRequest,
 } from "@chat/chat.interfaces";
 import NotFoundError from "@shared/errors/notFoundError";
-import { tutorProfileRepository } from "@shared/repositories/tutorProfileRepository";
+import { ITutorProfileRepository } from "@shared/repositories/tutorProfileRepository";
 import { textToSpeechClient } from "@shared/services/textToSpeech";
-import { config } from "@root/config";
 import { Logger } from "winston";
-
-// const logger = config.createLogger("audioGenerator.service");
 
 class AudioGeneratorService implements IAudioGeneratorService {
   private readonly fileName = "audioGenerator.service";
-  private logger: Logger;
-  private userId: string;
+  private readonly tutorProfileRepository: ITutorProfileRepository;
+  private readonly logger: Logger;
 
-  constructor({ userId, logger }: IAudioGeneratorServiceDependencies) {
-    this.userId = userId;
+  constructor({
+    logger,
+    tutorProfileRepository,
+  }: IAudioGeneratorServiceDependencies) {
     this.logger = logger;
+    this.tutorProfileRepository = tutorProfileRepository;
   }
 
-  async generateAudio(text: string): Promise<IAudioContent> {
-    console.log(this);
-
-    const request = await this.createRequest(text);
+  async generateAudio(text: string, userId: string): Promise<IAudioContent> {
+    const request = await this.createRequest(text, userId);
     return await this.syntheziseAudio(request);
   }
 
@@ -50,12 +48,12 @@ class AudioGeneratorService implements IAudioGeneratorService {
     }
   }
 
-  private async createRequest(text: string): Promise<IGenerateAudioRequest> {
-    console.log(this.userId);
-
-    const tutorProfile = await tutorProfileRepository.getTutorProfileByUserId(
-      this.userId
-    );
+  private async createRequest(
+    text: string,
+    userId: string
+  ): Promise<IGenerateAudioRequest> {
+    const tutorProfile =
+      await this.tutorProfileRepository.getTutorProfileByUserId(userId);
 
     if (!tutorProfile)
       throw new NotFoundError({
