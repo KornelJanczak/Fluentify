@@ -5,9 +5,8 @@ import { validateZodSchema } from "@shared/middleware/validateZodMiddleware";
 import { createChatSchema, startChatSchema } from "./chat.schema";
 import { IChatController } from "./chat.interfaces";
 
-const router = Router();
-
 const chatController = chatContainer.resolve<IChatController>("chatController");
+const router = Router();
 
 router.get(
   "/chat/:id",
