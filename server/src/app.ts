@@ -1,7 +1,7 @@
 import express, { Express } from "express";
 import { config } from "@root/config";
 import { FluentifyServer } from "@root/setupServer";
-import "@shared/strategies/google-strategy";
+import "@auth/strategies/google-strategy";
 
 const logger = config.createLogger("app");
 
