@@ -29,6 +29,8 @@ export default function Chat({
       //@ts-ignore
       const audio = JSON.parse(message.annotations.at(-1).data);
 
+      console.log(audio);
+
       const audioArray = new Uint8Array(audio.data);
 
       const audioBlob = new Blob([audioArray], { type: "audio/wav" });
@@ -65,3 +67,5 @@ export default function Chat({
     </div>
   );
 }
+
+
