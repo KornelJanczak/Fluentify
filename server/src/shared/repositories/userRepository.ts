@@ -3,9 +3,8 @@ import { db } from "../services/db";
 import { type User, users } from "../services/db/schema";
 import DatabaseError from "../errors/dbError";
 
-const fileName = "userRepository";
-
 class UserRepository {
+  private readonly fileName = "userRepository";
   async create(newUser: User): Promise<User> {
     try {
       const [createdUser]: User[] = await db
@@ -16,7 +15,7 @@ class UserRepository {
       return createdUser;
     } catch (error) {
       throw new DatabaseError({
-        fileName,
+        fileName: this.fileName,
         service: "create",
         message: error.message,
         stack: error.stack,
@@ -34,7 +33,7 @@ class UserRepository {
       return user;
     } catch (error) {
       throw new DatabaseError({
-        fileName,
+        fileName: this.fileName,
         service: "getByEmail",
         message: error.message,
         stack: error.stack,
@@ -52,7 +51,7 @@ class UserRepository {
       return user;
     } catch (error) {
       throw new DatabaseError({
-        fileName,
+        fileName: this.fileName,
         service: "getById",
         message: error.message,
         stack: error.stack,
@@ -61,4 +60,4 @@ class UserRepository {
   }
 }
 
-export const userRepository = new UserRepository();
+export default UserRepository
