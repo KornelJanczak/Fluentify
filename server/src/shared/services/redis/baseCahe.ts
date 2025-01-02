@@ -1,6 +1,6 @@
 import { RedisStore } from "connect-redis";
 import { createClient } from "redis";
-import config from "@root/config";
+import { config } from "@root/config";
 
 const logger = config.createLogger("baseCache");
 
