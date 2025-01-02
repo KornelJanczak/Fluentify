@@ -8,10 +8,10 @@ import { v4 as uuidv4 } from "uuid";
 import { customAi } from "@shared/services/ai";
 import {
   IAudioGeneratorService,
+  IChatRequest,
   IChatStreamServiceDependencies,
   type IChatStreamService,
 } from "@chat/chat.interfaces";
-import { type Response } from "express";
 import NotFoundError from "@shared/errors/notFoundError";
 import { type IChatRepository } from "@shared/repositories/chatRepository";
 import { type IMessagesRepository } from "@shared/repositories/messagesRepository";
@@ -22,7 +22,7 @@ class ChatStreamService implements IChatStreamService {
   private readonly messagesRepository: IMessagesRepository;
   private readonly chatRepository: IChatRepository;
   private readonly fileName = "chatStream.service";
-  private logger: Logger;
+  private readonly logger: Logger;
   private systemPrompt: string;
 
   constructor({
@@ -39,11 +39,8 @@ class ChatStreamService implements IChatStreamService {
     this.systemPrompt = systemPrompt;
   }
 
-  async startChatStream(
-    res: Response,
-    chatId: string,
-    messages: CoreMessage[]
-  ): Promise<void> {
+  async startChatStream(chatRequest: IChatRequest): Promise<void> {
+    const { chatId, messages } = chatRequest;
     const chat = await this.chatRepository.getById(chatId);
 
     console.log(chat);
@@ -67,14 +64,15 @@ class ChatStreamService implements IChatStreamService {
       },
     ]);
 
-    this.streamChatToResponse(res, chatId, messages);
+    this.streamChatToResponse({ ...chatRequest });
   }
 
-  private streamChatToResponse(
-    res: Response,
-    chatId: string,
-    messages: CoreMessage[]
-  ): void {
+  private streamChatToResponse({
+    res,
+    chatId,
+    messages,
+    userId,
+  }: IChatRequest): void {
     this.logger.info({
       message: "Start streaming chat...",
       service: "streamChatToResponse",
@@ -87,7 +85,7 @@ class ChatStreamService implements IChatStreamService {
           system: this.systemPrompt,
           messages,
           onFinish: async ({ text }) =>
-            await this.onFinishStream(chatId, text, streamWriter),
+            await this.onFinishStream(chatId, text, streamWriter, userId),
         });
 
         return result.mergeIntoDataStream(streamWriter);
@@ -98,7 +96,8 @@ class ChatStreamService implements IChatStreamService {
   private async onFinishStream(
     chatId: string,
     text: string,
-    streamWriter: DataStreamWriter
+    streamWriter: DataStreamWriter,
+    userId: string
   ): Promise<void> {
     this.logger.info({
       message: "Finished streaming text",
@@ -106,7 +105,8 @@ class ChatStreamService implements IChatStreamService {
     });
 
     const { audioContent } = await this.audioGeneratorService.generateAudio(
-      text
+      text,
+      userId
     );
 
     await this.messagesRepository.saveMessages([
