@@ -62,4 +62,3 @@ class ChatRepository implements IChatRepository {
 
 export default ChatRepository;
 
-// export const chatRepository = new ChatRepository();
