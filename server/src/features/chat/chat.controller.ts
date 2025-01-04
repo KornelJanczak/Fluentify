@@ -9,8 +9,6 @@ import { User } from "@shared/services/db/schema";
 import HTTP_STATUS from "http-status-codes";
 import { IMessagesRepository } from "@shared/repositories/messagesRepository";
 import { IChatRepository } from "@shared/repositories/chatRepository";
-import { asValue } from "awilix";
-import container from "./chat.container";
 
 class ChatController implements IChatController {
   private readonly messagesRepository: IMessagesRepository;
