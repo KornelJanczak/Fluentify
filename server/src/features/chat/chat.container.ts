@@ -27,7 +27,6 @@ container.register({
   logger: asFunction(() => config.createLogger("chatLogger"))
     .singleton()
     .scoped(),
-  userId: asValue(""),
   systemPrompt: asValue(""),
 });
 
