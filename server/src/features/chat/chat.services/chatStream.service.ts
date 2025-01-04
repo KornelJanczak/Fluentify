@@ -16,6 +16,7 @@ import NotFoundError from "@shared/errors/notFoundError";
 import { type IChatRepository } from "@shared/repositories/chatRepository";
 import { type IMessagesRepository } from "@shared/repositories/messagesRepository";
 import { Logger } from "winston";
+import { Chat } from "@shared/services/db/schema";
 
 class ChatStreamService implements IChatStreamService {
   private readonly audioGeneratorService: IAudioGeneratorService;
@@ -40,39 +41,43 @@ class ChatStreamService implements IChatStreamService {
   }
 
   async startChatStream(chatRequest: IChatRequest): Promise<void> {
-    const { chatId, messages } = chatRequest;
-    const chat = await this.chatRepository.getById(chatId);
+    const chat = await this.getChat(chatRequest.chatId);
+    const lastUserMessage = this.extractLastUserMessage(chatRequest.messages);
 
-    console.log(chat);
+    await this.saveUserMessage(chat.id, lastUserMessage);
 
-    if (!chat)
-      throw new NotFoundError({
-        fileName: this.fileName,
-        service: "execute",
-        message: "Chat not found",
-      });
+    this.streamChatToResponse({ ...chatRequest });
+  }
 
-    const lastUserMessage = this.extractLastUserMessage(messages);
-
+  private async saveUserMessage(
+    chatId: string,
+    message: CoreMessage
+  ): Promise<void> {
     await this.messagesRepository.saveMessages([
       {
         id: uuidv4(),
-        ...lastUserMessage,
+        ...message,
         createdAt: new Date(),
         chatId: chatId,
         usedTokens: 0,
       },
     ]);
-
-    this.streamChatToResponse({ ...chatRequest });
   }
 
-  private streamChatToResponse({
-    res,
-    chatId,
-    messages,
-    userId,
-  }: IChatRequest): void {
+  private async getChat(chatId: string): Promise<Chat> {
+    const chat = await this.chatRepository.getById(chatId);
+    if (!chat) {
+      throw new NotFoundError({
+        fileName: "chatStream.service",
+        service: "getChat",
+        message: "Chat not found",
+      });
+    }
+    return chat;
+  }
+
+  private streamChatToResponse(chatRequest: IChatRequest): void {
+    const { res, chatId, messages, userId } = chatRequest;
     this.logger.info({
       message: "Start streaming chat...",
       service: "streamChatToResponse",
