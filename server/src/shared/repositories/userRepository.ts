@@ -3,7 +3,13 @@ import { db } from "../services/db";
 import { type User, users } from "../services/db/schema";
 import DatabaseError from "../errors/dbError";
 
-class UserRepository {
+interface IUserRepository {
+  create(newUser: User): Promise<User>;
+  getByEmail(email: string): Promise<User>;
+  getById(id: string): Promise<User>;
+}
+
+class UserRepository implements IUserRepository {
   private readonly fileName = "userRepository";
   async create(newUser: User): Promise<User> {
     try {
@@ -60,4 +66,4 @@ class UserRepository {
   }
 }
 
-export default UserRepository
+export default UserRepository;
