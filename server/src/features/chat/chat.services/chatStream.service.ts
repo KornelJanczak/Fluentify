@@ -49,6 +49,26 @@ class ChatStreamService implements IChatStreamService {
     this.streamChatToResponse({ ...chatRequest });
   }
 
+  private async getChat(chatId: string): Promise<Chat> {
+    const chat = await this.chatRepository.getById(chatId);
+    if (!chat) {
+      throw new NotFoundError({
+        fileName: "chatStream.service",
+        service: "getChat",
+        message: "Chat not found",
+      });
+    }
+    return chat;
+  }
+
+  private extractLastUserMessage(messages: CoreMessage[]): CoreMessage {
+    const lastUserMessage = messages
+      .filter((message: CoreMessage) => message.role === "user")
+      .at(-1);
+
+    return lastUserMessage;
+  }
+
   private async saveUserMessage(
     chatId: string,
     message: CoreMessage
@@ -62,18 +82,6 @@ class ChatStreamService implements IChatStreamService {
         usedTokens: 0,
       },
     ]);
-  }
-
-  private async getChat(chatId: string): Promise<Chat> {
-    const chat = await this.chatRepository.getById(chatId);
-    if (!chat) {
-      throw new NotFoundError({
-        fileName: "chatStream.service",
-        service: "getChat",
-        message: "Chat not found",
-      });
-    }
-    return chat;
   }
 
   private streamChatToResponse(chatRequest: IChatRequest): void {
@@ -129,14 +137,6 @@ class ChatStreamService implements IChatStreamService {
       type: "audio",
       data: JSON.stringify(audioContent),
     });
-  }
-
-  private extractLastUserMessage(messages: CoreMessage[]): CoreMessage {
-    const lastUserMessage = messages
-      .filter((message: CoreMessage) => message.role === "user")
-      .at(-1);
-
-    return lastUserMessage;
   }
 }
 
