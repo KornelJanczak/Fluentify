@@ -2,7 +2,6 @@ import { integer, pgTable, varchar, boolean } from "drizzle-orm/pg-core";
 import { timestamp, uuid, json } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations, type InferSelectModel } from "drizzle-orm";
-import { native } from "@neondatabase/serverless";
 
 // USER TABLE
 export const users = pgTable("users", {
@@ -86,18 +85,31 @@ export type Message = InferSelectModel<typeof messages>;
 
 // #################################################################### //
 
-// RELATIONS
-// export const usersRelations = relations(users, ({ one }) => ({
-//   tutorProfile: one(tutorProfile),
-// }));
+// VOCABULARYSET TABLE
+export const vocabularySets = pgTable("vocabularySets", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  title: varchar({ length: 255 }).notNull(),
+  description: varchar({ length: 255 }).notNull(),
+  userId: varchar("userId").references(() => users.id),
+});
 
+// #################################################################### //
+
+// FLASHCARDS TABLE
+export const flashCards = pgTable("flashCards", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  definition: varchar({ length: 255 }).notNull(),
+  translation: varchar({ length: 255 }).notNull(),
+  vocabularySetId: uuid("vocabularySetId")
+    .notNull()
+    .references(() => vocabularySets.id),
+});
+
+// RELATIONS
 export const tutorProfileRelations = relations(tutorProfile, ({ one }) => ({
   user: one(users, { fields: [tutorProfile.userId], references: [users.id] }),
 }));
 
-// export const chatsRelations = relations(chats, ({ one }) => ({
-//   chatSettings: one(chatSettings),
-// }));
+export const chatSettingsRelations = relations(chatSettings, ({ one }) => ({}));
 
-export const chatSettingsRelations = relations(chatSettings, ({ one }) => ({
-}));
+// #################################################################### //
