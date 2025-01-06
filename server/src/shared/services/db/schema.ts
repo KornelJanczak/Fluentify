@@ -93,6 +93,10 @@ export const vocabularySets = pgTable("vocabularySets", {
   userId: varchar("userId").references(() => users.id),
 });
 
+export const insertVocabularySetSchema = createInsertSchema(vocabularySets);
+export const selectVocabularySetSchema = createSelectSchema(vocabularySets);
+export type VocabularySet = InferSelectModel<typeof vocabularySets>;
+
 // #################################################################### //
 
 // FLASHCARDS TABLE
@@ -104,6 +108,12 @@ export const flashCards = pgTable("flashCards", {
     .notNull()
     .references(() => vocabularySets.id),
 });
+
+export const insertFlashCardSchema = createInsertSchema(flashCards);
+export const selectFlashCardSchema = createSelectSchema(flashCards);
+export type FlashCard = InferSelectModel<typeof flashCards>;
+
+// #################################################################### //
 
 // RELATIONS
 export const tutorProfileRelations = relations(tutorProfile, ({ one }) => ({
