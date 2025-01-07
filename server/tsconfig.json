@@ -16,6 +16,7 @@
     "paths": {
       "@auth/*": ["src/features/auth/*"],
       "@chat/*": ["src/features/chat/*"],
+      "@vocabularySets/*": ["src/features/vocabularySets/*"],
       "@tutorProfile/*": ["src/features/tutorProfile/*"],
       "@shared/*": ["src/shared/*"],
       "@root/*": ["src/*"]
