@@ -3,9 +3,9 @@ import { db } from "@shared/services/db";
 import DatabaseError from "@shared/errors/dbError";
 import { eq } from "drizzle-orm";
 
-interface IVocabularySetRepository {
+export interface IVocabularySetRepository {
   create(newItem: VocabularySet): Promise<VocabularySet>;
-  getByUserId(userId: string): Promise<VocabularySet[]>;
+  getAllByUserId(userId: string): Promise<VocabularySet[]>;
 }
 
 class VocabularySetRepository implements IVocabularySetRepository {
@@ -28,7 +28,7 @@ class VocabularySetRepository implements IVocabularySetRepository {
     }
   }
 
-  async getByUserId(userId: string): Promise<VocabularySet[]> {
+  async getAllByUserId(userId: string): Promise<VocabularySet[]> {
     try {
       return await db
         .select()
