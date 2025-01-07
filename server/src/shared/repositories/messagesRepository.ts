@@ -2,7 +2,6 @@ import { db } from "../services/db";
 import { type Message, messages } from "../services/db/schema";
 import { eq } from "drizzle-orm";
 import DatabaseError from "../errors/dbError";
-import { PgColumn, PgTable, TableConfig } from "drizzle-orm/pg-core";
 
 export interface IMessagesRepository {
   saveMessages(newMessages: Message[]): Promise<Message[]>;
@@ -10,9 +9,7 @@ export interface IMessagesRepository {
 }
 
 class MessagesRepository implements IMessagesRepository {
-  protected table: PgTable<TableConfig>;
-  protected idColumn: PgColumn;
-  readonly fileName = "messagesRepository";
+ private readonly fileName = "messagesRepository";
 
   async saveMessages(newMessages: Message[]): Promise<Message[]> {
     try {
@@ -45,5 +42,3 @@ class MessagesRepository implements IMessagesRepository {
 }
 
 export default MessagesRepository;
-
-// export const messagesRepository = new MessagesRepository();
