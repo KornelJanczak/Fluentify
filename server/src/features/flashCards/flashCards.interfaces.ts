@@ -13,16 +13,12 @@ export interface IFlashCardsController {
     res: Response,
     next: NextFunction
   ): Promise<Response>;
-//   updateFlashCard(
-//     req: Request,
-//     res: Response,
-//     next: NextFunction
-//   ): Promise<Response>;
-//   deleteFlashCard(
-//     req: Request,
-//     res: Response,
-//     next: NextFunction
-//   ): Promise<Response>;
+  updateFlashCard(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response>;
+  deleteFlashCard(req: Request, res: Response): Promise<Response>;
 }
 
 export interface IFlashCardsControllerDependencies {
