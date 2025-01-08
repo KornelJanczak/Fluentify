@@ -99,6 +99,7 @@ class ChatStreamService implements IChatStreamService {
           messages,
           onFinish: async ({ text }) =>
             await this.onFinishStream(chatId, text, streamWriter, userId),
+          
         });
 
         return result.mergeIntoDataStream(streamWriter);
