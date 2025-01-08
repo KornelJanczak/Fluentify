@@ -79,63 +79,49 @@ class FlashCardsController implements IFlashCardsController {
     return res.status(HTTP_STATUS.OK).json(flashCards);
   }
 
-  //   async updateFlashCard(req: Request, res: Response, next: NextFunction) {
-  //     this.logger.info({
-  //       message: "Updating flash card...",
-  //       fileName: this.fileName,
-  //       service: "updateFlashCard",
-  //     });
+  async updateFlashCard(req: Request, res: Response, next: NextFunction) {
+    this.logger.info({
+      message: "Updating flash card...",
+      fileName: this.fileName,
+      service: "updateFlashCard",
+    });
 
-  //     const { body } = req;
-  //     const { flashCardId } = req.params;
-  //     const user: User = req.user as User;
+    const { body } = req;
+    const { flashCardId } = req.params;
+    const user: User = req.user as User;
 
-  //     const updatedFlashCard = await this.flashCardRepository.update(
-  //       flashCardId,
-  //       body,
-  //       user.id
-  //     );
+    const updatedFlashCard = await this.flashCardRepository.updateFlashCardById(
+      { ...body, id: flashCardId, userId: user.id }
+    );
 
-  //     if (!updatedFlashCard) {
-  //       next(
-  //         new NotFoundError({
-  //           message: "Flash card not updated",
-  //           fileName: this.fileName,
-  //           service: "updateFlashCard",
-  //         })
-  //       );
-  //     }
+    if (!updatedFlashCard) {
+      next(
+        new NotFoundError({
+          message: "Flash card not updated",
+          fileName: this.fileName,
+          service: "updateFlashCard",
+        })
+      );
+    }
 
-  //     return res.status(HTTP_STATUS.OK).json(updatedFlashCard);
-  //   }
+    return res.status(HTTP_STATUS.OK).json(updatedFlashCard);
+  }
 
-  //   async deleteFlashCard(req: Request, res: Response, next: NextFunction) {
-  //     this.logger.info({
-  //       message: "Deleting flash card...",
-  //       fileName: this.fileName,
-  //       service: "deleteFlashCard",
-  //     });
+  async deleteFlashCard(req: Request, res: Response) {
+    this.logger.info({
+      message: "Deleting flash card...",
+      fileName: this.fileName,
+      service: "deleteFlashCard",
+    });
 
-  //     const { flashCardId } = req.params;
-  //     const user: User = req.user as User;
+    const { flashCardId } = req.params;
 
-  //     const deletedFlashCard = await this.flashCardRepository.delete(
-  //       flashCardId,
-  //       user.id
-  //     );
+    await this.flashCardRepository.deleteFlashCardById(flashCardId);
 
-  //     if (!deletedFlashCard) {
-  //       next(
-  //         new NotFoundError({
-  //           message: "Flash card not deleted",
-  //           fileName: this.fileName,
-  //           service: "deleteFlashCard",
-  //         })
-  //       );
-  //     }
-
-  //     return res.status(HTTP_STATUS.OK).json(deletedFlashCard);
-  //   }
+    return res
+      .status(HTTP_STATUS.OK)
+      .json({ message: "Flash card has been deleted" });
+  }
 }
 
 export default FlashCardsController;
