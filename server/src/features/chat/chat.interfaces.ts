@@ -1,17 +1,12 @@
-import { StreamTextResult, CoreTool, CoreMessage } from "ai";
+import { CoreMessage } from "ai";
 import { Request, Response } from "express";
 import * as googleCloud from "@google-cloud/text-to-speech";
 import { IChatRepository } from "@shared/repositories/chatRepository";
 import { IMessagesRepository } from "@shared/repositories/messagesRepository";
 import { ITutorProfileRepository } from "@shared/repositories/tutorProfileRepository";
+import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
 import { Logger } from "winston";
-
-export type ChatResult = StreamTextResult<Record<string, CoreTool<any, any>>>;
-export type executeReturnType = Promise<Response<any, Record<string, any>>>;
-
-export interface IChatService {
-  execute(): executeReturnType;
-}
+import { int } from "drizzle-orm/mysql-core";
 
 export interface IChatController {
   startChat(req: Request, res: Response): void;
@@ -77,3 +72,18 @@ export interface IGenerateAudioRequest
 export interface IAudioContent
   extends googleCloud.protos.google.cloud.texttospeech.v1
     .ISynthesizeSpeechResponse {}
+
+export interface ITopicPromptBaseDependencies {
+  // logger: Logger;
+  topic: string;
+}
+
+export interface IVocabPraticePromptDependencies
+  extends ITopicPromptBaseDependencies {
+  flashCardRepository: IFlashCardRepository;
+}
+
+export interface ITopicPromptFactoryDependencies {
+  category: string;
+  topic: string;
+}
