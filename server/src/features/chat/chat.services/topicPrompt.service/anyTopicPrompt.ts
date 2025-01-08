@@ -1,5 +1,6 @@
 import { Logger } from "winston";
 import TopicPromptBase from "./topicPromptBase";
+import { ITopicPromptBaseDependencies } from "@chat/chat.interfaces";
 
 class AnyTopicPrompt extends TopicPromptBase {
   protected readonly category = "Chat about anything";
@@ -32,8 +33,8 @@ class AnyTopicPrompt extends TopicPromptBase {
     },
   ];
 
-  constructor(topic: string, logger: Logger) {
-    super(topic, logger);
+  constructor(dependencies: ITopicPromptBaseDependencies) {
+    super(dependencies);
   }
 }
 
