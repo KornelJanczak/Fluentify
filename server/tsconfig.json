@@ -17,6 +17,7 @@
       "@auth/*": ["src/features/auth/*"],
       "@chat/*": ["src/features/chat/*"],
       "@vocabularySets/*": ["src/features/vocabularySets/*"],
+      "@flashCards/*": ["src/features/flashCards/*"],
       "@tutorProfile/*": ["src/features/tutorProfile/*"],
       "@shared/*": ["src/shared/*"],
       "@root/*": ["src/*"]
