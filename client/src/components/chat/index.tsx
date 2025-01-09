@@ -20,6 +20,9 @@ export default function Chat({
     api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
     credentials: "include",
     body: {
+      chatCategory: "",
+      chatTopic: "",
+      vocabularySetId: "5d095803-3551-4734-94ec-1f91a84d8cf4",
       chatId,
     },
     headers: {
@@ -44,6 +47,9 @@ export default function Chat({
     },
   });
 
+
+  
+
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
       {messages.map((m) => (
@@ -51,6 +57,7 @@ export default function Chat({
           <div className="whitespace-pre-wrap ">
             {m.role === "user" ? "User: " : "AI: "}
             {m.content}
+          
           </div>
           <audio controls={true} ref={audioRef} />
         </div>
@@ -67,5 +74,3 @@ export default function Chat({
     </div>
   );
 }
-
-
