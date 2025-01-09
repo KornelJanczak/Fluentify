@@ -43,6 +43,9 @@ export interface IChatRequest {
   chatId: string;
   messages: CoreMessage[];
   userId: string;
+  chatCategory: string;
+  chatTopic: string;
+  vocabularySetId?: string;
 }
 
 export interface IChatStreamServiceDependencies {
