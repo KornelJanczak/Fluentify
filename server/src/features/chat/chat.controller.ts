@@ -26,16 +26,14 @@ class ChatController implements IChatController {
   }
 
   async startChat(req: Request, res: Response) {
-    const messages = req.body.messages;
-    const chatId = req.body.chatId;
+    const { body } = req;
     const user: User = req.user as User;
 
     try {
       return await this.chatStreamService.startChatStream({
         res,
-        chatId,
-        messages,
         userId: user.id,
+        ...body,
       });
     } catch (error) {
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(error);
