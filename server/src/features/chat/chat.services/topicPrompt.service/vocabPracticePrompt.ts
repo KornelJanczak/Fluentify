@@ -4,6 +4,8 @@ import { Logger } from "winston";
 import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
 import NotFoundError from "@shared/errors/notFoundError";
 import { FlashCard } from "@shared/services/db/schema";
+import { tool } from "ai";
+import { z } from "zod";
 
 class VocabPracticePrompt extends TopicPromptBase {
   private flashCardRepository: IFlashCardRepository;
@@ -23,6 +25,18 @@ class VocabPracticePrompt extends TopicPromptBase {
 
   constructor(dependencies: IVocabPraticePromptDependencies) {
     super(dependencies);
+  }
+
+  useLearningVocabularyTool() {
+    return tool({
+      description: "Get learning vocabulary from db and use it to practice",
+      parameters: z.object({
+        vocabularySetId: z.string().describe("Id of the vocabulary set"),
+      }),
+      execute: async ({ vocabularySetId }) => {
+        return await this.getFlashCardsByVocabularySetId(vocabularySetId);
+      },
+    });
   }
 
   private formatFlashCardsIntoStrings(flashCards: FlashCard[]): string[] {
