@@ -11,7 +11,7 @@ import { User } from "@shared/services/db/schema";
 
 class VocabularySetsController implements IVocabularySetsController {
   private readonly vocabularySetRepository: IVocabularySetRepository;
-  private readonly fileName = "VocabularySetController";
+  private readonly fileName = "vocabularySet.controller";
   private readonly logger: Logger;
 
   constructor({
@@ -23,16 +23,18 @@ class VocabularySetsController implements IVocabularySetsController {
   }
 
   async createVocabularySet(req: Request, res: Response, next: NextFunction) {
+    const service = "createVocabularySet";
+
     this.logger.info({
       message: "Creating vocabulary set...",
       fileName: this.fileName,
-      service: "createVocabularySet",
+      service,
     });
 
     const { body } = req;
 
     const user: User = req.user as User;
-    const newItem = { ...body, userId: user.id };
+    const newItem = { ...body, userId: user.id, createdAt: new Date() };
 
     const createdVocabularySet = await this.vocabularySetRepository.create(
       newItem
@@ -47,6 +49,12 @@ class VocabularySetsController implements IVocabularySetsController {
         })
       );
     }
+
+    this.logger.info({
+      message: "Vocabulary set has been created!",
+      fileName: this.fileName,
+      service,
+    });
 
     return res.status(HTTP_STATUS.OK).json(createdVocabularySet);
   }
