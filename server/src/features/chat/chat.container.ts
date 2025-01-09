@@ -24,7 +24,7 @@ container.register({
   chatRepository: asClass(ChatRepository).singleton().scoped(),
   messagesRepository: asClass(MessagesRepository).singleton().scoped(),
   tutorProfileRepository: asClass(TutorProfileRepository).singleton().scoped(),
-  logger: asFunction(() => config.createLogger("chatLogger"))
+  logger: asFunction(() => config.createLogger("chatService"))
     .singleton()
     .scoped(),
   systemPrompt: asValue(""),
