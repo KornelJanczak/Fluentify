@@ -3,6 +3,7 @@ import {
   CoreMessage,
   DataStreamWriter,
   pipeDataStreamToResponse,
+  generateText,
 } from "ai";
 import { v4 as uuidv4 } from "uuid";
 import { customAi } from "@shared/services/ai";
@@ -17,6 +18,11 @@ import { type IChatRepository } from "@shared/repositories/chatRepository";
 import { type IMessagesRepository } from "@shared/repositories/messagesRepository";
 import { Logger } from "winston";
 import { Chat } from "@shared/services/db/schema";
+import { tool } from "ai";
+import { z } from "zod";
+import FlashCardRepository from "@shared/repositories/flashCardRepository";
+
+const flashCardRepository = new FlashCardRepository();
 
 class ChatStreamService implements IChatStreamService {
   private readonly audioGeneratorService: IAudioGeneratorService;
@@ -46,14 +52,14 @@ class ChatStreamService implements IChatStreamService {
 
     await this.saveUserMessage(chat.id, lastUserMessage);
 
-    this.streamChatToResponse({ ...chatRequest });
+    return await this.streamChatToResponse({ ...chatRequest });
   }
 
   private async getChat(chatId: string): Promise<Chat> {
     const chat = await this.chatRepository.getById(chatId);
     if (!chat) {
       throw new NotFoundError({
-        fileName: "chatStream.service",
+        fileName: this.fileName,
         service: "getChat",
         message: "Chat not found",
       });
@@ -84,23 +90,72 @@ class ChatStreamService implements IChatStreamService {
     ]);
   }
 
-  private streamChatToResponse(chatRequest: IChatRequest): void {
-    const { res, chatId, messages, userId } = chatRequest;
+  private async streamChatToResponse(chatRequest: IChatRequest): Promise<void> {
+    const {
+      res,
+      chatId,
+      messages,
+      userId,
+      vocabularySetId,
+      chatCategory,
+      chatTopic,
+    } = chatRequest;
+
     this.logger.info({
+      fileName: this.fileName,
       message: "Start streaming chat...",
       service: "streamChatToResponse",
     });
+
+    const vovabularyResult = await generateText({
+      model: customAi("gpt-3.5-turbo"),
+      prompt: `You are a language larner. Use ${vocabularySetId} to get vocabulary and practice`,
+      tools: {
+        getUsingVocabulary: {
+          description: `Get learning vocabulary from db using ${vocabularySetId} and use it to practice`,
+          parameters: z.object({
+            vocabularySetId: z.string().describe("Vocabulary set ID"),
+          }),
+          execute: async ({ vocabularySetId }) => {
+            console.log("vocabularySetId", vocabularySetId);
+
+            return await flashCardRepository.getFlashCardsByVocabularySetId(
+              vocabularySetId
+            );
+          },
+        },
+      },
+    });
+
+    // console.log(vovabularyResult.toolCalls);
+    // console.log(vovabularyResult.text);
 
     return pipeDataStreamToResponse(res, {
       execute: (streamWriter) => {
         const result = streamText({
           model: customAi("gpt-3.5-turbo"),
-          system: this.systemPrompt,
+          system: `You are a English tutor`,
           messages,
+          tools: {
+            getUsingVocabulary: {
+              description: `Get learning vocabulary from db using ${vocabularySetId} and use it to practice`,
+              parameters: z.object({
+                vocabularySetId: z.string().describe("Vocabulary set ID"),
+              }),
+              execute: async ({ vocabularySetId }) => {
+                console.log("vocabularySetId", vocabularySetId);
+
+                return await flashCardRepository.getFlashCardsByVocabularySetId(
+                  vocabularySetId
+                );
+              },
+            },
+          },
           onFinish: async ({ text }) =>
             await this.onFinishStream(chatId, text, streamWriter, userId),
-          
         });
+
+        console.log(result.toolCalls);
 
         return result.mergeIntoDataStream(streamWriter);
       },
@@ -114,6 +169,7 @@ class ChatStreamService implements IChatStreamService {
     userId: string
   ): Promise<void> {
     this.logger.info({
+      fileName: this.fileName,
       message: "Finished streaming text",
       service: "onFinishStream",
     });
