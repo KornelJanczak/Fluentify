@@ -4,9 +4,9 @@ import * as googleCloud from "@google-cloud/text-to-speech";
 import { IChatRepository } from "@shared/repositories/chatRepository";
 import { IMessagesRepository } from "@shared/repositories/messagesRepository";
 import { ITutorProfileRepository } from "@shared/repositories/tutorProfileRepository";
-import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
+import TopicPromptBase from "./chat.services/topicPrompt.service/topicPromptBase";
 import { Logger } from "winston";
-import { int } from "drizzle-orm/mysql-core";
+import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
 
 export interface IChatController {
   startChat(req: Request, res: Response): void;
@@ -50,12 +50,13 @@ export interface IChatRequest {
 
 export interface IChatStreamServiceDependencies {
   audioGeneratorService: IAudioGeneratorService;
+  topicPromptFactory: ITopicPromptFactory;
   chatRepository: IChatRepository;
   messagesRepository: IMessagesRepository;
+  flashCardRepository: IFlashCardRepository;
   messages: CoreMessage[];
   chatId: string;
   logger: Logger;
-  systemPrompt: string;
 }
 
 export interface IAudioGeneratorService {
@@ -83,7 +84,11 @@ export interface ITopicPromptBaseDependencies {
 
 export interface IVocabPraticePromptDependencies
   extends ITopicPromptBaseDependencies {
-  flashCardRepository: IFlashCardRepository;
+  // flashCardRepository: IFlashCardRepository;
+}
+
+export interface ITopicPromptFactory {
+  createTopicPrompt: (category: string, topic: string) => TopicPromptBase;
 }
 
 export interface ITopicPromptFactoryDependencies {
