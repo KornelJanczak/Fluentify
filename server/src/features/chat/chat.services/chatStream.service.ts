@@ -3,47 +3,48 @@ import {
   CoreMessage,
   DataStreamWriter,
   pipeDataStreamToResponse,
-  generateText,
 } from "ai";
 import { v4 as uuidv4 } from "uuid";
 import { customAi } from "@shared/services/ai";
 import {
-  IAudioGeneratorService,
-  IChatRequest,
-  IChatStreamServiceDependencies,
+  type IAudioGeneratorService,
+  type IChatRequest,
+  type IChatStreamServiceDependencies,
+  type ITopicPromptFactory,
   type IChatStreamService,
 } from "@chat/chat.interfaces";
 import NotFoundError from "@shared/errors/notFoundError";
 import { type IChatRepository } from "@shared/repositories/chatRepository";
 import { type IMessagesRepository } from "@shared/repositories/messagesRepository";
+import TopicPromptBase from "./topicPrompt.service/topicPromptBase";
 import { Logger } from "winston";
 import { Chat } from "@shared/services/db/schema";
-import { tool } from "ai";
-import { z } from "zod";
-import FlashCardRepository from "@shared/repositories/flashCardRepository";
-
-const flashCardRepository = new FlashCardRepository();
+import VocabPracticePrompt from "./topicPrompt.service/vocabPracticePrompt";
+import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
 
 class ChatStreamService implements IChatStreamService {
   private readonly audioGeneratorService: IAudioGeneratorService;
+  private readonly topicPromptFactory: ITopicPromptFactory;
   private readonly messagesRepository: IMessagesRepository;
   private readonly chatRepository: IChatRepository;
+  private readonly flashCardRepository: IFlashCardRepository;
   private readonly fileName = "chatStream.service";
   private readonly logger: Logger;
-  private systemPrompt: string;
 
   constructor({
     audioGeneratorService,
+    topicPromptFactory,
     messagesRepository,
     chatRepository,
+    flashCardRepository,
     logger,
-    systemPrompt,
   }: IChatStreamServiceDependencies) {
     this.audioGeneratorService = audioGeneratorService;
+    this.topicPromptFactory = topicPromptFactory;
     this.messagesRepository = messagesRepository;
     this.chatRepository = chatRepository;
+    this.flashCardRepository = flashCardRepository;
     this.logger = logger;
-    this.systemPrompt = systemPrompt;
   }
 
   async startChatStream(chatRequest: IChatRequest): Promise<void> {
@@ -90,6 +91,43 @@ class ChatStreamService implements IChatStreamService {
     ]);
   }
 
+  private async generateTopicPrompt(
+    chatCategory: string,
+    chatTopic: string,
+    vocabularySetId: string
+  ): Promise<string> {
+    const topicPrompt: TopicPromptBase =
+      this.topicPromptFactory.createTopicPrompt(chatCategory, chatTopic);
+
+    if (topicPrompt instanceof VocabPracticePrompt) {
+      const vocabulary = await this.getFlashCardsByVocabularySetId(
+        vocabularySetId
+      );
+      console.log('vocabulary', vocabulary);
+      
+      topicPrompt.useVocabulary(vocabulary);
+    }
+
+    return topicPrompt.getTopicPrompt();
+  }
+
+  private async getFlashCardsByVocabularySetId(vocabularySetId: string) {
+    const flashCards =
+      await this.flashCardRepository.getFlashCardsByVocabularySetId(
+        vocabularySetId
+      );
+
+    if (!flashCards) {
+      throw new NotFoundError({
+        fileName: this.fileName,
+        service: "getFlashCardsByVocabularySetId",
+        message: "Flash cards not found",
+      });
+    }
+
+    return flashCards;
+  }
+
   private async streamChatToResponse(chatRequest: IChatRequest): Promise<void> {
     const {
       res,
@@ -107,55 +145,21 @@ class ChatStreamService implements IChatStreamService {
       service: "streamChatToResponse",
     });
 
-    const vovabularyResult = await generateText({
-      model: customAi("gpt-3.5-turbo"),
-      prompt: `You are a language larner. Use ${vocabularySetId} to get vocabulary and practice`,
-      tools: {
-        getUsingVocabulary: {
-          description: `Get learning vocabulary from db using ${vocabularySetId} and use it to practice`,
-          parameters: z.object({
-            vocabularySetId: z.string().describe("Vocabulary set ID"),
-          }),
-          execute: async ({ vocabularySetId }) => {
-            console.log("vocabularySetId", vocabularySetId);
-
-            return await flashCardRepository.getFlashCardsByVocabularySetId(
-              vocabularySetId
-            );
-          },
-        },
-      },
-    });
-
-    // console.log(vovabularyResult.toolCalls);
-    // console.log(vovabularyResult.text);
+    const sytemPrompt = await this.generateTopicPrompt(
+      chatCategory,
+      chatTopic,
+      vocabularySetId
+    );
 
     return pipeDataStreamToResponse(res, {
       execute: (streamWriter) => {
         const result = streamText({
           model: customAi("gpt-3.5-turbo"),
-          system: `You are a English tutor`,
+          system: sytemPrompt,
           messages,
-          tools: {
-            getUsingVocabulary: {
-              description: `Get learning vocabulary from db using ${vocabularySetId} and use it to practice`,
-              parameters: z.object({
-                vocabularySetId: z.string().describe("Vocabulary set ID"),
-              }),
-              execute: async ({ vocabularySetId }) => {
-                console.log("vocabularySetId", vocabularySetId);
-
-                return await flashCardRepository.getFlashCardsByVocabularySetId(
-                  vocabularySetId
-                );
-              },
-            },
-          },
           onFinish: async ({ text }) =>
             await this.onFinishStream(chatId, text, streamWriter, userId),
         });
-
-        console.log(result.toolCalls);
 
         return result.mergeIntoDataStream(streamWriter);
       },
