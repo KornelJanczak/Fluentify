@@ -20,8 +20,8 @@ export default function Chat({
     api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
     credentials: "include",
     body: {
-      chatCategory: "",
-      chatTopic: "",
+      chatCategory: "Vocabulary practice",
+      chatTopic: "Practice vocabulary word by word",
       vocabularySetId: "5d095803-3551-4734-94ec-1f91a84d8cf4",
       chatId,
     },
