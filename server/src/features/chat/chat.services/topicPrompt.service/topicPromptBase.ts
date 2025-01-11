@@ -1,5 +1,4 @@
 import { ITopicPromptBaseDependencies } from "@chat/chat.interfaces";
-import { Logger } from "winston";
 
 abstract class TopicPromptBase {
   protected abstract readonly category: string;
@@ -11,7 +10,10 @@ abstract class TopicPromptBase {
 
   constructor({ topic }: ITopicPromptBaseDependencies) {
     this.topic = topic;
-   
+  }
+
+  getTopicPrompt() {
+    return this.chooseAdditionalRules();
   }
 
   protected chooseAdditionalRules(): string {
