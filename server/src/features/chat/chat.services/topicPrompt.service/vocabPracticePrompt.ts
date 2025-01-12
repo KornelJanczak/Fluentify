@@ -45,6 +45,7 @@ class VocabPracticePrompt extends TopicPromptBase {
         2. You should clearly emphazise the practised word in the sentence using "", For instance: "sustainable". 
         3. You should blend the vocabulary words randomly in a conversation, so you can start with any word from the vocabulary set.
         4. You should focus on using the vocabulary words logically in the conversation according to the context of the conversation.
+        
 
       ${this.exampleStatement}
 
