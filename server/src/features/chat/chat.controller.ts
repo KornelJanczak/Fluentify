@@ -31,8 +31,9 @@ class ChatController implements IChatController {
 
     try {
       return await this.chatStreamService.startChatStream({
-        res,
         userId: user.id,
+        tutorId: user.tutorId,
+        res,
         ...body,
       });
     } catch (error) {
