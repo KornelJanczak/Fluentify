@@ -1,1 +1,0 @@
-ALTER TABLE "vocabularySets" ADD COLUMN "createdAt" timestamp NOT NULL;

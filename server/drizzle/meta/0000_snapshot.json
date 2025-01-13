@@ -1,5 +1,5 @@
 {
-  "id": "fca03a49-de5d-471f-ae37-b62aa1778ef6",
+  "id": "525c1f57-9b62-4d05-ab3c-6c77025c3f53",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -32,10 +32,30 @@
           "type": "boolean",
           "primaryKey": false,
           "notNull": true
+        },
+        "chatId": {
+          "name": "chatId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "chatSettings_chatId_chats_id_fk": {
+          "name": "chatSettings_chatId_chats_id_fk",
+          "tableFrom": "chatSettings",
+          "tableTo": "chats",
+          "columnsFrom": [
+            "chatId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -86,6 +106,58 @@
           "tableTo": "users",
           "columnsFrom": [
             "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.flashCards": {
+      "name": "flashCards",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "definition": {
+          "name": "definition",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "translation": {
+          "name": "translation",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vocabularySetId": {
+          "name": "vocabularySetId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "flashCards_vocabularySetId_vocabularySets_id_fk": {
+          "name": "flashCards_vocabularySetId_vocabularySets_id_fk",
+          "tableFrom": "flashCards",
+          "tableTo": "vocabularySets",
+          "columnsFrom": [
+            "vocabularySetId"
           ],
           "columnsTo": [
             "id"
@@ -164,8 +236,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tutorProfiles": {
-      "name": "tutorProfiles",
+    "public.tutorProfile": {
+      "name": "tutorProfile",
       "schema": "",
       "columns": {
         "id": {
@@ -236,14 +308,20 @@
           "primaryKey": false,
           "notNull": true
         },
-        "studingLanguageLevel": {
-          "name": "studingLanguageLevel",
+        "studyingLanguageLevel": {
+          "name": "studyingLanguageLevel",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
         "nativeLanguage": {
           "name": "nativeLanguage",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tutorId": {
+          "name": "tutorId",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
@@ -261,6 +339,64 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.vocabularySets": {
+      "name": "vocabularySets",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "vocabularySets_userId_users_id_fk": {
+          "name": "vocabularySets_userId_users_id_fk",
+          "tableFrom": "vocabularySets",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
