@@ -73,9 +73,10 @@ export default passport.use(
           email: account.email,
           imagePath: account.picture,
           role: "user",
-          subscriptionExpiryDate: "2024-11-17",
-          studingLanguageLevel: "B1",
+          subscriptionExpiryDate: new Date().getDate().toLocaleString(),
+          studyingLanguageLevel: "B1",
           nativeLanguage: "PL",
+          tutorId: "en-US-Casual-K",
         };
 
         user = await userRepository.create(newUser);
