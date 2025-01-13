@@ -10,8 +10,9 @@ export const users = pgTable("users", {
   imagePath: varchar({ length: 510 }).notNull(),
   role: varchar({ length: 255 }).notNull(),
   subscriptionExpiryDate: varchar({ length: 255 }).notNull(),
-  studingLanguageLevel: varchar({ length: 255 }).notNull(),
+  studyingLanguageLevel: varchar({ length: 255 }).notNull(),
   nativeLanguage: varchar({ length: 255 }).notNull(),
+  tutorId: varchar({ length: 255 }).notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users);
@@ -26,7 +27,8 @@ export const tutorProfile = pgTable("tutorProfile", {
   ssmlGender: varchar({ length: 255 }).notNull(),
   name: varchar({ length: 255 }).notNull(),
   languageCode: varchar({ length: 255 }).notNull(),
-  userId: varchar("userId").references(() => users.id),
+
+  // userId: varchar("userId").references(() => users.id),
 });
 
 export const insertTutorProfileSchema = createInsertSchema(tutorProfile);
@@ -117,9 +119,9 @@ export type FlashCard = InferSelectModel<typeof flashCards>;
 // #################################################################### //
 
 // RELATIONS
-export const tutorProfileRelations = relations(tutorProfile, ({ one }) => ({
-  user: one(users, { fields: [tutorProfile.userId], references: [users.id] }),
-}));
+// export const tutorProfileRelations = relations(tutorProfile, ({ one }) => ({
+//   user: one(users, { fields: [tutorProfile.userId], references: [users.id] }),
+// }));
 
 export const chatSettingsRelations = relations(chatSettings, ({ one }) => ({}));
 
