@@ -12,6 +12,7 @@ import {
   type IChatStreamServiceDependencies,
   type ITopicPromptFactory,
   type IChatStreamService,
+  IOnFinishStream,
 } from "@chat/chat.interfaces";
 import NotFoundError from "@shared/errors/notFoundError";
 import { type IChatRepository } from "@shared/repositories/chatRepository";
@@ -103,8 +104,8 @@ class ChatStreamService implements IChatStreamService {
       const vocabulary = await this.getFlashCardsByVocabularySetId(
         vocabularySetId
       );
-      console.log('vocabulary', vocabulary);
-      
+      console.log("vocabulary", vocabulary);
+
       topicPrompt.useVocabulary(vocabulary);
     }
 
@@ -137,6 +138,7 @@ class ChatStreamService implements IChatStreamService {
       vocabularySetId,
       chatCategory,
       chatTopic,
+      tutorId,
     } = chatRequest;
 
     this.logger.info({
@@ -158,7 +160,13 @@ class ChatStreamService implements IChatStreamService {
           system: sytemPrompt,
           messages,
           onFinish: async ({ text }) =>
-            await this.onFinishStream(chatId, text, streamWriter, userId),
+            await this.onFinishStream({
+              chatId,
+              text,
+              streamWriter,
+              userId,
+              tutorId,
+            }),
         });
 
         return result.mergeIntoDataStream(streamWriter);
@@ -166,12 +174,13 @@ class ChatStreamService implements IChatStreamService {
     });
   }
 
-  private async onFinishStream(
-    chatId: string,
-    text: string,
-    streamWriter: DataStreamWriter,
-    userId: string
-  ): Promise<void> {
+  private async onFinishStream({
+    chatId,
+    text,
+    streamWriter,
+    userId,
+    tutorId,
+  }: IOnFinishStream): Promise<void> {
     this.logger.info({
       fileName: this.fileName,
       message: "Finished streaming text",
@@ -180,7 +189,7 @@ class ChatStreamService implements IChatStreamService {
 
     const { audioContent } = await this.audioGeneratorService.generateAudio(
       text,
-      userId
+      tutorId
     );
 
     await this.messagesRepository.saveMessages([
