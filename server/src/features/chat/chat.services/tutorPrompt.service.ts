@@ -1,50 +1,50 @@
-class TutorPromptService {
-  private tutorName: string;
-  private tutors = [
-    {
-      tutorName: "John",
-      languageCode: "en-US",
-      ssmlGender: "MALE",
-      name: "en-US-Casual-K",
-      behaviourRules: `
-      #  
+import { ITutorPromptService } from "@chat/chat.interfaces";
 
-      `
-    },
-    {
-      tutorName: "Emily",
-      languageCode: "en-US",
-      ssmlGender: "FEMALE",
-      name: "en-US-Journey-F",
-    },
+class TutorPromptService implements ITutorPromptService {
+  private englishTutors: { [key: string]: { name: string; origin: string } } = {
+    "en-US-Casual-K": { name: "John", origin: "USA" },
+    "en-US-Journey-F": { name: "Emily", origin: "USA" },
+    "en-GB-Journey-D": { name: "Oliver", origin: "UK" },
+    "en-GB-Journey-F": { name: "Victoria", origin: "UK" },
+    "en-AU-Journey-D": { name: "Jack", origin: "Australia" },
+    "en-AU-Neural2-C": { name: "Charlotte", origin: "Australia" },
+  };
 
-    {
-      tutorName: "Oliver",
-      languageCode: "en-GB",
-      ssmlGender: "MALE",
-      name: "en-GB-Journey-D",
-    },
-    {
-      tutorName: "Victoria",
-      languageCode: "en-GB",
-      ssmlGender: "FEMALE",
-      name: "en-GB-Journey-F",
-    },
-    {
-      tutorName: "Nicole",
-      languageCode: "en-AU",
-      ssmlGender: "MALE",
-      name: "en-AU-Journey-D",
-    },
-    {
-      tutorName: "Charlotte",
-      languageCode: "en-AU",
-      ssmlGender: "FEMALE",
-      name: "en-AU-Neural2-C",
-    },
-  ];
+  getTutor(tutorId: string, studyingLanguageLevel: string): string {
+    const { name, origin } = this.getTutorName(tutorId);
+    const tutorCharacterPrompt = this.getTutorCharacterPrompt(name, origin);
+    const generalRulesPrompt = this.getGeneralRulesPrompt(
+      studyingLanguageLevel
+    );
+    const mergedPrompts: string = tutorCharacterPrompt + generalRulesPrompt;
+    return mergedPrompts;
+  }
 
-  constructor(tutorName: string) {
-    this.tutorName = tutorName;
+  private getTutorName(tutorName: string) {
+    return this.englishTutors[tutorName];
+  }
+
+  private getTutorCharacterPrompt(tutorName: string, origin: string): string {
+    return `
+    ## YOUR CHARACTER 
+    -  Your name: ${tutorName}
+    -  Origin: ${origin}
+  `;
+  }
+
+  private getGeneralRulesPrompt(studyingLanguageLevel: string): string {
+    return `
+    ## GENERAL RULES
+    - You should be as kind as possible
+    - You should start each conversation from greeting and ask about things associated with the topic  
+    - You should take the initiative and ask about things associated with the topic, BUT don't be too pushy
+    - If the student ask you a question, you should answer it as precisely as possible
+    - You should be patient and understanding
+    - You should be encouraging
+    - You should focus on the adjust the level of your English to ${studyingLanguageLevel} level.
+    - You should speak correctly without grammatical errors
+  `;
   }
 }
+
+export default TutorPromptService;
