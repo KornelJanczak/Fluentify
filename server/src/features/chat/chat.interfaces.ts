@@ -7,6 +7,7 @@ import { ITutorProfileRepository } from "@shared/repositories/tutorProfileReposi
 import TopicPromptBase from "./chat.services/topicPrompt.service/topicPromptBase";
 import { Logger } from "winston";
 import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
+import { DataStreamWriter } from "ai";
 
 export interface IChatController {
   startChat(req: Request, res: Response): void;
@@ -41,6 +42,7 @@ export interface IChatStreamService {
 export interface IChatRequest {
   res: Response;
   chatId: string;
+  tutorId: string;
   messages: CoreMessage[];
   userId: string;
   chatCategory: string;
@@ -59,8 +61,16 @@ export interface IChatStreamServiceDependencies {
   logger: Logger;
 }
 
+export interface IOnFinishStream {
+  chatId: string;
+  text: string;
+  streamWriter: DataStreamWriter;
+  userId: string;
+  tutorId: string;
+}
+
 export interface IAudioGeneratorService {
-  generateAudio(text: string, userId: string): Promise<IAudioContent>;
+  generateAudio(text: string, tutorId: string): Promise<IAudioContent>;
 }
 
 export interface IAudioGeneratorServiceDependencies {
@@ -76,6 +86,9 @@ export interface IGenerateAudioRequest
 export interface IAudioContent
   extends googleCloud.protos.google.cloud.texttospeech.v1
     .ISynthesizeSpeechResponse {}
+
+export interface IVoice
+  extends googleCloud.protos.google.cloud.texttospeech.v1.IVoice {}
 
 export interface ITopicPromptBaseDependencies {
   // logger: Logger;
@@ -94,4 +107,8 @@ export interface ITopicPromptFactory {
 export interface ITopicPromptFactoryDependencies {
   category: string;
   topic: string;
+}
+
+export interface ITutorPromptService {
+  getTutor(tutorId: string, studyingLanguageLevel: string): string;
 }
