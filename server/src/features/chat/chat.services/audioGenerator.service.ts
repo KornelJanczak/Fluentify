@@ -3,27 +3,25 @@ import {
   IAudioGeneratorService,
   IAudioGeneratorServiceDependencies,
   IGenerateAudioRequest,
+  IVoice,
 } from "@chat/chat.interfaces";
 import NotFoundError from "@shared/errors/notFoundError";
-import { ITutorProfileRepository } from "@shared/repositories/tutorProfileRepository";
 import { textToSpeechClient } from "@shared/services/textToSpeech";
 import { Logger } from "winston";
 
 class AudioGeneratorService implements IAudioGeneratorService {
   private readonly fileName = "audioGenerator.service";
-  private readonly tutorProfileRepository: ITutorProfileRepository;
   private readonly logger: Logger;
 
   constructor({
     logger,
-    tutorProfileRepository,
   }: IAudioGeneratorServiceDependencies) {
     this.logger = logger;
-    this.tutorProfileRepository = tutorProfileRepository;
   }
 
-  async generateAudio(text: string, userId: string): Promise<IAudioContent> {
-    const request = await this.createRequest(text, userId);
+  async generateAudio(text: string, tutorId: string): Promise<IAudioContent> {
+    const tutorVoice: IVoice = await this.getTutorProfile(tutorId);
+    const request = await this.createRequest(text, tutorVoice);
     return await this.syntheziseAudio(request);
   }
 
@@ -48,29 +46,23 @@ class AudioGeneratorService implements IAudioGeneratorService {
     }
   }
 
+  private async getTutorProfile(tutorId: string): Promise<IVoice> {
+    const [{ voices }] = await textToSpeechClient.listVoices({
+      languageCode: "en-US",
+    });
+
+    const userTutor: IVoice = voices.find((voice) => voice.name === tutorId);
+
+    return userTutor;
+  }
+
   private async createRequest(
     text: string,
-    userId: string
+    voice: IVoice
   ): Promise<IGenerateAudioRequest> {
-    const tutorProfile =
-      await this.tutorProfileRepository.getTutorProfileByUserId(userId);
-
-    if (!tutorProfile)
-      throw new NotFoundError({
-        fileName: this.fileName,
-        service: "createRequest",
-        message: "Tutor profile not found",
-      });
-
-    const { languageCode, ssmlGender, name } = tutorProfile;
-
     const request: IGenerateAudioRequest = {
-      input: { text: text },
-      voice: {
-        languageCode,
-        ssmlGender,
-        name,
-      },
+      input: { text },
+      voice,
       audioConfig: { audioEncoding: "MP3" },
     };
 
