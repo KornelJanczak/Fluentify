@@ -22,7 +22,7 @@ class TutorProfileRepository implements ITutorProfileRepository {
       const [profile]: TutorProfile[] = await db
         .select()
         .from(tutorProfile)
-        .where(eq(tutorProfile.userId, userId));
+        // .where(eq(tutorProfile.userId, userId));
 
       return profile;
     } catch (error) {
@@ -63,7 +63,7 @@ class TutorProfileRepository implements ITutorProfileRepository {
       const [profile]: TutorProfile[] = await db
         .update(tutorProfile)
         .set(updatedProfile)
-        .where(eq(tutorProfile.userId, userId))
+        // .where(eq(tutorProfile.userId, userId))
         .returning();
 
       return profile;
