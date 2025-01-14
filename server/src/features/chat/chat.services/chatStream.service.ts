@@ -1,50 +1,39 @@
-import {
-  streamText,
-  CoreMessage,
-  DataStreamWriter,
-  pipeDataStreamToResponse,
-} from "ai";
+import { streamText, CoreMessage, pipeDataStreamToResponse } from "ai";
 import { v4 as uuidv4 } from "uuid";
 import { customAi } from "@shared/services/ai";
 import {
-  type IAudioGeneratorService,
   type IChatRequest,
   type IChatStreamServiceDependencies,
-  type ITopicPromptFactory,
   type IChatStreamService,
-  IOnFinishStream,
-} from "@chat/chat.interfaces";
+  type IOnFinishStream,
+} from "../chat.interfaces/chatStream.service.interfaces";
+import { IAudioGeneratorService } from "@chat/chat.interfaces/audioGenerator.service.interfaces";
 import NotFoundError from "@shared/errors/notFoundError";
 import { type IChatRepository } from "@shared/repositories/chatRepository";
 import { type IMessagesRepository } from "@shared/repositories/messagesRepository";
-import TopicPromptBase from "./topicPrompt.service/topicPromptBase";
 import { Logger } from "winston";
 import { Chat } from "@shared/services/db/schema";
-import VocabPracticePrompt from "./topicPrompt.service/vocabPracticePrompt";
-import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
+import { ISystemPromptService } from "@chat/chat.interfaces/systemPrompt.service.interface";
 
 class ChatStreamService implements IChatStreamService {
+  private readonly fileName = "chatStream.service";
   private readonly audioGeneratorService: IAudioGeneratorService;
-  private readonly topicPromptFactory: ITopicPromptFactory;
+  private readonly systemPromptService: ISystemPromptService;
   private readonly messagesRepository: IMessagesRepository;
   private readonly chatRepository: IChatRepository;
-  private readonly flashCardRepository: IFlashCardRepository;
-  private readonly fileName = "chatStream.service";
   private readonly logger: Logger;
 
   constructor({
     audioGeneratorService,
-    topicPromptFactory,
+    systemPromptService,
     messagesRepository,
     chatRepository,
-    flashCardRepository,
     logger,
   }: IChatStreamServiceDependencies) {
     this.audioGeneratorService = audioGeneratorService;
-    this.topicPromptFactory = topicPromptFactory;
+    this.systemPromptService = systemPromptService;
     this.messagesRepository = messagesRepository;
     this.chatRepository = chatRepository;
-    this.flashCardRepository = flashCardRepository;
     this.logger = logger;
   }
 
@@ -92,52 +81,15 @@ class ChatStreamService implements IChatStreamService {
     ]);
   }
 
-  private async generateTopicPrompt(
-    chatCategory: string,
-    chatTopic: string,
-    vocabularySetId: string
-  ): Promise<string> {
-    const topicPrompt: TopicPromptBase =
-      this.topicPromptFactory.createTopicPrompt(chatCategory, chatTopic);
-
-    if (topicPrompt instanceof VocabPracticePrompt) {
-      const vocabulary = await this.getFlashCardsByVocabularySetId(
-        vocabularySetId
-      );
-      console.log("vocabulary", vocabulary);
-
-      topicPrompt.useVocabulary(vocabulary);
-    }
-
-    return topicPrompt.getTopicPrompt();
-  }
-
-  private async getFlashCardsByVocabularySetId(vocabularySetId: string) {
-    const flashCards =
-      await this.flashCardRepository.getFlashCardsByVocabularySetId(
-        vocabularySetId
-      );
-
-    if (!flashCards) {
-      throw new NotFoundError({
-        fileName: this.fileName,
-        service: "getFlashCardsByVocabularySetId",
-        message: "Flash cards not found",
-      });
-    }
-
-    return flashCards;
-  }
-
   private async streamChatToResponse(chatRequest: IChatRequest): Promise<void> {
     const {
       res,
       chatId,
       messages,
-      userId,
       vocabularySetId,
       chatCategory,
       chatTopic,
+      studyingLanguageLevel,
       tutorId,
     } = chatRequest;
 
@@ -147,11 +99,14 @@ class ChatStreamService implements IChatStreamService {
       service: "streamChatToResponse",
     });
 
-    const sytemPrompt = await this.generateTopicPrompt(
+    const sytemPrompt = await this.systemPromptService.getSystemPrompt({
+      studyingLanguageLevel,
       chatCategory,
       chatTopic,
-      vocabularySetId
-    );
+      tutorId,
+      vocabularySetId,
+    });
+
 
     return pipeDataStreamToResponse(res, {
       execute: (streamWriter) => {
@@ -164,7 +119,6 @@ class ChatStreamService implements IChatStreamService {
               chatId,
               text,
               streamWriter,
-              userId,
               tutorId,
             }),
         });
@@ -178,15 +132,8 @@ class ChatStreamService implements IChatStreamService {
     chatId,
     text,
     streamWriter,
-    userId,
     tutorId,
   }: IOnFinishStream): Promise<void> {
-    this.logger.info({
-      fileName: this.fileName,
-      message: "Finished streaming text",
-      service: "onFinishStream",
-    });
-
     const { audioContent } = await this.audioGeneratorService.generateAudio(
       text,
       tutorId
@@ -206,6 +153,12 @@ class ChatStreamService implements IChatStreamService {
     streamWriter.writeMessageAnnotation({
       type: "audio",
       data: JSON.stringify(audioContent),
+    });
+
+    this.logger.info({
+      fileName: this.fileName,
+      message: "Finished streaming text",
+      service: "onFinishStream",
     });
   }
 }
