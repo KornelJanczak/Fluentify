@@ -3,7 +3,7 @@ import chatContainer from "./chat.container";
 import authMiddleware from "@shared/middleware/authMiddleware";
 import { validateZodSchema } from "@shared/middleware/validateZodMiddleware";
 import { createChatSchema, startChatSchema } from "./chat.schema";
-import { IChatController } from "./chat.interfaces";
+import { IChatController } from "@chat/chat.interfaces/controller.interfaces";
 
 const chatController = chatContainer.resolve<IChatController>("chatController");
 const router = Router();
