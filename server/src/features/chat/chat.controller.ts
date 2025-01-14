@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
+import { IChatStreamService } from "./chat.interfaces/chatStream.service.interfaces";
 import {
   IChatController,
   IChatControllerDependencies,
-  IChatStreamService,
-} from "./chat.interfaces";
+} from "./chat.interfaces/controller.interfaces";
 import { v4 as uuidv4 } from "uuid";
 import { User } from "@shared/services/db/schema";
 import HTTP_STATUS from "http-status-codes";
@@ -33,6 +33,7 @@ class ChatController implements IChatController {
       return await this.chatStreamService.startChatStream({
         userId: user.id,
         tutorId: user.tutorId,
+        studyingLanguageLevel: user.studyingLanguageLevel,
         res,
         ...body,
       });
