@@ -1,6 +1,5 @@
-import { Logger } from "winston";
 import TopicPromptBase from "./topicPromptBase";
-import { ITopicPromptBaseDependencies } from "@chat/chat.interfaces";
+import { ITopicPromptBaseDependencies } from "@chat/chat.interfaces/topicPrompt.service.interfaces";
 
 class AnyTopicPrompt extends TopicPromptBase {
   protected readonly category = "Chat about anything";
