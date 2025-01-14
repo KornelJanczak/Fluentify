@@ -1,4 +1,4 @@
-import { ITopicPromptBaseDependencies } from "@chat/chat.interfaces";
+import { ITopicPromptBaseDependencies } from "@chat/chat.interfaces/topicPrompt.service.interfaces";
 
 abstract class TopicPromptBase {
   protected abstract readonly category: string;
