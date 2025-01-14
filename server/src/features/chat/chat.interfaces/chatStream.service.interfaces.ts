@@ -1,0 +1,49 @@
+import { CoreMessage } from "ai";
+import {  Response } from "express";
+import { IChatRepository } from "@shared/repositories/chatRepository";
+import { IMessagesRepository } from "@shared/repositories/messagesRepository";
+import { Logger } from "winston";
+import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
+import { DataStreamWriter } from "ai";
+import { IAudioGeneratorService } from "./audioGenerator.service.interfaces";
+import { ITopicPromptFactory } from "./topicPrompt.service.interfaces";
+import { ISystemPromptService } from "./systemPrompt.service.interface";
+
+export interface IChatStreamService {
+  startChatStream({
+    res,
+    chatId,
+    messages,
+    userId,
+  }: IChatRequest): Promise<void>;
+}
+
+export interface IChatRequest {
+  res: Response;
+  chatId: string;
+  tutorId: string;
+  messages: CoreMessage[];
+  userId: string;
+  chatCategory: string;
+  chatTopic: string;
+  studyingLanguageLevel: string;
+  vocabularySetId?: string;
+}
+
+export interface IChatStreamServiceDependencies {
+  audioGeneratorService: IAudioGeneratorService;
+  systemPromptService: ISystemPromptService
+  chatRepository: IChatRepository;
+  messagesRepository: IMessagesRepository;
+  flashCardRepository: IFlashCardRepository;
+  messages: CoreMessage[];
+  chatId: string;
+  logger: Logger;
+}
+
+export interface IOnFinishStream {
+  chatId: string;
+  text: string;
+  streamWriter: DataStreamWriter;
+  tutorId: string;
+}
