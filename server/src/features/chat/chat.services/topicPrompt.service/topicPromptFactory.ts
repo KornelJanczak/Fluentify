@@ -1,8 +1,7 @@
 import TopicPromptBase from "./topicPromptBase";
 import VocabPracticePrompt from "./vocabPracticePrompt";
 import AnyTopicPrompt from "./anyTopicPrompt";
-import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
-import { ITopicPromptFactory } from "@chat/chat.interfaces";
+import { ITopicPromptFactory } from "@chat/chat.interfaces/topicPrompt.service.interfaces";
 
 class TopicPromptFactory implements ITopicPromptFactory {
   createTopicPrompt(category: string, topic: string): TopicPromptBase {
