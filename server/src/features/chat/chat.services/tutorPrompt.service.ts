@@ -1,4 +1,4 @@
-import { ITutorPromptService } from "@chat/chat.interfaces";
+import { ITutorPromptService } from "@chat/chat.interfaces/tutorPrompt.service.interfaces";
 
 class TutorPromptService implements ITutorPromptService {
   private englishTutors: { [key: string]: { name: string; origin: string } } = {
@@ -10,7 +10,7 @@ class TutorPromptService implements ITutorPromptService {
     "en-AU-Neural2-C": { name: "Charlotte", origin: "Australia" },
   };
 
-  getTutor(tutorId: string, studyingLanguageLevel: string): string {
+  getTutorPrompt(tutorId: string, studyingLanguageLevel: string): string {
     const { name, origin } = this.getTutorName(tutorId);
     const tutorCharacterPrompt = this.getTutorCharacterPrompt(name, origin);
     const generalRulesPrompt = this.getGeneralRulesPrompt(
@@ -34,15 +34,14 @@ class TutorPromptService implements ITutorPromptService {
 
   private getGeneralRulesPrompt(studyingLanguageLevel: string): string {
     return `
-    ## GENERAL RULES
-    - You should be as kind as possible
-    - You should start each conversation from greeting and ask about things associated with the topic  
-    - You should take the initiative and ask about things associated with the topic, BUT don't be too pushy
-    - If the student ask you a question, you should answer it as precisely as possible
-    - You should be patient and understanding
-    - You should be encouraging
-    - You should focus on the adjust the level of your English to ${studyingLanguageLevel} level.
-    - You should speak correctly without grammatical errors
+    ## GENERAL RULES (EACH RULE IS MANDATORY)
+     1.You should be as kind as possible
+     2.You should start each conversation from greeting and ask about things associated with the topic  
+     3.You should take the initiative and ask about things associated with the topic, BUT don't be too pushy
+     4.If the student ask you a question, you should answer it as precisely as possible
+     7.You should focus on the adjust the level of your English to ${studyingLanguageLevel} level.
+     8.You should speak correctly without grammatical errors
+     9.You should share your name and describe your origin at the first sentence of the conversation.
   `;
   }
 }
