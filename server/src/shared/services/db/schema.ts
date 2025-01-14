@@ -19,21 +19,6 @@ export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export type User = InferSelectModel<typeof users>;
 
-// #################################################################### //
-
-// TUTOR PROFILE TABLE
-export const tutorProfile = pgTable("tutorProfile", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  ssmlGender: varchar({ length: 255 }).notNull(),
-  name: varchar({ length: 255 }).notNull(),
-  languageCode: varchar({ length: 255 }).notNull(),
-
-  // userId: varchar("userId").references(() => users.id),
-});
-
-export const insertTutorProfileSchema = createInsertSchema(tutorProfile);
-export const selectTutorProfileSchema = createSelectSchema(tutorProfile);
-export type TutorProfile = InferSelectModel<typeof tutorProfile>;
 
 // #################################################################### //
 
@@ -110,6 +95,7 @@ export const flashCards = pgTable("flashCards", {
   vocabularySetId: uuid("vocabularySetId")
     .notNull()
     .references(() => vocabularySets.id),
+    
 });
 
 export const insertFlashCardSchema = createInsertSchema(flashCards);
@@ -119,10 +105,6 @@ export type FlashCard = InferSelectModel<typeof flashCards>;
 // #################################################################### //
 
 // RELATIONS
-// export const tutorProfileRelations = relations(tutorProfile, ({ one }) => ({
-//   user: one(users, { fields: [tutorProfile.userId], references: [users.id] }),
-// }));
-
 export const chatSettingsRelations = relations(chatSettings, ({ one }) => ({}));
 
 // #################################################################### //
