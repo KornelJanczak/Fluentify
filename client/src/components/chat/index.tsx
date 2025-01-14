@@ -22,7 +22,7 @@ export default function Chat({
     body: {
       chatCategory: "Vocabulary practice",
       chatTopic: "Practice vocabulary word by word",
-      vocabularySetId: "5d095803-3551-4734-94ec-1f91a84d8cf4",
+      vocabularySetId: "e884f64a-9b44-48a5-b15d-f0dd23d75877",
       chatId,
     },
     headers: {
@@ -47,9 +47,6 @@ export default function Chat({
     },
   });
 
-
-  
-
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
       {messages.map((m) => (
@@ -57,7 +54,6 @@ export default function Chat({
           <div className="whitespace-pre-wrap ">
             {m.role === "user" ? "User: " : "AI: "}
             {m.content}
-          
           </div>
           <audio controls={true} ref={audioRef} />
         </div>
