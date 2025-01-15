@@ -62,6 +62,8 @@ class SystemPromptService implements ISystemPromptService {
       topicPrompt.useVocabulary(vocabulary);
     }
 
+
+    
     return topicPrompt.getTopicPrompt();
   }
 
