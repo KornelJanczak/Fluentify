@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signIn } from "@/common/lib/auth";
 
 const navItems = {
   nextLinks: [
