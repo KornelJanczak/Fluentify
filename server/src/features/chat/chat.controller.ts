@@ -54,7 +54,7 @@ class ChatController implements IChatController {
     return res.status(HTTP_STATUS.OK).json(newChat.id);
   }
 
-  async getChat(req: Request, res: Response) {
+  async getChatById(req: Request, res: Response) {
     const chat = await this.chatRepository.getById(req.params.id);
     return res.status(HTTP_STATUS.OK).json(chat);
   }
