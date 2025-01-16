@@ -11,7 +11,7 @@ const router = Router();
 router.get(
   "/chat/:id",
   authMiddleware,
-  chatController.getChat.bind(chatController)
+  chatController.getChatById.bind(chatController)
 );
 
 router.post(
