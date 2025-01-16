@@ -6,7 +6,7 @@ import { IChatStreamService } from "./chatStream.service.interfaces";
 export interface IChatController {
   startChat(req: Request, res: Response): void;
   createChat(req: Request, res: Response): void;
-  getChat(req: Request, res: Response): void;
+  getChatById(req: Request, res: Response): void;
   getMessagesByChatId(req: Request, res: Response): void;
 }
 
