@@ -1,6 +1,6 @@
 import { Inter } from "next/font/google";
+import { ThemeProvider } from "@/common/providers/theme-provider";
 import "./globals.css";
-import Navbar from "@/components/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,12 +10,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head />
+
       <body className={inter.className}>
-        <Navbar />
-        <div className="flex min-h-screen flex-col items-center p-24">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
-        </div>
+        </ThemeProvider>
       </body>
     </html>
   );
