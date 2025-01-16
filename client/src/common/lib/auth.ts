@@ -21,8 +21,6 @@ export const getSessionCookie = async () => {
 export const getUser = async () => {
   const sessionCookie = await getSessionCookie();
 
-  // console.log(sessionCookie);
-
   const response = await fetch("http://localhost:5000/api/v1/auth/session", {
     credentials: "include",
     headers: {
