@@ -1,7 +1,6 @@
 import { getUser, getSessionCookie } from "@/common/lib/auth";
 import CreateChatButton from "@/components/chat/create-chat-button";
-import Chat from "@/components/chat/index";
-import AiChat from "@/components/chat/index";
+
 import { redirect } from "next/dist/server/api-utils";
 
 export default async function PrivatePage() {
