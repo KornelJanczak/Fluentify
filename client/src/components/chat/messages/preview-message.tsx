@@ -7,7 +7,7 @@ import { Markdown } from "../../markdown";
 import { MessageActions } from "./message-actions";
 import equal from "fast-deep-equal";
 import { cn } from "@/lib/utils";
-import { SparklesIcon } from "lucide-react";
+import AssistantImage from "./assistant-image";
 
 interface PreviewMessageProps {
   message: Message;
@@ -34,13 +34,7 @@ const PurePreviewMessage = ({
             "group-data-[role=user]/message:w-fit"
           )}
         >
-          {message.role === "assistant" && (
-            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
-              <div className="translate-y-px">
-                <SparklesIcon size={14} />
-              </div>
-            </div>
-          )}
+          {message.role === "assistant" && <AssistantImage />}
 
           <div className="flex flex-col gap-2 w-full">
             {message.content && (
