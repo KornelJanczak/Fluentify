@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { RestHelper } from "./rest-helper";
 
-class ServerAPI extends RestHelper {
+export class ServerAPI extends RestHelper {
   constructor() {
     super(process.env.NEXT_PUBLIC_API_URL);
   }
