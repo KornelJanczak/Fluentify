@@ -1,4 +1,5 @@
-import { AppSidebar } from "@/components/sidebar";
+import { authService } from "@/common/services/auth/auth-service";
+import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -6,10 +7,18 @@ import {
 } from "@/components/ui/sidebar";
 import React from "react";
 
-export default function Page({ children }: { children: React.ReactNode }) {
+export default async function Page({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await authService.getUser();
+
+  console.log(user);
+
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar user={user} />
       <SidebarTrigger className="ml-1" />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
