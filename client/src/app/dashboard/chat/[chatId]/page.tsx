@@ -1,5 +1,5 @@
 import { serverApi } from "@/common/api/server-api";
-import { Chat } from "@/components/chat/chat";
+import { Chat } from "@/components/chat";
 import { Message } from "ai";
 
 interface ChatPageProps {
