@@ -1,8 +1,6 @@
 import type { Message } from "ai";
 import { toast } from "sonner";
-// import { useSWRConfig } from "swr";
 import { useCopyToClipboard } from "usehooks-ts";
-
 import { CopyIcon } from "lucide-react";
 import { Button } from "../../ui/button";
 import {
@@ -12,7 +10,6 @@ import {
   TooltipTrigger,
 } from "../../ui/tooltip";
 import { memo } from "react";
-import equal from "fast-deep-equal";
 
 interface PureMessageActionsProps {
   message: Message;
