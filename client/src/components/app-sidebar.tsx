@@ -16,7 +16,7 @@ import {
 
 import { NavMain } from "@/components/nav/nav-main";
 import { NavProjects } from "@/components/nav/nav-projects";
-import { NavUser } from "@/components/nav/nav-user";
+import { NavUser } from "./nav/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
@@ -162,8 +162,6 @@ export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
-  console.log("sidebar", user);
-
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
