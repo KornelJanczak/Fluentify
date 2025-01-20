@@ -33,11 +33,19 @@ class AuthService {
 
   async logOut() {
     try {
-      await this.serverApi.get("/auth/logout");
+      console.log("logOut");
+
+      return (await clientApi.get("/auth/logout")).data;
     } catch (error) {
       if (!(error instanceof HttpError)) {
         throw error;
       }
+
+      if (error.status === 401) {
+        return null;
+      }
+
+      throw error;
     }
   }
 }
