@@ -7,6 +7,7 @@ export interface IChatRepository {
   create(newItem: Chat): Promise<Chat>;
   getById(id: string): Promise<Chat>;
   getByUserId(userId: string): Promise<Chat[]>;
+  getChatsByUserId(userId: string): Promise<Chat[]>;
 }
 
 class ChatRepository implements IChatRepository {
@@ -20,6 +21,24 @@ class ChatRepository implements IChatRepository {
       throw new DatabaseError({
         fileName: this.fileName,
         service: "create",
+        message: error.message,
+        stack: error.stack,
+      });
+    }
+  }
+
+  async getChatsByUserId(userId: string): Promise<Chat[]> {
+    try {
+      const chatList: Chat[] = await db
+        .select()
+        .from(chats)
+        .where(eq(chats.userId, userId));
+
+      return chatList;
+    } catch (error) {
+      throw new DatabaseError({
+        fileName: this.fileName,
+        service: "getChatsByUserId",
         message: error.message,
         stack: error.stack,
       });
@@ -61,4 +80,3 @@ class ChatRepository implements IChatRepository {
 }
 
 export default ChatRepository;
-
