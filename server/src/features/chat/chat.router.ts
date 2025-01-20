@@ -28,6 +28,8 @@ router.post(
   chatController.createChat.bind(chatController)
 );
 
+
+
 router.get(
   "/chat/:id/messages",
   authMiddleware,
