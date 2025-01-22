@@ -27,6 +27,10 @@ export class ServerAPI extends RestHelper {
       "fluentify-server-session.sig"
     ).value;
 
+    if (!sessionId || !sessionSignature) {
+      throw new Error("Session cookies are missing");
+    }
+
     const sessionCookie =
       "fluentify-server-session=" +
       sessionId +
