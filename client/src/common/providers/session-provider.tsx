@@ -12,7 +12,7 @@ export interface SessionProviderProps {
   children: React.ReactNode;
   session?: Session | null;
   baseUrl?: string;
-  
+
   basePath?: string;
 }
 
@@ -21,7 +21,7 @@ type SessionContextValue = {
   status: "loading" | "authenticated" | "unauthenticated";
 };
 
-const SessionContext = createContext<SessionContextValue | undefined>(
+export const SessionContext = createContext<SessionContextValue | undefined>(
   undefined
 );
 
