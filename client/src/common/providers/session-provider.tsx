@@ -12,6 +12,7 @@ export interface SessionProviderProps {
   children: React.ReactNode;
   session?: Session | null;
   baseUrl?: string;
+  
   basePath?: string;
 }
 
