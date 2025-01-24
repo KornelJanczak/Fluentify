@@ -19,6 +19,7 @@ export interface SessionProviderProps {
 type SessionContextValue = {
   data: Session | null;
   status: "loading" | "authenticated" | "unauthenticated";
+  
 };
 
 export const SessionContext = createContext<SessionContextValue | undefined>(
