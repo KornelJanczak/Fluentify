@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+// import { eq } from "drizzle-orm";
 import { db } from "../services/db";
 import { type ChatSettings, chatSettings } from "../services/db/schema";
 import DatabaseError from "../errors/dbError";
