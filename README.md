@@ -1,4 +1,4 @@
-# Fluentify: Express, TS, Postgre SQL, Redis, Next.js 15
+# Fluentify: Node.js, Express, TS, Postgre SQL, Redis, Next.js 15
 
 ## Application Description 📋
 This platform is a comprehensive solution for learning languages, powered by AI. It's also my most ambitious full-stack project to date, with my primary focus being on the backend so far.
