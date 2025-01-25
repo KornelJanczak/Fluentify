@@ -1,5 +1,6 @@
 import { Application, json, urlencoded, Response, Request } from "express";
-import cookieSession from "cookie-session";
+import session from "express-session";
+import { RedisStore } from "connect-redis";
 import cookieParser from "cookie-parser";
 import { config } from "@root/config";
 import hpp from "hpp";
@@ -14,6 +15,8 @@ import { globalErrorMiddleware } from "@shared/middleware/errorMiddleware";
 import HTTP_STATUS from "http-status-codes";
 import passport from "passport";
 import "@auth/strategies/google-strategy";
+// import { client as redisClient } from "@services/redis/redis.client";
+import { redisConnection } from "@services/redis/redis.connection";
 
 const logger = config.createLogger("setupServer");
 
@@ -37,25 +40,27 @@ export class FluentifyServer {
 
   private securityMiddleware(app: Application): void {
     app.set("trust proxy", 1);
-    app.use(
-      cookieSession({
-        name: config.COOKIE_SESSION_NAME,
-        keys: [config.SECRET_KEY_ONE, config.SECRET_KEY_TWO],
-        maxAge: 24 * 60 * 60 * 1000,
-        // secure: config.NODE_ENV !== "development",
-        // sameSite: "none",
-      })
-    );
     // app.use(
-    //   session({
-    //     secret: "anson the dev",
-    //     saveUninitialized: true,
-    //     resave: false,
-    //     cookie: {
-    //       maxAge: 60000 * 60,
-    //     },
+    //   cookieSession({
+    //     name: config.COOKIE_SESSION_NAME,
+    //     keys: [config.SECRET_KEY_ONE, config.SECRET_KEY_TWO],
+    //     maxAge: 24 * 60 * 60 * 1000,
+    //     // secure: config.NODE_ENV !== "development",
+    //     // sameSite: "none",
     //   })
     // );
+
+    app.use(
+      session({
+        store: this.createSessionStrore(),
+        secret: config.SESSION_SECRET,
+        saveUninitialized: true,
+        resave: false,
+        cookie: {
+          maxAge: 60000 * 60,
+        },
+      })
+    );
     app.use(cookieParser());
     app.use(hpp());
     app.use(helmet());
@@ -67,6 +72,29 @@ export class FluentifyServer {
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
       })
     );
+  }
+
+  private createSessionStrore(): RedisStore {
+    // redisConnection
+    //   .connect()
+    //   .then(() => {
+    //     logger.info({
+    //       message: "Redis connection established",
+    //       service: "createSessionStore",
+    //     });
+    //   })
+    //   .catch((error) => {
+    //     logger.error({
+    //       message: "Redis connection failed",
+    //       service: "createSessionStore",
+    //       error,
+    //     });
+    //   });
+    redisConnection.connect();
+    return new RedisStore({
+      client: redisConnection.client,
+      prefix: "session",
+    });
   }
 
   private standardMiddleware(app: Application): void {
