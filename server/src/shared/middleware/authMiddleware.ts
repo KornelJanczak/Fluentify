@@ -5,6 +5,8 @@ import { config } from "@root/config";
 const logger = config.createLogger("authMiddleware");
 
 const authMiddleware = (req: Request, _: Response, next: NextFunction) => {
+  console.log(req.session);
+
   if (!req.isAuthenticated()) {
     return next(
       new AuthenticationError({
