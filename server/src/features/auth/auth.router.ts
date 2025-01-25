@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { NextFunction, Router, Response } from "express";
 import passport from "passport";
 import authMiddleware from "@shared/middleware/authMiddleware";
 import { IAuthController } from "./auth.interfaces";
@@ -13,7 +13,7 @@ router.get("/auth/status", authController.authStatus.bind(authController));
 
 router.get(
   "/auth/session",
-  authMiddleware,
+  // authMiddleware,
   authController.authSession.bind(authController)
 );
 
