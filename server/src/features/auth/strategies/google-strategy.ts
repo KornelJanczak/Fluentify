@@ -33,6 +33,8 @@ passport.serializeUser(({ id }: User, done) => {
 
 passport.deserializeUser(async (id: string, done) => {
   try {
+    console.log(id);
+
     const currentUser = await userRepository.getById(id);
 
     console.log(currentUser);
