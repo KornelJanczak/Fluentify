@@ -1,4 +1,4 @@
-import { authService } from "@/common/services/auth/auth-service";
+import { authService } from "@/common/services/auth/auth.service";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
@@ -13,8 +13,6 @@ export default async function Page({
   children: React.ReactNode;
 }) {
   const user = await authService.getUser();
-
-  console.log(user);
 
   return (
     <SidebarProvider>
