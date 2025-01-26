@@ -12,6 +12,7 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  Sparkles,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav/nav-main";
@@ -25,7 +26,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { User } from "@/common/services/auth/auth-service";
+import { User } from "@/common/services/auth/auth.service";
 
 // This is sample data.
 const data = {
@@ -55,19 +56,15 @@ const data = {
     {
       title: "AI Chat",
       url: "#",
-      icon: SquareTerminal,
+      icon: Sparkles,
       isActive: true,
       items: [
         {
           title: "History",
-          url: "#",
+          url: "/dashboard/chat/history",
         },
         {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
+          title: "Chat Settings",
           url: "#",
         },
       ],
