@@ -40,12 +40,7 @@ class AuthController implements IAuthController {
   }
 
   public authStatus(req: Request, res: Response, next: NextFunction) {
-    console.log(req.user);
-    console.log(req.session);
     const currentUser: User = req.user as User;
-
-    console.log(currentUser);
-    
 
     if (!currentUser) {
       return next(
@@ -65,8 +60,13 @@ class AuthController implements IAuthController {
   }
 
   public authSession(req: Request, res: Response, __: NextFunction) {
-    console.log(req.session);
-
+    if (!req.user) {
+      new AuthenticationError({
+        fileName: this.fileName,
+        service: "authSession",
+        message: "User is not authenticated",
+      });
+    }
     return res.status(HTTP_STATUS.OK).json(req.user);
   }
 }

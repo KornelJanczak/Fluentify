@@ -48,7 +48,7 @@ class Config {
     this.GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || "";
     this.SECRET_KEY_ONE = process.env.SECRET_KEY_ONE || "";
     this.SECRET_KEY_TWO = process.env.SECRET_KEY_TWO || "";
-    this.REDIS_HOST= process.env.REDIS_HOST || "";
+    this.REDIS_HOST = process.env.REDIS_HOST || "";
     this.GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
   }
 
@@ -78,9 +78,10 @@ class Config {
         winston.format.printf(
           ({ timestamp, level, message, code, service, fileName, stack }) => {
             const ifErrorCodeExist = code ? `(${code})` : "";
+            const isService = service ? `/${service}` : "";
             const logLocation = fileName
-              ? `${fileName}/${service}`
-              : `${name}/${service}`;
+              ? `${fileName}${isService}`
+              : `${name}${isService}`;
 
             const loggMessage = `${timestamp} ${level}${ifErrorCodeExist} [${logLocation}]: ${message}`;
             if (stack) {
@@ -97,4 +98,3 @@ class Config {
 }
 
 export const config: Config = new Config();
-

@@ -9,11 +9,15 @@ import { config } from "@root/config";
 const authController = authContainer.resolve<IAuthController>("authController");
 const router = Router();
 
-router.get("/auth/status", authController.authStatus.bind(authController));
+router.get(
+  "/auth/status",
+  authMiddleware,
+  authController.authStatus.bind(authController)
+);
 
 router.get(
   "/auth/session",
-  // authMiddleware,
+  authMiddleware,
   authController.authSession.bind(authController)
 );
 

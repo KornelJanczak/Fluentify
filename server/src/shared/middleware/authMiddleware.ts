@@ -5,7 +5,8 @@ import { config } from "@root/config";
 const logger = config.createLogger("authMiddleware");
 
 const authMiddleware = (req: Request, _: Response, next: NextFunction) => {
-  console.log(req.session);
+  console.log("AUTH SESION", req.session);
+  console.log("AUTH USER", req.user);
 
   if (!req.isAuthenticated()) {
     return next(
@@ -16,7 +17,7 @@ const authMiddleware = (req: Request, _: Response, next: NextFunction) => {
     );
   }
 
-  logger.info("User is authenticated");
+  logger.info({ message: "User is authenticated" });
   return next();
 };
 

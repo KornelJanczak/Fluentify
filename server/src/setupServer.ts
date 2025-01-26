@@ -28,8 +28,8 @@ export class FluentifyServer {
   }
 
   public start(): void {
-    this.securityMiddleware(this.app);
     this.standardMiddleware(this.app);
+    this.securityMiddleware(this.app);
     this.apiMonitoring(this.app);
     this.passportMiddleware(this.app);
     this.routesMiddleware(this.app);
@@ -50,18 +50,18 @@ export class FluentifyServer {
     //   })
     // );
 
+    app.use(cookieParser());
     app.use(
       session({
         store: this.createSessionStrore(),
         secret: config.SESSION_SECRET,
-        saveUninitialized: true,
+        saveUninitialized: false,
         resave: false,
         cookie: {
           maxAge: 60000 * 60,
         },
       })
     );
-    app.use(cookieParser());
     app.use(hpp());
     app.use(helmet());
     app.use(

@@ -7,6 +7,7 @@ export interface IChatController {
   startChat(req: Request, res: Response, next: NextFunction): void;
   createChat(req: Request, res: Response, next: NextFunction): void;
   getChatById(req: Request, res: Response, next: NextFunction): void;
+  getChatsByUserId(req: Request, res: Response, next: NextFunction): void;
   getMessagesByChatId(req: Request, res: Response, next: NextFunction): void;
 }
 
