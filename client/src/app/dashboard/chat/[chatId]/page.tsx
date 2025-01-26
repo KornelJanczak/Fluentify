@@ -1,6 +1,5 @@
-import { serverApi } from "@/common/api/server-api";
+import { messagesService } from "@/common/services/messages/messages.service";
 import { Chat } from "@/components/chat";
-import { Message } from "ai";
 
 interface ChatPageProps {
   params: { chatId: string };
@@ -8,18 +7,6 @@ interface ChatPageProps {
 
 export default async function ChatPage({ params }: ChatPageProps) {
   const chatId = params.chatId;
-
-  const { data: messages } = await serverApi.get<Array<Message>>(
-    `/chat/${chatId}/messages`
-  );
-
-  const sessionCookie = await serverApi.getSessionCookies();
-
-  return (
-    <Chat
-      id={chatId}
-      initialMessages={messages}
-      sessionCookie={sessionCookie}
-    />
-  );
+  const messages = await messagesService.getMessagesByChatId(chatId);
+  return <Chat id={chatId} initialMessages={messages} />;
 }
