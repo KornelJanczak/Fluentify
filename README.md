@@ -7,7 +7,7 @@ Currently, the app supports learning English, German, Spanish, French, Italian, 
 
 The standout feature of the platform is the AI tutor, which offers low-latency audio conversations. It enables users to both send voice messages and receive spoken responses, creating an immersive and interactive learning experience.
 
-## Key features 🔑:(Already implemented)
+## Key features 🔑: (Already implemented)
 - Voice AI Responses – Enables spoken feedback with low latency (not yet real-time, but improving this is a future goal).
 - Customizable Tutor Profiles – Choose the tutor’s accent, origin, and language proficiency level (aligned with CEFR standards)
 - Vocabulary Learning – Leverages flashcard sets for effective vocabulary acquisition.
