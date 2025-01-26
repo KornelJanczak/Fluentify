@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useEffect, useMemo, useState } from "react";
-import { User } from "../services/auth/auth-service";
+import { User } from "../services/auth/auth.service";
 
 export interface Session {
   user?: User;
@@ -19,7 +19,6 @@ export interface SessionProviderProps {
 type SessionContextValue = {
   data: Session | null;
   status: "loading" | "authenticated" | "unauthenticated";
-  
 };
 
 export const SessionContext = createContext<SessionContextValue | undefined>(
