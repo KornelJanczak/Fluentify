@@ -3,26 +3,15 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const cookieStore = request.cookies;
-  const sessionId = cookieStore.get("fluentify-server-session")?.value;
-  const sessionSignature = cookieStore.get(
-    "fluentify-server-session.sig"
-  )?.value;
+  const sessionID = cookieStore.get("connect.sid");
 
-  if (!sessionId || !sessionSignature) {
+  if (!sessionID) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  const sessionCookie =
-    "fluentify-server-session=" +
-    sessionId +
-    "; fluentify-server-session.sig=" +
-    sessionSignature;
-
-
-    
   return NextResponse.next({
     headers: {
-      Cookies: sessionCookie,
+      Cookies: request.cookies.toString(),
     },
   });
 }
