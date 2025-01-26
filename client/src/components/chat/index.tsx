@@ -9,11 +9,10 @@ import { useRef } from "react";
 
 interface ChatProps {
   id: string;
-  sessionCookie: string;
   initialMessages: Array<Message>;
 }
 
-export function Chat({ id, initialMessages, sessionCookie }: ChatProps) {
+export function Chat({ id, initialMessages }: ChatProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const { messages, handleSubmit, input, setInput, isLoading, stop } = useChat({
@@ -26,9 +25,6 @@ export function Chat({ id, initialMessages, sessionCookie }: ChatProps) {
       chatTopic: "Practice vocabulary word by word",
       vocabularySetId: "e884f64a-9b44-48a5-b15d-f0dd23d75877",
       chatId: id,
-    },
-    headers: {
-      Cookie: sessionCookie,
     },
     onFinish(message) {
       useAudioPlayer({ message, audioRef });
