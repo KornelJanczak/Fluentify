@@ -15,7 +15,6 @@ import { globalErrorMiddleware } from "@shared/middleware/errorMiddleware";
 import HTTP_STATUS from "http-status-codes";
 import passport from "passport";
 import "@auth/strategies/google-strategy";
-// import { client as redisClient } from "@services/redis/redis.client";
 import { redisConnection } from "@services/redis/redis.connection";
 
 const logger = config.createLogger("setupServer");
@@ -75,21 +74,6 @@ export class FluentifyServer {
   }
 
   private createSessionStrore(): RedisStore {
-    // redisConnection
-    //   .connect()
-    //   .then(() => {
-    //     logger.info({
-    //       message: "Redis connection established",
-    //       service: "createSessionStore",
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     logger.error({
-    //       message: "Redis connection failed",
-    //       service: "createSessionStore",
-    //       error,
-    //     });
-    //   });
     redisConnection.connect();
     return new RedisStore({
       client: redisConnection.client,
