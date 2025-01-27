@@ -1,5 +1,5 @@
 import { config } from "@root/config";
-import { BaseCache } from "@services/redis/redis.baseCahe";
+import { BaseCache } from "@services/redis/base.cache";
 import { Logger } from "winston";
 import { client } from "./redis.client";
 
