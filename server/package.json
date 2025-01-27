@@ -8,16 +8,6 @@
     "dev": "nodemon -r tsconfig-paths/register src/app.ts",
     "build": "tsc"
   },
-  "keywords": [
-    "example",
-    "express",
-    "auth0",
-    "template",
-    "backend",
-    "api",
-    "typescript",
-    "node"
-  ],
   "license": "MIT",
   "engines": {
     "node": ">=18",
@@ -26,12 +16,16 @@
   "dependencies": {
     "@ai-sdk/google": "^1.0.11",
     "@ai-sdk/openai": "^1.0.10",
+    "@bull-board/api": "^6.7.1",
+    "@bull-board/express": "^6.7.1",
+    "@bull-board/ui": "^6.7.1",
     "@google-cloud/text-to-speech": "^5.7.0",
     "@kinde-oss/kinde-node-express": "^1.6.0",
     "@neondatabase/serverless": "^0.10.4",
     "ai": "^4.0.20",
     "awilix": "^12.0.4",
     "awilix-express": "^9.0.2",
+    "bull": "^4.16.5",
     "compression": "^1.7.5",
     "connect-pg-simple": "^10.0.0",
     "connect-redis": "^8.0.1",
