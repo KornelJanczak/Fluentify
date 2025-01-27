@@ -4,8 +4,6 @@ import NotFoundError from "@shared/errors/notFoundError";
 
 dotenv.config();
 
-const fileName = "config";
-
 class Config {
   public PORT: string | undefined;
   public DATABASE_URL: string | undefined;
@@ -23,6 +21,7 @@ class Config {
   public SECRET_KEY_TWO: string | undefined;
   public REDIS_HOST: string | undefined;
   public GOOGLE_API_KEY: string | undefined;
+  public BULL_BASE_PATH: string | undefined;
   readonly loggerLevels = {
     fatal: 0,
     error: 1,
@@ -31,6 +30,7 @@ class Config {
     debug: 4,
     trace: 5,
   };
+  private readonly fileName = "config";
 
   constructor() {
     this.PORT = process.env.PORT || "";
@@ -50,13 +50,14 @@ class Config {
     this.SECRET_KEY_TWO = process.env.SECRET_KEY_TWO || "";
     this.REDIS_HOST = process.env.REDIS_HOST || "";
     this.GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
+    this.BULL_BASE_PATH = process.env.BULL_BASE_PATH || "";
   }
 
   public validateConfig(): void {
     for (const [key, value] of Object.entries(this)) {
       if (value === undefined) {
         throw new NotFoundError({
-          fileName,
+          fileName: this.fileName,
           service: "validateConfig",
           message: `Configuration ${key} is undefined.`,
         });
