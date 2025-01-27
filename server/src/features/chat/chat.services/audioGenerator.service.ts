@@ -26,9 +26,7 @@ class AudioGeneratorService implements IAudioGeneratorService {
 
     const tutorVoices: IVoice[] = await this.getTutorVoices();
     const tutorVoice: IVoice = this.formatTutorVoice(tutorVoices, tutorId);
-
     const request = await this.createRequest(text, tutorVoice);
-
     return await this.syntheziseAudio(request);
   }
 
