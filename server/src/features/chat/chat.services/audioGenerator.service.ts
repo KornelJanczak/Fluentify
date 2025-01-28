@@ -5,7 +5,7 @@ import {
   IGenerateAudioRequest,
   IVoice,
 } from "../chat.interfaces/audioGenerator.service.interfaces";
-import NotFoundError from "@shared/errors/notFoundError";
+import NotFoundError from "@shared/errors/notFound.error";
 import { textToSpeechClient } from "@shared/services/textToSpeech";
 import { Logger } from "winston";
 
