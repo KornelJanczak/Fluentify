@@ -1,13 +1,15 @@
 import { CoreMessage } from "ai";
-import {  Response } from "express";
-import { IChatRepository } from "@shared/repositories/chatRepository";
-import { IMessagesRepository } from "@shared/repositories/messagesRepository";
+import { Response } from "express";
+import { IChatRepository } from "@shared/repositories/chat.repository";
+import { IMessagesRepository } from "@shared/repositories/messages.repository";
 import { Logger } from "winston";
-import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
+import { IFlashCardRepository } from "@shared/repositories/flashCard.repository";
 import { DataStreamWriter } from "ai";
 import { IAudioGeneratorService } from "./audioGenerator.service.interfaces";
 import { ITopicPromptFactory } from "./topicPrompt.service.interfaces";
 import { ISystemPromptService } from "./systemPrompt.service.interface";
+import BaseQueue from "@services/queues/base.queue";
+import ChatQueue from "@services/queues/chat.queue";
 
 export interface IChatStreamService {
   startChatStream({
@@ -32,10 +34,11 @@ export interface IChatRequest {
 
 export interface IChatStreamServiceDependencies {
   audioGeneratorService: IAudioGeneratorService;
-  systemPromptService: ISystemPromptService
+  systemPromptService: ISystemPromptService;
   chatRepository: IChatRepository;
   messagesRepository: IMessagesRepository;
   flashCardRepository: IFlashCardRepository;
+  chatQueue: ChatQueue;
   messages: CoreMessage[];
   chatId: string;
   logger: Logger;
