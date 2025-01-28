@@ -1,7 +1,7 @@
 import { Router } from "express";
 import vocabularySetsContainer from "./vocabularySets.container";
-import authMiddleware from "@shared/middleware/authMiddleware";
-import { validateZodSchema } from "@shared/middleware/validateZodMiddleware";
+import authMiddleware from "@shared/middleware/auth.middleware";
+import { validateZodSchema } from "@shared/middleware/validateZod.middleware"
 import { IVocabularySetsController } from "./vocabularySets.interfaces";
 import { createVocabularySetSchema } from "./vocabularySets.schema";
 
