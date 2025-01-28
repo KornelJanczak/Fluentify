@@ -1,6 +1,6 @@
 import winston from "winston";
 import dotenv from "dotenv";
-import NotFoundError from "@shared/errors/notFoundError";
+import NotFoundError from "@shared/errors/notFound.error";
 
 dotenv.config();
 
