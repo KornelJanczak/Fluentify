@@ -22,7 +22,8 @@ The standout feature of the platform is the AI tutor, which offers low-latency a
 - Speech to Text – Converts user speech to text for Voice AI chat functionality.
 - Feedback Based on Conversations – Tracks what the user has learned and provides suggestions on areas to practice to improve language skills.
 - Completing the rest of UI 
-- Redis Cache 
+- Redis Cache
+- Queues to enhance API speed (in progress...)
 - Written Mode for Flashcards
 - Learn Mode for Flashcards 
 - Translations for AI Responses
