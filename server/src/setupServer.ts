@@ -11,7 +11,7 @@ import compression from "compression";
 import apiStats from "swagger-stats";
 import applicationRouter from "@root/router";
 import applicationContainer from "@root/container";
-import { globalErrorMiddleware } from "@shared/middleware/errorMiddleware";
+import { globalErrorMiddleware } from "@shared/middleware/error.middleware";
 import HTTP_STATUS from "http-status-codes";
 import passport from "passport";
 import "@auth/strategies/google-strategy";
