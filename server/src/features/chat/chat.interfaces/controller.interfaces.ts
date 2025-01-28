@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { IChatRepository } from "@shared/repositories/chatRepository";
-import { IMessagesRepository } from "@shared/repositories/messagesRepository";
+import { IChatRepository } from "@shared/repositories/chat.repository";
+import { IMessagesRepository } from "@shared/repositories/messages.repository";
 import { IChatStreamService } from "./chatStream.service.interfaces";
 
 export interface IChatController {
