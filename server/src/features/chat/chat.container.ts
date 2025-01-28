@@ -3,12 +3,14 @@ import ChatController from "./chat.controller";
 import ChatStreamService from "./chat.services/chatStream.service";
 import AudioGeneratorService from "./chat.services/audioGenerator.service";
 import TopicPromptFactory from "./chat.services/topicPrompt.service/topicPromptFactory";
-import ChatRepository from "@shared/repositories/chatRepository";
-import MessagesRepository from "@shared/repositories/messagesRepository";
-import FlashCardRepository from "@shared/repositories/flashCardRepository";
+import ChatRepository from "@shared/repositories/chat.repository";
+import MessagesRepository from "@shared/repositories/messages.repository";
+import FlashCardRepository from "@shared/repositories/flashCard.repository";
 import { config } from "@root/config";
 import SystemPromptService from "./chat.services/systemPrompt.service";
 import TutorPromptService from "./chat.services/tutorPrompt.service";
+import ChatQueue from "@services/queues/chat.queue";
+import ChatWorker from "@shared/workers/chat.worker";
 
 const container = createContainer({
   injectionMode: InjectionMode.PROXY,
@@ -24,6 +26,8 @@ container.register({
   chatRepository: asClass(ChatRepository).singleton().scoped(),
   messagesRepository: asClass(MessagesRepository).singleton().scoped(),
   flashCardRepository: asClass(FlashCardRepository).singleton().scoped(),
+  chatQueue: asClass(ChatQueue).singleton().scoped(),
+  chatWorker: asClass(ChatWorker).singleton().scoped(),
   logger: asFunction(() => config.createLogger("chatService"))
     .singleton()
     .scoped(),
