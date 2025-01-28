@@ -7,9 +7,9 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { User } from "@shared/services/db/schema";
 import HTTP_STATUS from "http-status-codes";
-import { IMessagesRepository } from "@shared/repositories/messagesRepository";
-import { IChatRepository } from "@shared/repositories/chatRepository";
-import NotFoundError from "@shared/errors/notFoundError";
+import { IMessagesRepository } from "@shared/repositories/messages.repository";
+import { IChatRepository } from "@shared/repositories/chat.repository";
+import NotFoundError from "@shared/errors/notFound.error";
 
 class ChatController implements IChatController {
   private readonly fileName: string = "chatController";
