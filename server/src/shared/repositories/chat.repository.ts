@@ -1,7 +1,7 @@
 import { db } from "../services/db";
 import { type Chat, chats } from "../services/db/schema";
 import { eq } from "drizzle-orm";
-import DatabaseError from "../errors/dbError";
+import DatabaseError from "../errors/db.error";
 
 export interface IChatRepository {
   create(newItem: Chat): Promise<Chat>;

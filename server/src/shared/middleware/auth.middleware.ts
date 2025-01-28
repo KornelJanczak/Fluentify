@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import AuthenticationError from "@shared/errors/authenticationError";
+import AuthenticationError from "@shared/errors/authentication.error";
 import { config } from "@root/config";
 
 const logger = config.createLogger("authMiddleware");

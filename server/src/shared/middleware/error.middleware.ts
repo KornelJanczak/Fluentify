@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import ServerError from "../errors/serverError";
+import ServerError from "../errors/server.error";
 import { config } from "@root/config";
 
 const logger = config.createLogger("errorMiddleware");

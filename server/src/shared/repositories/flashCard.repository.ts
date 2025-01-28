@@ -1,8 +1,8 @@
 import { db } from "../services/db";
 import { type FlashCard, flashCards } from "../services/db/schema";
 import { eq } from "drizzle-orm";
-import DatabaseError from "../errors/dbError";
-import NotFoundError from "@shared/errors/notFoundError";
+import DatabaseError from "../errors/db.error";
+import NotFoundError from "@shared/errors/notFound.error";
 
 export interface IFlashCardRepository {
   getFlashCardsByVocabularySetId(vocabularySetId: string): Promise<FlashCard[]>;
