@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { type Logger } from "winston";
-import { IVocabularySetRepository } from "@shared/repositories/vocabularySetRepository";
+import { IVocabularySetRepository } from "@shared/repositories/vocabularySet.repository";
 
 export interface IVocabularySetsController {
   createVocabularySet(req: Request, res: Response, next: NextFunction): void;
