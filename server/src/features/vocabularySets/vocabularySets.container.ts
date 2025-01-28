@@ -1,6 +1,6 @@
 import { createContainer, asClass, InjectionMode, asFunction } from "awilix";
 import VocabularySetsController from "./vocabularySets.controller";
-import VocabularySetRepository from "@shared/repositories/vocabularySetRepository";
+import VocabularySetRepository from "@shared/repositories/vocabularySet.repository";
 import { config } from "@root/config";
 
 const container = createContainer({
