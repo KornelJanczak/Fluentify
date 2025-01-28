@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import AuthenticationError from "@shared/errors/authenticationError";
+import AuthenticationError from "@shared/errors/authentication.error";
 import { User } from "@shared/services/db/schema";
 import {
   IAuthController,
