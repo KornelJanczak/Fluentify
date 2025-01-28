@@ -1,7 +1,7 @@
 import { Router } from "express";
 import flashCardsContainer from "./flashCards.container";
-import authMiddleware from "@shared/middleware/authMiddleware";
-import { validateZodSchema } from "@shared/middleware/validateZodMiddleware";
+import authMiddleware from "@shared/middleware/auth.middleware";
+import { validateZodSchema } from "@shared/middleware/validateZod.middleware";
 import { IFlashCardsController } from "./flashCards.interfaces";
 import {
   createFlashCardSchema,
