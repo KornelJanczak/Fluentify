@@ -4,10 +4,10 @@ import {
 } from "./flashCards.interfaces";
 import { Request, Response, NextFunction } from "express";
 import HTTP_STATUS from "http-status-codes";
-import NotFoundError from "@shared/errors/notFoundError";
+import NotFoundError from "@shared/errors/notFound.error";
 import { Logger } from "winston";
 import { User } from "@shared/services/db/schema";
-import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
+import { IFlashCardRepository } from "@shared/repositories/flashCard.repository";
 
 class FlashCardsController implements IFlashCardsController {
   private readonly flashCardRepository: IFlashCardRepository;
