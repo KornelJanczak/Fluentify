@@ -1,4 +1,4 @@
-import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
+import { IFlashCardRepository } from "@shared/repositories/flashCard.repository";
 import { Request, Response, NextFunction } from "express";
 import { Logger } from "winston";
 
