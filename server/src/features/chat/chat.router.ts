@@ -1,7 +1,7 @@
 import { Router } from "express";
 import chatContainer from "./chat.container";
-import authMiddleware from "@shared/middleware/authMiddleware";
-import { validateZodSchema } from "@shared/middleware/validateZodMiddleware";
+import authMiddleware from "@shared/middleware/auth.middleware";
+import { validateZodSchema } from "@shared/middleware/validateZod.middleware";
 import { createChatSchema, startChatSchema } from "./chat.schema";
 import { IChatController } from "@chat/chat.interfaces/controller.interfaces";
 
