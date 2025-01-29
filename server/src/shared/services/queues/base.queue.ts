@@ -10,6 +10,7 @@ type IBaseJobData = Message[];
 let bullAdapters: BullAdapter[] = [];
 export let serverAdapter: ExpressAdapter;
 abstract class BaseQueue {
+  protected fileName: string;
   protected queue: Queue.Queue;
   protected queueName: string;
   protected logger: Logger;
@@ -48,6 +49,11 @@ abstract class BaseQueue {
   }
 
   protected addJob(name: string, data: IBaseJobData): void {
+    this.logger.info({
+      fileName: this.fileName,
+      message: "Adding job to queue",
+      service: "addJob",
+    });
     this.queue.add(name, data, {
       attempts: 3,
       backoff: { type: "fixed", delay: 5000 },
@@ -59,7 +65,12 @@ abstract class BaseQueue {
     concurrency: number,
     callback: ProcessCallbackFunction<void>
   ): void {
-   
+    this.logger.info({
+      fileName: this.fileName,
+      message: `Process ${name} job`,
+      service: "processJob",
+    });
+
     this.queue.process(name, concurrency, callback);
   }
 }
