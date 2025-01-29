@@ -143,17 +143,6 @@ class ChatStreamService implements IChatStreamService {
       tutorId
     );
 
-    this.chatQueue.addChatJob("saveChatMessages", [
-      {
-        id: uuidv4(),
-        content: text,
-        createdAt: new Date(),
-        role: "assistant",
-        chatId: chatId,
-        usedTokens: 0,
-      },
-    ]);
-
     // await this.messagesRepository.saveMessages([
     //   {
     //     id: uuidv4(),
@@ -175,6 +164,17 @@ class ChatStreamService implements IChatStreamService {
       message: "Finished streaming text",
       service: "onFinishStream",
     });
+
+    this.chatQueue.addChatJob("saveChatMessages", [
+      {
+        id: uuidv4(),
+        content: text,
+        createdAt: new Date(),
+        role: "assistant",
+        chatId: chatId,
+        usedTokens: 0,
+      },
+    ]);
   }
 }
 
