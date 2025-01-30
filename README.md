@@ -38,7 +38,7 @@ The standout feature of the platform is the AI tutor, which offers low-latency a
 - PostgreSQL
 - Drizzle ORM
 - Redis
-- Awilix (For Dependency Incjeton)
+- Awilix
 - Winston
 
 
