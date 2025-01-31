@@ -23,7 +23,7 @@ The standout feature of the platform is the AI tutor, which offers low-latency a
 - Feedback Based on Conversations – Tracks what the user has learned and provides suggestions on areas to practice to improve language skills.
 - Completing the rest of UI 
 - Redis Cache
-- Queues to enhance API speed (in progress...)
+- Queues 
 - Written Mode for Flashcards
 - Learn Mode for Flashcards 
 - Translations for AI Responses
@@ -38,7 +38,7 @@ The standout feature of the platform is the AI tutor, which offers low-latency a
 - PostgreSQL
 - Drizzle ORM
 - Redis
-- Awilix (For Dependency Incjeton)
+- Awilix
 - Winston
 
 
