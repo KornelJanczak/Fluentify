@@ -54,6 +54,7 @@ abstract class BaseQueue {
       message: "Adding job to queue",
       service: "addJob",
     });
+    
     this.queue.add(name, data, {
       attempts: 3,
       backoff: { type: "fixed", delay: 5000 },
