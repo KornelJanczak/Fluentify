@@ -16,6 +16,7 @@ import { Chat } from "@shared/services/db/schema";
 import { ISystemPromptService } from "@chat/chat.interfaces/systemPrompt.service.interface";
 import BaseQueue from "@services/queues/base.queue";
 import ChatQueue from "@services/queues/chat.queue";
+import InternalServerError from "@shared/errors/internalServer.error";
 
 class ChatStreamService implements IChatStreamService {
   private readonly fileName = "chatStream.service";
@@ -44,6 +45,7 @@ class ChatStreamService implements IChatStreamService {
 
   async startChatStream(chatRequest: IChatRequest): Promise<void> {
     const chat = await this.getChat(chatRequest.chatId);
+
     const lastUserMessage = this.extractLastUserMessage(chatRequest.messages);
 
     await this.saveUserMessage(chat.id, lastUserMessage);
@@ -53,6 +55,7 @@ class ChatStreamService implements IChatStreamService {
 
   private async getChat(chatId: string): Promise<Chat> {
     const chat = await this.chatRepository.getById(chatId);
+
     if (!chat) {
       throw new NotFoundError({
         fileName: this.fileName,
@@ -60,6 +63,7 @@ class ChatStreamService implements IChatStreamService {
         message: "Chat not found",
       });
     }
+
     return chat;
   }
 
@@ -113,21 +117,41 @@ class ChatStreamService implements IChatStreamService {
     });
 
     return pipeDataStreamToResponse(res, {
-      execute: (streamWriter) => {
-        const result = streamText({
-          model: customAi("gpt-3.5-turbo"),
-          system: sytemPrompt,
-          messages,
-          onFinish: async ({ text }) =>
-            await this.onFinishStream({
-              chatId,
-              text,
-              streamWriter,
-              tutorId,
-            }),
-        });
+      execute: async (streamWriter) => {
+        try {
+          const result = streamText({
+            model: customAi("gpt-3.5-turbo"),
+            system: sytemPrompt,
+            messages,
+            onFinish: async ({ text }) =>
+              await this.onFinishStream({
+                chatId,
+                text,
+                streamWriter,
+                tutorId,
+              }),
+          });
 
-        return result.mergeIntoDataStream(streamWriter);
+          for await (const part of result.fullStream) {
+            const error = part.type.includes("error");
+
+            if (error)
+              throw new InternalServerError({
+                fileName: this.fileName,
+                message: "",
+                service: "",
+              });
+          }
+
+          return result.mergeIntoDataStream(streamWriter);
+        } catch (error) {
+          throw new InternalServerError({
+            service: "streamChatToResponse",
+            fileName: this.fileName,
+            message: error.message,
+            stack: error.message,
+          });
+        }
       },
     });
   }
