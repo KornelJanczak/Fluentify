@@ -10,13 +10,25 @@ import {
 import { IAudioGeneratorService } from "@chat/chat.interfaces/audioGenerator.service.interfaces";
 import NotFoundError from "@shared/errors/notFound.error";
 import { type IChatRepository } from "@shared/repositories/chat.repository";
-import { type IMessagesRepository } from "@shared/repositories/messages.repository";
+import MessagesRepository, {
+  type IMessagesRepository,
+} from "@shared/repositories/messages.repository";
 import { Logger } from "winston";
 import { Chat } from "@shared/services/db/schema";
 import { ISystemPromptService } from "@chat/chat.interfaces/systemPrompt.service.interface";
 import BaseQueue from "@services/queues/base.queue";
 import ChatQueue from "@services/queues/chat.queue";
 import InternalServerError from "@shared/errors/internalServer.error";
+import { config } from "@root/config";
+import ChatWorker from "@shared/workers/chat.worker";
+
+// const logger = config.createLogger("chatStream.service");
+
+// const chatWorker = new ChatWorker({
+//   messagesRepository: new MessagesRepository(),
+//   logger,
+// });
+// const chatQueue = new ChatQueue({ chatWorker, logger });
 
 class ChatStreamService implements IChatStreamService {
   private readonly fileName = "chatStream.service";
