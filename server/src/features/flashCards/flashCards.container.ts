@@ -1,6 +1,6 @@
 import { createContainer, asClass, InjectionMode, asFunction } from "awilix";
 import FlashCardsController from "./flashCards.controller";
-import FlashCardRepository from "@shared/repositories/flashCardRepository";
+import FlashCardRepository from "@shared/repositories/flashCard.repository";
 import { config } from "@root/config";
 
 const container = createContainer({

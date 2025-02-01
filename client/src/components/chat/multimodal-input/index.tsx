@@ -1,129 +1,46 @@
 "use client";
 
-import type { Attachment, ChatRequestOptions } from "ai";
+import type { ChatRequestOptions } from "ai";
 import cx from "classnames";
 import type React from "react";
-import {
-  useRef,
-  useEffect,
-  useState,
-  useCallback,
-  type Dispatch,
-  type SetStateAction,
-  memo,
-} from "react";
-import { toast } from "sonner";
-import { useLocalStorage, useWindowSize } from "usehooks-ts";
-import { AttachmentsButton } from "./buttons/attachments-button";
+import { memo } from "react";
 import { SendButton } from "./buttons/send-button";
 import { StopButton } from "./buttons/stop-button";
 import { Textarea } from "../../ui/textarea";
-import equal from "fast-deep-equal";
+import { useMultiModalInput } from "@/common/hooks/use-multimodal-input";
 
 interface PureMultiModalInputProps {
   chatId: string;
   input: string;
-  setInput: (value: string) => void;
   isLoading: boolean;
+  className?: string;
+  setInput: (value: string) => void;
   stop: () => void;
-  attachments: Array<Attachment>;
-  setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
   handleSubmit: (
     event?: {
       preventDefault?: () => void;
     },
     chatRequestOptions?: ChatRequestOptions
   ) => void;
-  className?: string;
 }
 
 function PureMultimodalInput({
   chatId,
   input,
-  setInput,
   isLoading,
-  stop,
-  attachments,
-  setAttachments,
-  handleSubmit,
   className,
+  setInput,
+  stop,
+  handleSubmit,
 }: PureMultiModalInputProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { width } = useWindowSize();
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      adjustHeight();
-    }
-  }, []);
-
-  const adjustHeight = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${
-        textareaRef.current.scrollHeight + 2
-      }px`;
-    }
-  };
-
-  const resetHeight = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = "98px";
-    }
-  };
-
-  const [localStorageInput, setLocalStorageInput] = useLocalStorage(
-    "input",
-    ""
-  );
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      const domValue = textareaRef.current.value;
-      // Prefer DOM value over localStorage to handle hydration
-      const finalValue = domValue || localStorageInput || "";
-      setInput(finalValue);
-      adjustHeight();
-    }
-    // Only run once after hydration
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    setLocalStorageInput(input);
-  }, [input, setLocalStorageInput]);
-
-  const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(event.target.value);
-    adjustHeight();
-  };
-
-//   const fileInputRef = useRef<HTMLInputElement>(null);
-//   const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
-
-  const submitForm = useCallback(() => {
-    window.history.replaceState({}, "", `/chat/${chatId}`);
-
-    handleSubmit(undefined, {
-      experimental_attachments: attachments,
+  const { textareaRef, handleInput, onKeyDown, submitForm } =
+    useMultiModalInput({
+      chatId,
+      input,
+      setInput,
+      isLoading,
+      handleSubmit,
     });
-
-    setAttachments([]);
-    setLocalStorageInput("");
-    resetHeight();
-
-    if (width && width > 768) {
-      textareaRef.current?.focus();
-    }
-  }, [
-    attachments,
-    handleSubmit,
-    setAttachments,
-    setLocalStorageInput,
-    width,
-    chatId,
-  ]);
 
   return (
     <div className="relative w-full flex flex-col gap-4">
@@ -138,17 +55,7 @@ function PureMultimodalInput({
         )}
         rows={2}
         autoFocus
-        onKeyDown={(event) => {
-          if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-
-            if (isLoading) {
-              toast.error("Please wait for the model to finish its response!");
-            } else {
-              submitForm();
-            }
-          }
-        }}
+        onKeyDown={onKeyDown}
       />
 
       <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
@@ -164,7 +71,6 @@ export const MultimodalInput = memo(
   (prevProps, nextProps) => {
     if (prevProps.input !== nextProps.input) return false;
     if (prevProps.isLoading !== nextProps.isLoading) return false;
-    if (!equal(prevProps.attachments, nextProps.attachments)) return false;
 
     return true;
   }

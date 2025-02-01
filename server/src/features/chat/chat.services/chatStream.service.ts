@@ -8,12 +8,14 @@ import {
   type IOnFinishStream,
 } from "../chat.interfaces/chatStream.service.interfaces";
 import { IAudioGeneratorService } from "@chat/chat.interfaces/audioGenerator.service.interfaces";
-import NotFoundError from "@shared/errors/notFoundError";
-import { type IChatRepository } from "@shared/repositories/chatRepository";
-import { type IMessagesRepository } from "@shared/repositories/messagesRepository";
+import NotFoundError from "@shared/errors/notFound.error";
+import { type IChatRepository } from "@shared/repositories/chat.repository";
+import { type IMessagesRepository } from "@shared/repositories/messages.repository";
 import { Logger } from "winston";
 import { Chat } from "@shared/services/db/schema";
 import { ISystemPromptService } from "@chat/chat.interfaces/systemPrompt.service.interface";
+import BaseQueue from "@services/queues/base.queue";
+import ChatQueue from "@services/queues/chat.queue";
 
 class ChatStreamService implements IChatStreamService {
   private readonly fileName = "chatStream.service";
@@ -21,6 +23,7 @@ class ChatStreamService implements IChatStreamService {
   private readonly systemPromptService: ISystemPromptService;
   private readonly messagesRepository: IMessagesRepository;
   private readonly chatRepository: IChatRepository;
+  private readonly chatQueue: ChatQueue;
   private readonly logger: Logger;
 
   constructor({
@@ -28,12 +31,14 @@ class ChatStreamService implements IChatStreamService {
     systemPromptService,
     messagesRepository,
     chatRepository,
+    chatQueue,
     logger,
   }: IChatStreamServiceDependencies) {
     this.audioGeneratorService = audioGeneratorService;
     this.systemPromptService = systemPromptService;
     this.messagesRepository = messagesRepository;
     this.chatRepository = chatRepository;
+    this.chatQueue = chatQueue;
     this.logger = logger;
   }
 
@@ -107,7 +112,6 @@ class ChatStreamService implements IChatStreamService {
       vocabularySetId,
     });
 
-
     return pipeDataStreamToResponse(res, {
       execute: (streamWriter) => {
         const result = streamText({
@@ -139,16 +143,16 @@ class ChatStreamService implements IChatStreamService {
       tutorId
     );
 
-    await this.messagesRepository.saveMessages([
-      {
-        id: uuidv4(),
-        content: text,
-        createdAt: new Date(),
-        role: "assistant",
-        chatId: chatId,
-        usedTokens: 0,
-      },
-    ]);
+    // await this.messagesRepository.saveMessages([
+    //   {
+    //     id: uuidv4(),
+    //     content: text,
+    //     createdAt: new Date(),
+    //     role: "assistant",
+    //     chatId: chatId,
+    //     usedTokens: 0,
+    //   },
+    // ]);
 
     streamWriter.writeMessageAnnotation({
       type: "audio",
@@ -160,6 +164,17 @@ class ChatStreamService implements IChatStreamService {
       message: "Finished streaming text",
       service: "onFinishStream",
     });
+
+    this.chatQueue.addChatJob("saveChatMessages", [
+      {
+        id: uuidv4(),
+        content: text,
+        createdAt: new Date(),
+        role: "assistant",
+        chatId: chatId,
+        usedTokens: 0,
+      },
+    ]);
   }
 }
 

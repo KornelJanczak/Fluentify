@@ -5,7 +5,7 @@ import {
   IGenerateAudioRequest,
   IVoice,
 } from "../chat.interfaces/audioGenerator.service.interfaces";
-import NotFoundError from "@shared/errors/notFoundError";
+import NotFoundError from "@shared/errors/notFound.error";
 import { textToSpeechClient } from "@shared/services/textToSpeech";
 import { Logger } from "winston";
 
@@ -26,9 +26,7 @@ class AudioGeneratorService implements IAudioGeneratorService {
 
     const tutorVoices: IVoice[] = await this.getTutorVoices();
     const tutorVoice: IVoice = this.formatTutorVoice(tutorVoices, tutorId);
-
     const request = await this.createRequest(text, tutorVoice);
-
     return await this.syntheziseAudio(request);
   }
 

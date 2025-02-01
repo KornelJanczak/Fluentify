@@ -1,7 +1,7 @@
-import ServerError, { ServerErrorArguments } from "./serverError";
+import ServerError, { ServerErrorArguments } from "./server.error";
 import HTTP_STATUS from "http-status-codes";
 
-class AuthenticationError extends ServerError {
+class AuthorizationError extends ServerError {
   constructor({ fileName, service, message, stack }: ServerErrorArguments) {
     super("AuthorizationError", HTTP_STATUS.UNAUTHORIZED, {
       fileName,
@@ -12,4 +12,4 @@ class AuthenticationError extends ServerError {
   }
 }
 
-export default AuthenticationError;
+export default AuthorizationError;

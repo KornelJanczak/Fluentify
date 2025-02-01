@@ -3,8 +3,6 @@ import { config } from "@root/config";
 import { FluentifyServer } from "@root/setupServer";
 import "@auth/strategies/google-strategy";
 
-const logger = config.createLogger("app");
-
 class Application {
   public initialize(): void {
     this.loadConfig();
@@ -80,5 +78,6 @@ class Application {
   }
 }
 
+const logger = config.createLogger("app");
 const application: Application = new Application();
 application.initialize();

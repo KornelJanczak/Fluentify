@@ -1,6 +1,7 @@
-import { clientApi } from "@/common/api/client-api";
 import { type UseQueryResult, useQuery } from "@tanstack/react-query";
-import { authService } from "./auth-service";
+import { authService } from "./auth.service";
+import { Messages } from "@/components/chat/messages";
+import { Chat } from "@/components/chat";
 
 export const getUserKey = ["users", "me"];
 

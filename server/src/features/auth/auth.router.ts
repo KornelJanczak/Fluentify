@@ -1,6 +1,6 @@
-import { Router } from "express";
+import { NextFunction, Router, Response } from "express";
 import passport from "passport";
-import authMiddleware from "@shared/middleware/authMiddleware";
+import authMiddleware from "@shared/middleware/auth.middleware";
 import { IAuthController } from "./auth.interfaces";
 import { scope } from "./strategies/google-strategy";
 import authContainer from "./auth.container";
@@ -9,7 +9,11 @@ import { config } from "@root/config";
 const authController = authContainer.resolve<IAuthController>("authController");
 const router = Router();
 
-router.get("/auth/status", authController.authStatus.bind(authController));
+router.get(
+  "/auth/status",
+  authMiddleware,
+  authController.authStatus.bind(authController)
+);
 
 router.get(
   "/auth/session",

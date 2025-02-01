@@ -1,7 +1,7 @@
 import { db } from "../services/db";
 import { type Message, messages } from "../services/db/schema";
 import { eq } from "drizzle-orm";
-import DatabaseError from "../errors/dbError";
+import DatabaseError from "../errors/db.error";
 
 export interface IMessagesRepository {
   saveMessages(newMessages: Message[]): Promise<Message[]>;
@@ -9,7 +9,7 @@ export interface IMessagesRepository {
 }
 
 class MessagesRepository implements IMessagesRepository {
- private readonly fileName = "messagesRepository";
+  private readonly fileName = "messagesRepository";
 
   async saveMessages(newMessages: Message[]): Promise<Message[]> {
     try {

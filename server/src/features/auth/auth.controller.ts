@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import AuthenticationError from "@shared/errors/authenticationError";
+import AuthenticationError from "@shared/errors/authentication.error";
 import { User } from "@shared/services/db/schema";
 import {
   IAuthController,
@@ -41,13 +41,9 @@ class AuthController implements IAuthController {
 
   public authStatus(req: Request, res: Response, next: NextFunction) {
     const currentUser: User = req.user as User;
-    this.logger.info({
-      service: "authStatus",
-      message: `User is authenticated ${currentUser.id}`,
-    });
 
     if (!currentUser) {
-      next(
+      return next(
         new AuthenticationError({
           fileName: this.fileName,
           service: "authStatus",
@@ -55,10 +51,22 @@ class AuthController implements IAuthController {
         })
       );
     }
+
+    this.logger.info({
+      service: "authStatus",
+      message: `User is authenticated ${currentUser.id}`,
+    });
     return res.status(HTTP_STATUS.OK).json(currentUser);
   }
 
   public authSession(req: Request, res: Response, __: NextFunction) {
+    if (!req.user) {
+      new AuthenticationError({
+        fileName: this.fileName,
+        service: "authSession",
+        message: "User is not authenticated",
+      });
+    }
     return res.status(HTTP_STATUS.OK).json(req.user);
   }
 }

@@ -1,6 +1,6 @@
-import { HttpError } from "@/common/api/rest-helper";
-import { ServerAPI, serverApi } from "@/common/api/server-api";
-import { clientApi } from "@/common/api/client-api";
+import { HttpError } from "@/common/services/api/rest-helper";
+import { ServerAPI, serverApi } from "@/common/services/api/server-api";
+import { clientApi } from "@/common/services/api/client-api";
 
 export const getUserKey = ["users", "me"];
 
@@ -33,11 +33,17 @@ class AuthService {
 
   async logOut() {
     try {
-      await this.serverApi.get("/auth/logout");
+      return (await clientApi.get<UserResponse>("/auth/logout")).data;
     } catch (error) {
       if (!(error instanceof HttpError)) {
         throw error;
       }
+
+      if (error.status === 401) {
+        return null;
+      }
+
+      throw error;
     }
   }
 }

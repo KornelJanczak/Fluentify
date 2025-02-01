@@ -1,12 +1,13 @@
-import { clientApi } from "@/common/api/client-api";
-import { useLogout } from "@/common/services/auth/useLogout";
+"use client";
+
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-
 import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react";
+
+
 
 const UserDropdownMenuOptions = () => {
   return (
@@ -34,7 +35,7 @@ const UserDropdownMenuOptions = () => {
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <DropdownMenuItem>
-        <LogOut onClick={async () => await clientApi.get("/auth/logout")} />
+        <LogOut />
         Log out
       </DropdownMenuItem>
     </>

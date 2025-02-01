@@ -1,6 +1,6 @@
 import { RestHelper } from "./rest-helper";
 
-class ClientAPI extends RestHelper {
+export class ClientAPI extends RestHelper {
   constructor() {
     super("http://localhost:5000/api/v1");
   }

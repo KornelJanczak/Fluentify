@@ -12,11 +12,12 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  Sparkles,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav/nav-main";
 import { NavProjects } from "@/components/nav/nav-projects";
-import { NavUser } from "@/components/nav/nav-user";
+import { NavUser } from "./nav/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
@@ -25,7 +26,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { User } from "@/common/services/auth/auth-service";
+import { User } from "@/common/services/auth/auth.service";
 
 // This is sample data.
 const data = {
@@ -55,19 +56,15 @@ const data = {
     {
       title: "AI Chat",
       url: "#",
-      icon: SquareTerminal,
+      icon: Sparkles,
       isActive: true,
       items: [
         {
           title: "History",
-          url: "#",
+          url: "/dashboard/chat/history",
         },
         {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
+          title: "Chat Settings",
           url: "#",
         },
       ],
@@ -162,8 +159,6 @@ export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
-  console.log("sidebar", user);
-
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

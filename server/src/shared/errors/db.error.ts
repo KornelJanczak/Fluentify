@@ -1,9 +1,9 @@
-import ServerError, { ServerErrorArguments } from "./serverError";
+import ServerError, { ServerErrorArguments } from "./server.error";
 import HTTP_STATUS from "http-status-codes";
 
-class NotFoundError extends ServerError {
+export default class DatabaseError extends ServerError {
   constructor({ fileName, service, message, stack }: ServerErrorArguments) {
-    super("NotFoundError", HTTP_STATUS.UNAUTHORIZED, {
+    super("DatabaseError", HTTP_STATUS.UNAUTHORIZED, {
       fileName,
       message,
       service,
@@ -11,5 +11,3 @@ class NotFoundError extends ServerError {
     });
   }
 }
-
-export default NotFoundError;

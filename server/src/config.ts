@@ -1,10 +1,8 @@
 import winston from "winston";
 import dotenv from "dotenv";
-import NotFoundError from "@shared/errors/notFoundError";
+import NotFoundError from "@shared/errors/notFound.error";
 
 dotenv.config();
-
-const fileName = "config";
 
 class Config {
   public PORT: string | undefined;
@@ -21,8 +19,9 @@ class Config {
   public GOOGLE_CALLBACK_URL: string | undefined;
   public SECRET_KEY_ONE: string | undefined;
   public SECRET_KEY_TWO: string | undefined;
-  public REDIS_HOST_URL: string | undefined;
+  public REDIS_HOST: string | undefined;
   public GOOGLE_API_KEY: string | undefined;
+  public BULL_BASE_PATH: string | undefined;
   readonly loggerLevels = {
     fatal: 0,
     error: 1,
@@ -31,6 +30,7 @@ class Config {
     debug: 4,
     trace: 5,
   };
+  private readonly fileName = "config";
 
   constructor() {
     this.PORT = process.env.PORT || "";
@@ -48,15 +48,16 @@ class Config {
     this.GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || "";
     this.SECRET_KEY_ONE = process.env.SECRET_KEY_ONE || "";
     this.SECRET_KEY_TWO = process.env.SECRET_KEY_TWO || "";
-    this.REDIS_HOST_URL = process.env.REDIS_HOST_URL || "";
+    this.REDIS_HOST = process.env.REDIS_HOST || "";
     this.GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
+    this.BULL_BASE_PATH = process.env.BULL_BASE_PATH || "";
   }
 
   public validateConfig(): void {
     for (const [key, value] of Object.entries(this)) {
       if (value === undefined) {
         throw new NotFoundError({
-          fileName,
+          fileName: this.fileName,
           service: "validateConfig",
           message: `Configuration ${key} is undefined.`,
         });
@@ -78,9 +79,10 @@ class Config {
         winston.format.printf(
           ({ timestamp, level, message, code, service, fileName, stack }) => {
             const ifErrorCodeExist = code ? `(${code})` : "";
+            const isService = service ? `/${service}` : "";
             const logLocation = fileName
-              ? `${fileName}/${service}`
-              : `${name}/${service}`;
+              ? `${fileName}${isService}`
+              : `${name}${isService}`;
 
             const loggMessage = `${timestamp} ${level}${ifErrorCodeExist} [${logLocation}]: ${message}`;
             if (stack) {
@@ -97,4 +99,3 @@ class Config {
 }
 
 export const config: Config = new Config();
-

@@ -6,8 +6,8 @@ import {
 import TopicPromptBase from "./topicPrompt.service/topicPromptBase";
 import VocabPracticePrompt from "./topicPrompt.service/vocabPracticePrompt";
 import { ITopicPromptFactory } from "@chat/chat.interfaces/topicPrompt.service.interfaces";
-import NotFoundError from "@shared/errors/notFoundError";
-import { IFlashCardRepository } from "@shared/repositories/flashCardRepository";
+import NotFoundError from "@shared/errors/notFound.error";
+import { IFlashCardRepository } from "@shared/repositories/flashCard.repository";
 import { ITutorPromptService } from "@chat/chat.interfaces/tutorPrompt.service.interfaces";
 
 class SystemPromptService implements ISystemPromptService {
@@ -62,8 +62,6 @@ class SystemPromptService implements ISystemPromptService {
       topicPrompt.useVocabulary(vocabulary);
     }
 
-
-    
     return topicPrompt.getTopicPrompt();
   }
 
