@@ -32,31 +32,23 @@ passport.serializeUser(({ id }: User, done) => {
 });
 
 passport.deserializeUser(async (id: string, done) => {
-  try {
-    console.log(id);
+  const currentUser = await userRepository.getById(id);
 
-    const currentUser = await userRepository.getById(id);
-
-    console.log(currentUser);
-
-    if (!currentUser) return done(null, false);
-
-    logger.info({
-      message: `User has been deserialized: ${currentUser.email}`,
-      service: "deserializeUser",
-    });
-
-    return done(null, currentUser);
-  } catch (err) {
+  if (!currentUser)
     return done(
       new AuthenticationError({
-        message: err.message,
-        stack: err.stack,
+        message: "User is not defined",
         service: "deserializeUser",
       }),
-      null
+      false
     );
-  }
+
+  logger.info({
+    message: `User has been deserialized: ${currentUser.email}`,
+    service: "deserializeUser",
+  });
+
+  return done(null, currentUser);
 });
 
 export default passport.use(
@@ -64,39 +56,39 @@ export default passport.use(
     const account = profile._json;
     let user: User;
 
-    try {
-      const existingUser: User = await userRepository.getByEmail(account.email);
+    const existingUser: User = await userRepository.getByEmail(account.email);
 
-      if (existingUser) {
-        user = existingUser;
-      } else {
-        const newUser: User = {
-          id: account.sub,
-          email: account.email,
-          imagePath: account.picture,
-          role: "user",
-          subscriptionExpiryDate: new Date().getDate().toLocaleString(),
-          studyingLanguageLevel: "B1",
-          nativeLanguage: "PL",
-          tutorId: "en-US-Casual-K",
-        };
+    if (existingUser) {
+      user = existingUser;
+    } else {
+      const newUser: User = {
+        id: account.sub,
+        email: account.email,
+        imagePath: account.picture,
+        role: "user",
+        subscriptionExpiryDate: new Date().getDate().toLocaleString(),
+        studyingLanguageLevel: "B1",
+        nativeLanguage: "PL",
+        tutorId: "en-US-Casual-K",
+      };
 
-        user = await userRepository.create(newUser);
-      }
+      user = await userRepository.create(newUser);
+    }
 
-      logger.info({
-        message: `User ${user.email} has been authenticated`,
-        service: "googleStrategy",
-      });
-      return done(null, user);
-    } catch (err) {
+    if (!user)
       return done(
         new AuthenticationError({
-          message: err.message,
-          stack: err.stack,
+          message: "User is not defined",
           service: "googleStrategy",
-        })
+        }),
+        false
       );
-    }
+
+    logger.info({
+      message: `User ${user.email} has been authenticated`,
+      service: "googleStrategy",
+    });
+
+    return done(null, user);
   })
 );
