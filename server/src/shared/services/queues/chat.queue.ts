@@ -16,6 +16,10 @@ class ChatQueue extends BaseQueue {
     super("chat");
     this.chatWorker = chatWorker;
     this.logger = logger;
+    this.logger.info({
+      fileName: this.fileName,
+      message: "ChatQueue initialized",
+    });
     this.processJob("saveChatMessages", 5, this.chatWorker.saveChatMessages);
   }
 
