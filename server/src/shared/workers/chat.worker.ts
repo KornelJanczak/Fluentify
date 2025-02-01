@@ -7,16 +7,27 @@ export interface IChatWorker {
   saveChatMessages(jobQueue: Job, done: DoneCallback): Promise<void>;
 }
 
-class ChatWorker {
+export interface IChatWorkerDependencies {
+  messagesRepository: IMessagesRepository;
+  logger: Logger;
+}
+
+class ChatWorker implements IChatWorker {
   private readonly fileName = "chat.worker";
   private readonly logger: Logger;
-  private readonly messageRepository: IMessagesRepository;
+  private readonly messagesRepository: IMessagesRepository;
 
-  async saveChatMessages(jobQueue: Job, done: DoneCallback) {
+  constructor({ messagesRepository, logger }: IChatWorkerDependencies) {
+    this.logger = logger;
+    this.messagesRepository = messagesRepository;
+  }
+
+  async saveChatMessages(jobQueue: Job, done: DoneCallback): Promise<void> {
+    await this.messagesRepository.saveMessages(jobQueue.data);
+
     try {
       console.log("jobQueue", "CHAT WORKER");
 
-      await this.messageRepository.saveMessages(jobQueue.data);
       jobQueue.progress(100);
       this.logger.info({ message: "Chat messages saved", data: jobQueue.data });
       done(null, jobQueue.data);
