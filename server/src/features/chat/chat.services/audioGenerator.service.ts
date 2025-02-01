@@ -42,8 +42,6 @@ class AudioGeneratorService implements IAudioGeneratorService {
 
       const [response] = await textToSpeechClient.synthesizeSpeech(request);
 
-      console.log(response);
-
       return response;
     } catch (error) {
       throw new NotFoundError({
