@@ -25,8 +25,13 @@ abstract class BaseQueue {
     // this.serverAdapter.setBasePath("queues");
 
     this.queue = new Queue(queueName, `${config.REDIS_HOST}`);
+
+    console.log("queue", this.queue);
+
     bullAdapters.push(new BullAdapter(this.queue));
     bullAdapters = [...new Set(bullAdapters)];
+
+    console.log("bullAdapters", bullAdapters);
     serverAdapter = new ExpressAdapter();
     serverAdapter.setBasePath("/queues");
 
@@ -46,6 +51,15 @@ abstract class BaseQueue {
     this.queue.on("global:stalled", (jobId: string) => {
       this.logger.info(`Job ${jobId} is stalled`);
     });
+
+    this.queue.add(
+      "name",
+      { data: "data" },
+      {
+        attempts: 3,
+        // backoff: { type: "fixed", delay: 5000 },
+      }
+    );
   }
 
   protected addJob(name: string, data: IBaseJobData): void {
@@ -54,7 +68,7 @@ abstract class BaseQueue {
       message: "Adding job to queue",
       service: "addJob",
     });
-    
+
     this.queue.add(name, data, {
       attempts: 3,
       backoff: { type: "fixed", delay: 5000 },
