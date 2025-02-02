@@ -37,6 +37,7 @@ class SystemPromptService implements ISystemPromptService {
       tutorId,
       studyingLanguageLevel
     );
+    
     const topicPrompt = await this.generateTopicPrompt(
       chatCategory,
       chatTopic,
