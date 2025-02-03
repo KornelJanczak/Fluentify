@@ -1,11 +1,12 @@
 import winston from "winston";
 import dotenv from "dotenv";
 import NotFoundError from "@shared/errors/notFound.error";
+import { toInteger } from "lodash";
 
 dotenv.config();
 
 class Config {
-  public PORT: string | undefined;
+  public PORT: number | undefined;
   public DATABASE_URL: string | undefined;
   public NODE_ENV: string | undefined;
   public SESSION_SECRET: string | undefined;
@@ -20,6 +21,7 @@ class Config {
   public SECRET_KEY_ONE: string | undefined;
   public SECRET_KEY_TWO: string | undefined;
   public REDIS_HOST: string | undefined;
+  public REDIS_PORT: number | undefined;
   public GOOGLE_API_KEY: string | undefined;
   public BULL_BASE_PATH: string | undefined;
   readonly loggerLevels = {
@@ -33,7 +35,7 @@ class Config {
   private readonly fileName = "config";
 
   constructor() {
-    this.PORT = process.env.PORT || "";
+    this.PORT = toInteger(process.env.PORT) || 5000;
     this.NODE_ENV = process.env.NODE_ENV || "";
     this.DATABASE_URL = process.env.DATABASE_URL || "";
     this.SESSION_SECRET = process.env.SESSION_SECRET || "";
@@ -49,6 +51,7 @@ class Config {
     this.SECRET_KEY_ONE = process.env.SECRET_KEY_ONE || "";
     this.SECRET_KEY_TWO = process.env.SECRET_KEY_TWO || "";
     this.REDIS_HOST = process.env.REDIS_HOST || "";
+    this.REDIS_PORT = toInteger(process.env.REDIS_PORT) || 6379;
     this.GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
     this.BULL_BASE_PATH = process.env.BULL_BASE_PATH || "";
   }
