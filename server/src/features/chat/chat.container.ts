@@ -11,6 +11,7 @@ import SystemPromptService from "./chat.services/systemPrompt.service";
 import TutorPromptService from "./chat.services/tutorPrompt.service";
 import ChatQueue from "@services/queues/chat.queue";
 import ChatWorker from "@shared/workers/chat.worker";
+import ChatCache from "@services/redis/chat.cache";
 
 const container = createContainer({
   injectionMode: InjectionMode.PROXY,
@@ -26,6 +27,7 @@ container.register({
   chatRepository: asClass(ChatRepository).singleton().scoped(),
   messagesRepository: asClass(MessagesRepository).singleton().scoped(),
   flashCardRepository: asClass(FlashCardRepository).singleton().scoped(),
+  chatCahe: asClass(ChatCache).singleton().scoped(),
   chatQueue: asClass(ChatQueue).singleton().scoped(),
   chatWorker: asClass(ChatWorker).singleton().scoped(),
   logger: asFunction(() => config.createLogger("chatService"))
