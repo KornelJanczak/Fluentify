@@ -10,7 +10,7 @@ type IBaseJobData = Message[];
 let bullAdapters: BullAdapter[] = [];
 export let serverAdapter: ExpressAdapter;
 abstract class BaseQueue {
-  protected fileName: string;
+  protected abstract fileName: string;
   protected queue: Queue.Queue;
   protected queueName: string;
   protected logger: Logger;
@@ -24,14 +24,15 @@ abstract class BaseQueue {
     // this.serverAdapter = new ExpressAdapter();
     // this.serverAdapter.setBasePath("queues");
 
-    this.queue = new Queue(queueName, `${config.REDIS_HOST}`);
-
-    console.log("queue", this.queue);
+    this.queue = new Queue(queueName, {
+      redis: {
+        host: config.REDIS_HOST,
+        port: config.REDIS_PORT,
+      },
+    });
 
     bullAdapters.push(new BullAdapter(this.queue));
     bullAdapters = [...new Set(bullAdapters)];
-
-    console.log("bullAdapters", bullAdapters);
     serverAdapter = new ExpressAdapter();
     serverAdapter.setBasePath("/queues");
 
@@ -40,26 +41,7 @@ abstract class BaseQueue {
       serverAdapter: serverAdapter,
     });
 
-    this.queue.on("completed", (job: Job) => {
-      job.remove();
-    });
-
-    this.queue.on("global:completed", (jobId: string) => {
-      this.logger.info(`Job ${jobId} completed`);
-    });
-
-    this.queue.on("global:stalled", (jobId: string) => {
-      this.logger.info(`Job ${jobId} is stalled`);
-    });
-
-    this.queue.add(
-      "name",
-      { data: "data" },
-      {
-        attempts: 3,
-        // backoff: { type: "fixed", delay: 5000 },
-      }
-    );
+    this.queueListener();
   }
 
   protected addJob(name: string, data: IBaseJobData): void {
@@ -71,7 +53,7 @@ abstract class BaseQueue {
 
     this.queue.add(name, data, {
       attempts: 3,
-      backoff: { type: "fixed", delay: 5000 },
+      backoff: { type: "fixed" },
     });
   }
 
@@ -87,6 +69,40 @@ abstract class BaseQueue {
     });
 
     this.queue.process(name, concurrency, callback);
+  }
+
+  private queueListener(): void {
+    this.queue.on("active", () => {
+      this.logger.info({ message: "Job is active" });
+    });
+
+    this.queue.on("completed", (job: Job) => {
+      job.remove();
+    });
+
+    this.queue.on("completed", (jobId: string) => {
+      this.logger.info({ message: `Job ${jobId} completed` });
+    });
+
+    this.queue.on("stalled", (jobId: string) => {
+      this.logger.info({ message: `Job ${jobId} is stalled` });
+    });
+
+    this.queue.on("error", (error: Error) => {
+      this.logger.error({
+        fileName: this.fileName,
+        message: `Queue Error: ${error.message}`,
+        service: "constructor",
+      });
+    });
+
+    this.queue.isReady().then(() => {
+      this.logger.info({
+        fileName: this.fileName,
+        message: "Queue is ready",
+        service: "constructor",
+      });
+    });
   }
 }
 
