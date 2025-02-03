@@ -18,12 +18,17 @@ class ChatQueue extends BaseQueue {
     this.logger = logger;
     this.logger.info({
       fileName: this.fileName,
+      service: "constructor",
       message: "ChatQueue initialized",
     });
-    this.processJob("saveChatMessages", 5, this.chatWorker.saveChatMessages);
+    this.processJob(
+      "saveChatMessages",
+      5,
+      this.chatWorker.saveChatMessages.bind(this.chatWorker)
+    );
   }
 
-  public addChatJob(name: string, data: Message[]): void {
+  public addChatJob(name: string, data: Message[]) {
     this.addJob(name, data);
   }
 }
