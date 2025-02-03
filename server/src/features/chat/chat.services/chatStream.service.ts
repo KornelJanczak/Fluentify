@@ -10,25 +10,13 @@ import {
 import { IAudioGeneratorService } from "@chat/chat.interfaces/audioGenerator.service.interfaces";
 import NotFoundError from "@shared/errors/notFound.error";
 import { type IChatRepository } from "@shared/repositories/chat.repository";
-import MessagesRepository, {
-  type IMessagesRepository,
-} from "@shared/repositories/messages.repository";
+import { type IMessagesRepository } from "@shared/repositories/messages.repository";
 import { Logger } from "winston";
 import { Chat } from "@shared/services/db/schema";
 import { ISystemPromptService } from "@chat/chat.interfaces/systemPrompt.service.interface";
-import BaseQueue from "@services/queues/base.queue";
 import ChatQueue from "@services/queues/chat.queue";
 import InternalServerError from "@shared/errors/internalServer.error";
-import { config } from "@root/config";
-import ChatWorker from "@shared/workers/chat.worker";
-
-// const logger = config.createLogger("chatStream.service");
-
-// const chatWorker = new ChatWorker({
-//   messagesRepository: new MessagesRepository(),
-//   logger,
-// });
-// const chatQueue = new ChatQueue({ chatWorker, logger });
+import { BaseCache } from "@services/redis/base.cache";
 
 class ChatStreamService implements IChatStreamService {
   private readonly fileName = "chatStream.service";
@@ -36,6 +24,7 @@ class ChatStreamService implements IChatStreamService {
   private readonly systemPromptService: ISystemPromptService;
   private readonly messagesRepository: IMessagesRepository;
   private readonly chatRepository: IChatRepository;
+  private readonly chatCache: BaseCache;
   private readonly chatQueue: ChatQueue;
   private readonly logger: Logger;
 
@@ -44,6 +33,7 @@ class ChatStreamService implements IChatStreamService {
     systemPromptService,
     messagesRepository,
     chatRepository,
+    chatCache,
     chatQueue,
     logger,
   }: IChatStreamServiceDependencies) {
@@ -51,6 +41,7 @@ class ChatStreamService implements IChatStreamService {
     this.systemPromptService = systemPromptService;
     this.messagesRepository = messagesRepository;
     this.chatRepository = chatRepository;
+    this.chatCache = chatCache;
     this.chatQueue = chatQueue;
     this.logger = logger;
   }
@@ -179,17 +170,6 @@ class ChatStreamService implements IChatStreamService {
       tutorId
     );
 
-    // await this.messagesRepository.saveMessages([
-    //   {
-    //     id: uuidv4(),
-    //     content: text,
-    //     createdAt: new Date(),
-    //     role: "assistant",
-    //     chatId: chatId,
-    //     usedTokens: 0,
-    //   },
-    // ]);
-
     streamWriter.writeMessageAnnotation({
       type: "audio",
       data: JSON.stringify(audioContent),
@@ -201,7 +181,20 @@ class ChatStreamService implements IChatStreamService {
       service: "onFinishStream",
     });
 
-    this.chatQueue.addChatJob("saveChatMessages", [
+    console.log("messagesRepo", this.messagesRepository);
+
+    // this.chatQueue.addChatJob("saveChatMessages", [
+    //   {
+    //     id: uuidv4(),
+    //     content: text,
+    //     createdAt: new Date(),
+    //     role: "assistant",
+    //     chatId: chatId,
+    //     usedTokens: 0,
+    //   },
+    // ]);
+
+    await this.messagesRepository.saveMessages([
       {
         id: uuidv4(),
         content: text,
