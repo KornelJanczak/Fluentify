@@ -10,6 +10,7 @@ import { ITopicPromptFactory } from "./topicPrompt.service.interfaces";
 import { ISystemPromptService } from "./systemPrompt.service.interface";
 import BaseQueue from "@services/queues/base.queue";
 import ChatQueue from "@services/queues/chat.queue";
+import { BaseCache } from "@services/redis/base.cache";
 
 export interface IChatStreamService {
   startChatStream({
@@ -38,6 +39,7 @@ export interface IChatStreamServiceDependencies {
   chatRepository: IChatRepository;
   messagesRepository: IMessagesRepository;
   flashCardRepository: IFlashCardRepository;
+  chatCache: BaseCache;
   chatQueue: ChatQueue;
   messages: CoreMessage[];
   chatId: string;
