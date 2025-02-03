@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import ServerError from "../errors/server.error";
 import { config } from "@root/config";
+import RedisError from "@shared/errors/redis.error";
+import HTTP_STATUS from "http-status-codes";
 
 const logger = config.createLogger("errorMiddleware");
 
@@ -10,14 +12,13 @@ export const globalErrorMiddleware = (
   res: Response,
   __: NextFunction
 ) => {
-  let errorResponse = {
-    code: res.statusCode,
+  const baseResponse = {
+    code: HTTP_STATUS.INTERNAL_SERVER_ERROR,
     name: "Internal Server Error",
-    fileName: undefined,
-    service: undefined,
-    message: err.message || "Internal Server Error",
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
   };
+
+  let errorResponse: any = baseResponse;
 
   if (err instanceof ServerError) {
     errorResponse = {
@@ -31,6 +32,10 @@ export const globalErrorMiddleware = (
   }
 
   logger.error(errorResponse);
+
+  if (err instanceof RedisError) {
+    errorResponse = baseResponse;
+  }
 
   return res.status(errorResponse.code).send(errorResponse);
 };
