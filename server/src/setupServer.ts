@@ -39,16 +39,6 @@ export class FluentifyServer {
 
   private securityMiddleware(app: Application): void {
     app.set("trust proxy", 1);
-    // app.use(
-    //   cookieSession({
-    //     name: config.COOKIE_SESSION_NAME,
-    //     keys: [config.SECRET_KEY_ONE, config.SECRET_KEY_TWO],
-    //     maxAge: 24 * 60 * 60 * 1000,
-    //     // secure: config.NODE_ENV !== "development",
-    //     // sameSite: "none",
-    //   })
-    // );
-
     app.use(cookieParser());
     app.use(
       session({
