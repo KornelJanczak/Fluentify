@@ -24,7 +24,7 @@ class ChatStreamService implements IChatStreamService {
   private readonly systemPromptService: ISystemPromptService;
   private readonly messagesRepository: IMessagesRepository;
   private readonly chatRepository: IChatRepository;
-  private readonly chatCache: BaseCache;
+  // private readonly chatCache: BaseCache;
   private readonly chatQueue: ChatQueue;
   private readonly logger: Logger;
 
@@ -33,7 +33,7 @@ class ChatStreamService implements IChatStreamService {
     systemPromptService,
     messagesRepository,
     chatRepository,
-    chatCache,
+    // chatCache,
     chatQueue,
     logger,
   }: IChatStreamServiceDependencies) {
@@ -41,7 +41,7 @@ class ChatStreamService implements IChatStreamService {
     this.systemPromptService = systemPromptService;
     this.messagesRepository = messagesRepository;
     this.chatRepository = chatRepository;
-    this.chatCache = chatCache;
+    // this.chatCache = chatCache;
     this.chatQueue = chatQueue;
     this.logger = logger;
   }
