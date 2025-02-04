@@ -40,4 +40,10 @@ router.get(
   chatController.getMessagesByChatId.bind(chatController)
 );
 
+router.delete(
+  "/chat/:id",
+  authMiddleware,
+  chatController.deleteChatById.bind(chatController)
+);
+
 export default router;
