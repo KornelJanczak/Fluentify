@@ -22,7 +22,7 @@
     "@google-cloud/text-to-speech": "^5.7.0",
     "@kinde-oss/kinde-node-express": "^1.6.0",
     "@neondatabase/serverless": "^0.10.4",
-    "ai": "^4.0.20",
+    "ai": "^4.1.18",
     "awilix": "^12.0.4",
     "awilix-express": "^9.0.2",
     "bull": "^4.16.5",
