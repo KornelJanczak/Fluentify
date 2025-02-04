@@ -8,6 +8,7 @@ export interface IChatRepository {
   getById(id: string): Promise<Chat>;
   getByUserId(userId: string): Promise<Chat[]>;
   getChatsByUserId(userId: string): Promise<Chat[]>;
+  deleteById(id: string): Promise<Chat[]>;
 }
 
 class ChatRepository implements IChatRepository {
@@ -72,6 +73,19 @@ class ChatRepository implements IChatRepository {
       throw new DatabaseError({
         fileName: this.fileName,
         service: "getByUserId",
+        message: error.message,
+        stack: error.stack,
+      });
+    }
+  }
+
+  async deleteById(chatId: string): Promise<Chat[]> {
+    try {
+      return await db.delete(chats).where(eq(chats.id, chatId)).returning();
+    } catch (error) {
+      throw new DatabaseError({
+        fileName: this.fileName,
+        service: "deleteById",
         message: error.message,
         stack: error.stack,
       });
