@@ -8,13 +8,13 @@ interface IChatService {
 }
 
 class ChatService implements IChatService {
-  serverApi: ServerAPI;
+  public serverApi: ServerAPI;
 
   constructor(serverApi: ServerAPI) {
     this.serverApi = serverApi;
   }
 
-  async getChatsHistory() {
+  public async getChatsHistory() {
     try {
       return (
         await this.serverApi.get<ChatsResponse>("/chats", {
