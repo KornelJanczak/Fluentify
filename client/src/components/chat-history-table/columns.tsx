@@ -8,6 +8,7 @@ import { HistoryTableRowActions } from "./history-table-row-actions";
 import { Chat } from "@/common/services/chat/chat.service";
 import { format } from "date-fns";
 import ContinueButton from "./buttons/continue-button";
+import DeleteButton from "./buttons/delete-button";
 
 export const columns: ColumnDef<Chat>[] = [
   {
@@ -79,7 +80,11 @@ export const columns: ColumnDef<Chat>[] = [
     cell: ({ row }) => <ContinueButton row={row} />,
   },
   {
-    id: "actions",
-    cell: ({ row }) => <HistoryTableRowActions row={row} />,
+    id: "delete",
+    cell: ({ row }) => <DeleteButton row={row} />,
   },
+  // {
+  //   id: "actions",
+  //   cell: ({ row }) => <HistoryTableRowActions row={row} />,
+  // },
 ];
