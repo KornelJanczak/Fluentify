@@ -14,11 +14,13 @@ export default function ContinueButton({ row }: ContinueButtonProps<any>) {
   const router = useRouter();
 
   return (
-    <Button
-      variant="outline"
-      onClick={() => router.push(`/dashboard/chat/${chat.id}`)}
-    >
-      Continue chat
-    </Button>
+    <>
+      <Button
+        variant="outline"
+        onClick={() => router.push(`/dashboard/chat/${chat.id}`)}
+      >
+        Continue chat
+      </Button>
+    </>
   );
 }
