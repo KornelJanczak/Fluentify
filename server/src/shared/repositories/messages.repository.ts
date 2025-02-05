@@ -12,8 +12,6 @@ class MessagesRepository implements IMessagesRepository {
   private readonly fileName = "messagesRepository";
 
   async saveMessages(newMessages: Message[]): Promise<Message[]> {
-    console.log("newMessages", newMessages);
-
     try {
       return await db.insert(messages).values(newMessages).returning();
     } catch (error) {
