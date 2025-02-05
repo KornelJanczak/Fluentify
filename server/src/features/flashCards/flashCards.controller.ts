@@ -22,7 +22,11 @@ class FlashCardsController implements IFlashCardsController {
     this.logger = logger;
   }
 
-  async createFlashCard(req: Request, res: Response, next: NextFunction) {
+  public async createFlashCard(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     this.logger.info({
       message: "Creating flash card...",
       fileName: this.fileName,
@@ -48,7 +52,7 @@ class FlashCardsController implements IFlashCardsController {
     return res.status(HTTP_STATUS.OK).json(createdFlashCard);
   }
 
-  async getAllFlashCardsByVocabularySetId(
+  public async getAllFlashCardsByVocabularySetId(
     req: Request,
     res: Response,
     next: NextFunction
@@ -79,7 +83,11 @@ class FlashCardsController implements IFlashCardsController {
     return res.status(HTTP_STATUS.OK).json(flashCards);
   }
 
-  async updateFlashCard(req: Request, res: Response, next: NextFunction) {
+  public async updateFlashCard(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     this.logger.info({
       message: "Updating flash card...",
       fileName: this.fileName,
@@ -107,7 +115,7 @@ class FlashCardsController implements IFlashCardsController {
     return res.status(HTTP_STATUS.OK).json(updatedFlashCard);
   }
 
-  async deleteFlashCard(req: Request, res: Response) {
+  public async deleteFlashCard(req: Request, res: Response) {
     this.logger.info({
       message: "Deleting flash card...",
       fileName: this.fileName,
