@@ -35,6 +35,9 @@ class ChatCache extends BaseCache implements IChatCache {
   async addChatsToCache(chats: Chat[], userId: string): Promise<void> {
     const key: string = `user:${userId}:chats:cached`;
     await this.connectionGuard();
+
+    const pipline = this.client.MULTI();
+
     try {
       await this.client.SETEX(key, 3600, JSON.stringify(chats));
     } catch (error) {
