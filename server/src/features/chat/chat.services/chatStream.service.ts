@@ -17,6 +17,7 @@ import { ISystemPromptService } from "@chat/chat.interfaces/systemPrompt.service
 import ChatQueue from "@services/queues/chat.queue";
 import InternalServerError from "@shared/errors/internalServer.error";
 import { BaseCache } from "@services/redis/base.cache";
+import { createDataStream } from "ai";
 
 class ChatStreamService implements IChatStreamService {
   private readonly fileName = "chatStream.service";
@@ -24,7 +25,7 @@ class ChatStreamService implements IChatStreamService {
   private readonly systemPromptService: ISystemPromptService;
   private readonly messagesRepository: IMessagesRepository;
   private readonly chatRepository: IChatRepository;
-  // private readonly chatCache: BaseCache;
+  private readonly chatCache: BaseCache;
   private readonly chatQueue: ChatQueue;
   private readonly logger: Logger;
 
@@ -33,7 +34,7 @@ class ChatStreamService implements IChatStreamService {
     systemPromptService,
     messagesRepository,
     chatRepository,
-    // chatCache,
+    chatCache,
     chatQueue,
     logger,
   }: IChatStreamServiceDependencies) {
@@ -41,7 +42,7 @@ class ChatStreamService implements IChatStreamService {
     this.systemPromptService = systemPromptService;
     this.messagesRepository = messagesRepository;
     this.chatRepository = chatRepository;
-    // this.chatCache = chatCache;
+    this.chatCache = chatCache;
     this.chatQueue = chatQueue;
     this.logger = logger;
   }
@@ -121,40 +122,42 @@ class ChatStreamService implements IChatStreamService {
 
     return pipeDataStreamToResponse(res, {
       execute: async (streamWriter) => {
-        try {
-          const result = streamText({
-            model: customAi("gpt-3.5-turbo"),
-            system: sytemPrompt,
-            messages,
-            onFinish: async ({ text }) =>
-              await this.onFinishStream({
-                chatId,
-                text,
-                streamWriter,
-                tutorId,
-              }),
-          });
+        // try {
+        const result = streamText({
+          model: customAi("gpt-3.5-turbo"),
+          system: sytemPrompt,
+          messages,
+          onFinish: async ({ text }) =>
+            await this.onFinishStream({
+              chatId,
+              text,
+              streamWriter,
+              tutorId,
+            }),
+        });
 
-          for await (const part of result.fullStream) {
-            const error = part.type.includes("error");
+        // for await (const part of result.fullStream) {
+        //   const error = part.type.includes("error");
 
-            if (error)
-              throw new InternalServerError({
-                fileName: this.fileName,
-                message: "",
-                service: "",
-              });
-          }
+        //   if (error)
+        //     throw new InternalServerError({
+        //       fileName: this.fileName,
+        //       message: "",
+        //       service: "",
+        //     });
+        // }
+        console.log("result", result);
+        console.log("streamWriter", streamWriter);
 
-          return result.mergeIntoDataStream(streamWriter);
-        } catch (error) {
-          throw new InternalServerError({
-            service: "streamChatToResponse",
-            fileName: this.fileName,
-            message: error.message,
-            stack: error.message,
-          });
-        }
+        return result.mergeIntoDataStream(streamWriter);
+        // } catch (error) {
+        //   throw new InternalServerError({
+        //     service: "streamChatToResponse",
+        //     fileName: this.fileName,
+        //     message: error.message,
+        //     stack: error.message,
+        //   });
+        // }
       },
     });
   }
@@ -181,7 +184,7 @@ class ChatStreamService implements IChatStreamService {
       service: "onFinishStream",
     });
 
-    console.log("messagesRepo", this.messagesRepository);
+    // console.log("messagesRepo", this.messagesRepository);
 
     // this.chatQueue.addChatJob("saveChatMessages", [
     //   {
