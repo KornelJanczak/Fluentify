@@ -82,6 +82,7 @@ class ChatRepository implements IChatRepository {
   async deleteById(chatId: string): Promise<Chat[]> {
     try {
       return await db.delete(chats).where(eq(chats.id, chatId)).returning();
+      
     } catch (error) {
       throw new DatabaseError({
         fileName: this.fileName,
