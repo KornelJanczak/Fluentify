@@ -1,4 +1,4 @@
-import { type VocabularySet, vocabularySets } from "@shared/services/db/schema";
+import { type VocabularySet, vocabularySets } from "@services/db/schema";
 import { db } from "@shared/services/db";
 import DatabaseError from "@shared/errors/db.error";
 import { eq } from "drizzle-orm";
