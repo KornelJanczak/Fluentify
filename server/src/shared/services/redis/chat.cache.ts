@@ -1,6 +1,7 @@
 import RedisError from "@shared/errors/redis.error";
 import { BaseCache, IBaseCacheDependencies } from "./base.cache";
 import { Chat, Message } from "@services/db/schema";
+import { toInteger } from "lodash";
 
 export interface IChatCache {
   addChatMessageToCache(chatId: string, value: Message): Promise<void>;
@@ -33,13 +34,26 @@ class ChatCache extends BaseCache implements IChatCache {
   }
 
   async addChatsToCache(chats: Chat[], userId: string): Promise<void> {
-    const key: string = `user:${userId}:chats:cached`;
+    const key = `chats:ids:${userId}`;
     await this.connectionGuard();
 
-    const pipline = this.client.MULTI();
+    const multi = this.client.MULTI();
+
+    for (const chat of chats) {
+      multi.ZADD(key, {
+        score: new Date(chat.startedAt).getTime(),
+        value: chat.id,
+      });
+    }
+
+    for (const chat of chats) {
+      for (const [itemKey, itemValue] of Object.entries(chat)) {
+        multi.HSET(`chat:${chat.id}`, `${itemKey}`, `${itemValue}`);
+      }
+    }
 
     try {
-      await this.client.SETEX(key, 3600, JSON.stringify(chats));
+      await multi.EXEC();
     } catch (error) {
       throw new RedisError({
         fileName: this.fileName,
@@ -50,12 +64,29 @@ class ChatCache extends BaseCache implements IChatCache {
     }
   }
 
-  async getChatsFromCache(userId: string): Promise<Chat[]> {
-    const key: string = `user:${userId}:chats:cached`;
+  async getChatsFromCache(userId: string) {
+    const key = `chats:ids:${userId}`;
     await this.connectionGuard();
     try {
-      const chats = await this.client.GET(key);
-      return JSON.parse(chats);
+      const chatsIds: string[] = await this.client.ZRANGE(key, 0, -1);
+
+      const multi = this.client.multi();
+      for (const id of chatsIds) {
+        multi.HGETALL(`chat:${id}`);
+      }
+
+      const cachedChats = await multi.exec();
+
+      //@ts-ignore
+      const chats: Chat[] = cachedChats.map((chat: Chat) => {
+        return {
+          ...chat,
+          startedAt: new Date(chat.startedAt),
+          usedTokens: toInteger(chat.usedTokens),
+        };
+      });
+
+      return chats;
     } catch (error) {
       throw new RedisError({
         fileName: this.fileName,
@@ -67,19 +98,10 @@ class ChatCache extends BaseCache implements IChatCache {
   }
 
   async deleteChatFromCache(chatId: string, userId: string): Promise<void> {
-    const key: string = `user:${userId}:chats:cached`;
     await this.connectionGuard();
     try {
-      const chats = await this.client.GET(key);
-
-      if (!chats) return;
-
-      const parsedChats: Chat[] = JSON.parse(chats);
-      const filteredChats = parsedChats.filter((chat) => chat.id !== chatId);
-
-      const ttl = await this.client.TTL(key);
-
-      await this.client.SETEX(key, ttl, JSON.stringify(filteredChats));
+      await this.client.ZREM(`chats:ids:${userId}`, chatId);
+      await this.client.DEL(`chat:${chatId}`);
     } catch (error) {
       throw new RedisError({
         fileName: this.fileName,
