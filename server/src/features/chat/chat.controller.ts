@@ -5,7 +5,7 @@ import {
   IChatControllerDependencies,
 } from "./chat.interfaces/controller.interfaces";
 import { v4 as uuidv4 } from "uuid";
-import { User } from "@shared/services/db/schema";
+import { User } from "@services/db/schema";
 import HTTP_STATUS from "http-status-codes";
 import { IMessagesRepository } from "@shared/repositories/messages.repository";
 import { IChatRepository } from "@shared/repositories/chat.repository";
@@ -23,6 +23,7 @@ class ChatController implements IChatController {
   constructor({
     chatStreamService,
     messagesRepository,
+
     chatCache,
     chatRepository,
   }: IChatControllerDependencies) {
@@ -84,7 +85,7 @@ class ChatController implements IChatController {
 
     const cachedChats = await this.chatCache.getChatsFromCache(user.id);
 
-    if (cachedChats) {
+    if (cachedChats && cachedChats.length > 0) {
       return res.status(HTTP_STATUS.OK).json(cachedChats);
     } else {
       const chats = await this.chatRepository.getChatsByUserId(user.id);
@@ -158,6 +159,7 @@ class ChatController implements IChatController {
 
     if (deletedChat) {
       await this.chatCache.deleteChatFromCache(chatId, user.id);
+      console.log("Chat has been deleted");
 
       return res
         .status(HTTP_STATUS.OK)
