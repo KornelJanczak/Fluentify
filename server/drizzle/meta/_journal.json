@@ -15,6 +15,13 @@
       "when": 1736885937919,
       "tag": "0001_ancient_human_robot",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738881566266,
+      "tag": "0002_brainy_bullseye",
+      "breakpoints": true
     }
   ]
 }
