@@ -6,7 +6,7 @@ import { Request, Response, NextFunction } from "express";
 import HTTP_STATUS from "http-status-codes";
 import NotFoundError from "@shared/errors/notFound.error";
 import { Logger } from "winston";
-import { User } from "@shared/services/db/schema";
+import { User } from "@services/db/schema";
 import { IFlashCardRepository } from "@shared/repositories/flashCard.repository";
 
 class FlashCardsController implements IFlashCardsController {
