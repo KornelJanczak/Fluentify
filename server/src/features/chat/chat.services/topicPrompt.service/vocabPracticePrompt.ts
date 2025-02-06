@@ -1,6 +1,6 @@
 import { IVocabPraticePromptDependencies } from "@chat/chat.interfaces/topicPrompt.service.interfaces";
 import TopicPromptBase from "./topicPromptBase";
-import { FlashCard } from "@shared/services/db/schema";
+import { FlashCard } from "@services/db/schema";
 
 class VocabPracticePrompt extends TopicPromptBase {
   private readonly exampleStatement = `
