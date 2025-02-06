@@ -12,7 +12,7 @@ import NotFoundError from "@shared/errors/notFound.error";
 import { type IChatRepository } from "@shared/repositories/chat.repository";
 import { type IMessagesRepository } from "@shared/repositories/messages.repository";
 import { Logger } from "winston";
-import { Chat } from "@shared/services/db/schema";
+import { Chat } from "@services/db/schema";
 import { ISystemPromptService } from "@chat/chat.interfaces/systemPrompt.service.interface";
 import ChatQueue from "@services/queues/chat.queue";
 import InternalServerError from "@shared/errors/internalServer.error";
