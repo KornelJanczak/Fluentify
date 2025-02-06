@@ -19,7 +19,6 @@ export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export type User = InferSelectModel<typeof users>;
 
-
 // #################################################################### //
 
 // CHAT TABLE
@@ -63,7 +62,7 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("createdAt").notNull(),
   chatId: uuid("chatId")
     .notNull()
-    .references(() => chats.id),
+    .references(() => chats.id, { onDelete: "cascade" }),
 });
 
 export const insertMessageSchema = createInsertSchema(messages);
@@ -95,7 +94,6 @@ export const flashCards = pgTable("flashCards", {
   vocabularySetId: uuid("vocabularySetId")
     .notNull()
     .references(() => vocabularySets.id),
-    
 });
 
 export const insertFlashCardSchema = createInsertSchema(flashCards);
