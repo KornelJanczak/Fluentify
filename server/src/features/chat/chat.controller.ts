@@ -55,7 +55,7 @@ class ChatController implements IChatController {
     next: NextFunction
   ): Promise<Response | void> {
     const user: User = req.user as User;
-    
+
     const newChat = await this.chatRepository.create({
       id: uuidv4(),
       userId: user.id,
@@ -85,12 +85,12 @@ class ChatController implements IChatController {
     const user: User = req.user as User;
 
     const cachedChats = await this.chatCache.getChatsFromCache(user.id);
+   
 
-    if (cachedChats && cachedChats.length > 0) {
-      return res.status(HTTP_STATUS.OK).json(cachedChats);
-    } else {
+    const cacheIsEmpty = !cachedChats || cachedChats.length <= 0;
+
+    if (cacheIsEmpty) {
       const chats = await this.chatRepository.getChatsByUserId(user.id);
-
       await this.chatCache.addChatsToCache(chats, user.id);
 
       if (!chats || chats.length === 0) {
@@ -104,6 +104,8 @@ class ChatController implements IChatController {
       }
 
       return res.status(HTTP_STATUS.OK).json(chats);
+    } else {
+      return res.status(HTTP_STATUS.OK).json(cachedChats);
     }
   }
 
