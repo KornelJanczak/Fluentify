@@ -36,23 +36,19 @@ class ChatCache extends BaseCache implements IChatCache {
   async addChatsToCache(chats: Chat[], userId: string): Promise<void> {
     const key = `chats:ids:${userId}`;
     await this.connectionGuard();
-
-    const multi = this.client.MULTI();
-
-    for (const chat of chats) {
-      multi.ZADD(key, {
-        score: new Date(chat.startedAt).getTime(),
-        value: chat.id,
-      });
-    }
-
-    for (const chat of chats) {
-      for (const [itemKey, itemValue] of Object.entries(chat)) {
-        multi.HSET(`chat:${chat.id}`, `${itemKey}`, `${itemValue}`);
-      }
-    }
-
     try {
+      const multi = this.client.MULTI();
+
+      for (const chat of chats) {
+        multi.SADD(key, chat.id);
+      }
+
+      for (const chat of chats) {
+        for (const [itemKey, itemValue] of Object.entries(chat)) {
+          multi.HSET(`chat:${chat.id}`, `${itemKey}`, `${itemValue}`);
+        }
+      }
+
       await multi.EXEC();
     } catch (error) {
       throw new RedisError({
@@ -64,27 +60,24 @@ class ChatCache extends BaseCache implements IChatCache {
     }
   }
 
-  async getChatsFromCache(userId: string) {
+  async getChatsFromCache(userId: string): Promise<Chat[]> {
     const key = `chats:ids:${userId}`;
     await this.connectionGuard();
     try {
-      const chatsIds: string[] = await this.client.ZRANGE(key, 0, -1);
+      const chatsIds: string[] = await this.client.SMEMBERS(key);
 
-      const multi = this.client.multi();
-      for (const id of chatsIds) {
-        multi.HGETALL(`chat:${id}`);
-      }
-
-      const cachedChats = await multi.exec();
-
-      //@ts-ignore
-      const chats: Chat[] = cachedChats.map((chat: Chat) => {
-        return {
-          ...chat,
-          startedAt: new Date(chat.startedAt),
-          usedTokens: toInteger(chat.usedTokens),
-        };
-      });
+      const chats: Chat[] = await Promise.all(
+        chatsIds.map(async (id) => {
+          const chat = await this.client.HGETALL(`chat:${id}`);
+          return {
+            id: chat.id,
+            usedTokens: toInteger(chat.usedTokens),
+            title: chat.title,
+            startedAt: new Date(chat.startedAt),
+            userId: chat.userId,
+          } as Chat;
+        })
+      );
 
       return chats;
     } catch (error) {
@@ -100,7 +93,7 @@ class ChatCache extends BaseCache implements IChatCache {
   async deleteChatFromCache(chatId: string, userId: string): Promise<void> {
     await this.connectionGuard();
     try {
-      await this.client.ZREM(`chats:ids:${userId}`, chatId);
+      await this.client.SREM(`chats:ids:${userId}`, chatId);
       await this.client.DEL(`chat:${chatId}`);
     } catch (error) {
       throw new RedisError({
