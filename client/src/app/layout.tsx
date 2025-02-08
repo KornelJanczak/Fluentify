@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/common/providers/theme-provider";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 import TanstackQueryProvider from "@/common/providers/tanstack-query-provider";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,6 +23,8 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             {children}
+
+            <Toaster />
           </ThemeProvider>
         </TanstackQueryProvider>
       </body>
