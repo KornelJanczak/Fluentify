@@ -13,6 +13,7 @@ import {
   Settings2,
   SquareTerminal,
   Sparkles,
+  ListIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav/nav-main";
@@ -27,6 +28,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { User } from "@/common/services/auth/auth.service";
+import { url } from "inspector";
 
 // This is sample data.
 const data = {
@@ -60,30 +62,30 @@ const data = {
       isActive: true,
       items: [
         {
+          title: "New chat",
+          url: "/dashboard/chat/new",
+        },
+        {
           title: "History",
           url: "/dashboard/chat/history",
         },
         {
-          title: "Chat Settings",
+          title: "Settings",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Flashcards",
       url: "#",
-      icon: Bot,
+      icon: ListIcon,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "New set",
+          url: "/dashboard/flashcards/create-new",
         },
         {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
+          title: "Your sets",
           url: "#",
         },
       ],
