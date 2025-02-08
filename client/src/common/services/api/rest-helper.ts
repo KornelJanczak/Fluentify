@@ -17,14 +17,16 @@ export class RestHelper {
 
     let adjustedOptions: RequestInit = {
       ...options,
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        credentials: "include",
         ...options?.headers,
       },
     };
 
     adjustedOptions = await this.interceptOptions(adjustedOptions);
+
+    console.log("adjustedOptions", adjustedOptions);
 
     const response = await fetch(adjustedUrl, adjustedOptions);
     if (!response.ok) {
