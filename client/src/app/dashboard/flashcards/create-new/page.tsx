@@ -1,9 +1,6 @@
-import FlashCardsSetHeader from "@/components/flashcards-set/header";
+import FlashCardsSet from "@/components/flash-cards-set/flash-cards-set";
+import FlashCardsSetCreateNew from "@/components/flash-cards-set/flash-cards-set-create-new";
 
 export default function CreateNewSetPage() {
-  return (
-    <div className="space-y-4 py-10 px-8">
-      <FlashCardsSetHeader />
-    </div>
-  );
+  return <FlashCardsSetCreateNew />;
 }
