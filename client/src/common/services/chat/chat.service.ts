@@ -1,7 +1,7 @@
 import { HttpError } from "@/common/services/api/rest-helper";
 import { ServerAPI, serverApi } from "@/common/services/api/server-api";
 
-const getMessageKey = ["chat"];
+const chatKey = ["chat"];
 
 interface IChatService {
   getChatsHistory(): Promise<ChatsResponse>;
@@ -18,7 +18,7 @@ class ChatService implements IChatService {
     try {
       return (
         await this.serverApi.get<ChatsResponse>("/chats", {
-          next: { tags: [getMessageKey.join()] },
+          next: { tags: [chatKey.join()] },
         })
       ).data;
     } catch (error) {
