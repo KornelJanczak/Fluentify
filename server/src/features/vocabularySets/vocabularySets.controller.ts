@@ -41,7 +41,7 @@ class VocabularySetsController implements IVocabularySetsController {
     );
 
     if (!createdVocabularySet) {
-      next(
+      return next(
         new NotFoundError({
           message: "Vocabulary set not created",
           fileName: this.fileName,
@@ -77,7 +77,7 @@ class VocabularySetsController implements IVocabularySetsController {
     );
 
     if (!vocabularySets) {
-      next(
+      return next(
         new NotFoundError({
           message: "Vocabulary sets not found for this user",
           fileName: this.fileName,
