@@ -13,12 +13,5 @@ interface DeleteButtonProps<TData> extends ButtonProps {
 export default function DeleteButton({ row }: DeleteButtonProps<any>) {
   const chat = chatSchema.parse(row.original);
 
-  return (
-    <>
-      {/* <Button className="bg-none bg-inherit hover:bg-inherit">
-        <Trash2Icon size={21} color="#7F1D1D" />
-      </Button> */}
-      <HistoryTableAlertDialog chatId={chat.id} />
-    </>
-  );
+  return <HistoryTableAlertDialog chatId={chat.id} />;
 }
