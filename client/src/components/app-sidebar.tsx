@@ -76,13 +76,13 @@ const data = {
       ],
     },
     {
-      title: "Flashcards",
+      title: "Vocabulary",
       url: "#",
       icon: ListIcon,
       items: [
         {
           title: "New set",
-          url: "/dashboard/flashcards/create-new",
+          url: "/dashboard/vocabulary/create-new",
         },
         {
           title: "Your sets",
