@@ -15,8 +15,6 @@ export const users = pgTable("users", {
   tutorId: varchar({ length: 255 }).notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users);
-export const selectUserSchema = createSelectSchema(users);
 export type User = InferSelectModel<typeof users>;
 
 // #################################################################### //
@@ -32,8 +30,6 @@ export const chats = pgTable("chats", {
     .references(() => users.id),
 });
 
-export const insertChatSchema = createInsertSchema(chats);
-export const selectChatSchema = createSelectSchema(chats);
 export type Chat = InferSelectModel<typeof chats>;
 
 // #################################################################### //
@@ -47,8 +43,6 @@ export const chatSettings = pgTable("chatSettings", {
   chatId: uuid("chatId").references(() => chats.id),
 });
 
-export const insertChatSettingsSchema = createInsertSchema(chatSettings);
-export const selectChatSettingsSchema = createSelectSchema(chatSettings);
 export type ChatSettings = InferSelectModel<typeof chatSettings>;
 
 // #################################################################### //
@@ -65,8 +59,6 @@ export const messages = pgTable("messages", {
     .references(() => chats.id, { onDelete: "cascade" }),
 });
 
-export const insertMessageSchema = createInsertSchema(messages);
-export const selectMessageSchema = createSelectSchema(messages);
 export type Message = InferSelectModel<typeof messages>;
 
 // #################################################################### //
@@ -80,9 +72,8 @@ export const vocabularySets = pgTable("vocabularySets", {
   userId: varchar("userId").references(() => users.id),
 });
 
-export const insertVocabularySetSchema = createInsertSchema(vocabularySets);
-export const selectVocabularySetSchema = createSelectSchema(vocabularySets);
 export type VocabularySet = InferSelectModel<typeof vocabularySets>;
+export type VocabularySetWithoutId = Omit<VocabularySet, "id">;
 
 // #################################################################### //
 
@@ -96,9 +87,8 @@ export const flashCards = pgTable("flashCards", {
     .references(() => vocabularySets.id),
 });
 
-export const insertFlashCardSchema = createInsertSchema(flashCards);
-export const selectFlashCardSchema = createSelectSchema(flashCards);
 export type FlashCard = InferSelectModel<typeof flashCards>;
+export type FlashCardWithoutIds = Omit<FlashCard, "id" | "vocabularySetId">;
 
 // #################################################################### //
 
