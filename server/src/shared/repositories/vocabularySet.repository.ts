@@ -1,20 +1,48 @@
-import { type VocabularySet, vocabularySets } from "@services/db/schema";
+import {
+  type VocabularySet,
+  type VocabularySetWithoutId,
+  vocabularySets,
+  flashCards,
+} from "@services/db/schema";
+import { type FlashCard, type FlashCardWithoutIds } from "@services/db/schema";
 import { db } from "@shared/services/db";
 import DatabaseError from "@shared/errors/db.error";
 import { eq } from "drizzle-orm";
 
 export interface IVocabularySetRepository {
-  create(newItem: VocabularySet): Promise<VocabularySet>;
+  createNewVocabularySet(
+    newVocabularySet: VocabularySetWithoutId,
+    flashCards: FlashCardWithoutIds[]
+  ): Promise<VocabularySet>;
   getAllByUserId(userId: string): Promise<VocabularySet[]>;
 }
 
 class VocabularySetRepository implements IVocabularySetRepository {
   private readonly fileName = "vocabularySetRepository";
-  async create(newItem: Omit<VocabularySet, "id">): Promise<VocabularySet> {
+  async createNewVocabularySet(
+    newVocabularySet: VocabularySetWithoutId,
+    newFlashCards: FlashCardWithoutIds[]
+  ): Promise<VocabularySet> {
     try {
+      await db.transaction(async (tx) => {
+        const [vocabularySet] = await tx
+          .insert(vocabularySets)
+          .values(newVocabularySet)
+          .returning({ id: vocabularySets.id });
+
+        const flashCardsData: FlashCard[] = newFlashCards.map(
+          (flashCard: FlashCard) => ({
+            ...flashCard,
+            vocabularySetId: vocabularySet.id,
+          })
+        );
+
+        await tx.insert(flashCards).values(flashCardsData).returning();
+      });
+
       const [createdItem] = await db
         .insert(vocabularySets)
-        .values(newItem)
+        .values(newVocabularySet)
         .returning();
 
       return createdItem;
@@ -46,3 +74,7 @@ class VocabularySetRepository implements IVocabularySetRepository {
 }
 
 export default VocabularySetRepository;
+
+export type CreateVocabularySetDTO = {
+  title: string;
+};
