@@ -7,17 +7,32 @@ import {
   type FlashCard,
   type VocabularySet,
 } from "@services/db/schema";
+import NotFoundError from "@shared/errors/notFound.error";
 
 class VocabularySetsService {
   private readonly vocabularySetRepository: IVocabularySetRepository;
-  public async createVocabularySet(newVocabularySet: ICreateVocabularySetArgs) {
+  private readonly fileName = "vocabularySets.service";
+  public async createVocabularySet(
+    newVocabularySetData: ICreateVocabularySetArgs
+  ) {
     const { vocabularySet, flashCards } =
-      this.formatVocabularySetWithFlashCards(newVocabularySet);
+      this.formatVocabularySetWithFlashCards(newVocabularySetData);
 
-    return await this.vocabularySetRepository.createNewVocabularySet(
-      vocabularySet,
-      flashCards
-    );
+    const newVocabularySet =
+      await this.vocabularySetRepository.createNewVocabularySet(
+        vocabularySet,
+        flashCards
+      );
+
+    if (!newVocabularySet) {
+      throw new NotFoundError({
+        fileName: this.fileName,
+        service: "createVocabularySet",
+        message: "Vocabulary set not created",
+      });
+    }
+
+    return newVocabularySet;
   }
 
   private formatVocabularySetWithFlashCards({
