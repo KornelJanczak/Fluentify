@@ -7,8 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Markdown } from "../markdown";
 import { Input } from "../ui/input";
 import DeleteButton from "../delete-button";
-import { AnimatePresence, motion } from "framer-motion";
-import { fadeOut } from "../../common/animations";
+import { useFlashCardsStore } from "@/common/hooks/use-flash-cards-store";
 
 interface FlashCardProps extends React.HTMLAttributes<HTMLDivElement> {
   flashCard: Omit<FlashCardType, "vocabularySetId">;
@@ -18,29 +17,36 @@ interface FlashCardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export default function FlashCard(props: FlashCardProps) {
   const { flashCard, index, onDeleteFlashCard, ...restOfProps } = props;
+  const numberOfFlasCard = `${index}`;
+  const {
+    updateDefinitionOnChange,
+    updateTranslationOnChange,
+    deleteFlashCard,
+  } = useFlashCardsStore((state) => state);
 
   return (
-    <AnimatePresence>
-      <motion.div
-        // initial="hidden"
-        // animate="visible"
-        // exit="hidden"
-        // variants={fadeOut}
-      >
-        <Card {...restOfProps}>
-          <CardHeader className="px-0 pt-2">
-            <div className="flex items-center justify-between">
-              <Markdown className="px-4">{`${index}`}</Markdown>
-              <DeleteButton onClick={() => onDeleteFlashCard(flashCard.id)} />
-            </div>
-            <Separator />
-          </CardHeader>
-          <CardContent className="flex space-x-7">
-            <Input placeholder="Definition" />
-            <Input placeholder="Translation" />
-          </CardContent>
-        </Card>
-      </motion.div>
-    </AnimatePresence>
+    <Card {...restOfProps}>
+      <CardHeader className="px-0 pt-2">
+        <div className="flex items-center justify-between">
+          <Markdown className="px-4">{numberOfFlasCard}</Markdown>
+          <DeleteButton onClick={() => deleteFlashCard(flashCard.id)} />
+        </div>
+        <Separator />
+      </CardHeader>
+      <CardContent className="flex space-x-7">
+        <Input
+          onChange={(e) =>
+            updateDefinitionOnChange(flashCard.id, e.target.value)
+          }
+          placeholder="Definition"
+        />
+        <Input
+          onChange={(e) =>
+            updateTranslationOnChange(flashCard.id, e.target.value)
+          }
+          placeholder="Translation"
+        />
+      </CardContent>
+    </Card>
   );
 }
