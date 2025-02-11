@@ -5,7 +5,7 @@ import cx from "classnames";
 import type React from "react";
 import { memo } from "react";
 import { SendButton } from "./buttons/send-button";
-import { StopButton } from "./buttons/stop-button";
+import { StopButton } from "./stop-button";
 import { Textarea } from "../../ui/textarea";
 import { useMultiModalInput } from "@/common/hooks/use-multimodal-input";
 
