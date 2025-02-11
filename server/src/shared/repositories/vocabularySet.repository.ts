@@ -13,18 +13,18 @@ export interface IVocabularySetRepository {
   createNewVocabularySet(
     newVocabularySet: VocabularySetWithoutId,
     flashCards: FlashCardWithoutIds[]
-  ): Promise<VocabularySet>;
+  ): Promise<string>;
   getAllByUserId(userId: string): Promise<VocabularySet[]>;
 }
 
 class VocabularySetRepository implements IVocabularySetRepository {
   private readonly fileName = "vocabularySetRepository";
-  async createNewVocabularySet(
+  public async createNewVocabularySet(
     newVocabularySet: VocabularySetWithoutId,
     newFlashCards: FlashCardWithoutIds[]
-  ): Promise<VocabularySet> {
+  ): Promise<string> {
     try {
-      await db.transaction(async (tx) => {
+      const newVocabularySetId = await db.transaction(async (tx) => {
         const [vocabularySet] = await tx
           .insert(vocabularySets)
           .values(newVocabularySet)
@@ -38,14 +38,11 @@ class VocabularySetRepository implements IVocabularySetRepository {
         );
 
         await tx.insert(flashCards).values(flashCardsData).returning();
+
+        return vocabularySet.id;
       });
 
-      const [createdItem] = await db
-        .insert(vocabularySets)
-        .values(newVocabularySet)
-        .returning();
-
-      return createdItem;
+      return newVocabularySetId;
     } catch (error) {
       throw new DatabaseError({
         fileName: this.fileName,
@@ -56,7 +53,7 @@ class VocabularySetRepository implements IVocabularySetRepository {
     }
   }
 
-  async getAllByUserId(userId: string): Promise<VocabularySet[]> {
+  public async getAllByUserId(userId: string): Promise<VocabularySet[]> {
     try {
       return await db
         .select()
