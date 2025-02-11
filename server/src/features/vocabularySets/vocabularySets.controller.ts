@@ -37,35 +37,15 @@ class VocabularySetsController implements IVocabularySetsController {
       service,
     });
 
-    await this.vocabularySetsService.createVocabularySet({
-      userId: user.id,
-      description: body.description,
-      title: body.title,
-      flashCards: body.flashCards,
-    });
+    const vocabularySetId =
+      await this.vocabularySetsService.createVocabularySet({
+        userId: user.id,
+        description: body.description,
+        title: body.title,
+        flashCards: body.flashCards,
+      });
 
-    // const createdVocabularySet =
-    //   await this.vocabularySetRepository.createNewVocabularySet(
-    //     newVocabularySet
-    //   );
-
-    // if (!createdVocabularySet) {
-    //   return next(
-    //     new NotFoundError({
-    //       message: "Vocabulary set not created",
-    //       fileName: this.fileName,
-    //       service: "createVocabularySet",
-    //     })
-    //   );
-    // }
-
-    // this.logger.info({
-    //   message: "Vocabulary set has been created!",
-    //   fileName: this.fileName,
-    //   service,
-    // });
-
-    // return res.status(HTTP_STATUS.OK).json(createdVocabularySet);
+    return res.status(HTTP_STATUS.OK).json({ vocabularySetId });
   }
 
   async getAllVocabularySetsByUserId(
