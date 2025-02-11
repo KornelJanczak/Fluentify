@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 export interface VocabularySet extends FlashCardsProps {
   defaultFormValues?: FlashCardsSetFormValues;
   flashCardsNumber: number;
-  onFormSubmit: () => void;
+  onFormSubmit: (values) => void;
   onDeleteFlashCard: (flashCardId: string) => void;
   onAddFlashCard: () => void;
 }
