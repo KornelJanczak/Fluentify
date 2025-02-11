@@ -54,7 +54,6 @@ export function VocabularySetForm({
               <FormControl>
                 <Input placeholder="Add description..." {...field} />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
