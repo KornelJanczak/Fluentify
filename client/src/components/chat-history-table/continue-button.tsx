@@ -3,7 +3,7 @@
 import { Button, ButtonProps } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Row } from "@tanstack/react-table";
-import { chatSchema } from "../utils/schema";
+import { chatSchema } from "./utils/schema";
 
 interface ContinueButtonProps<TData> extends ButtonProps {
   row: Row<TData>;
