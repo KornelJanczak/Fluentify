@@ -27,8 +27,13 @@ export class RestHelper {
     adjustedOptions = await this.interceptOptions(adjustedOptions);
 
     console.log("adjustedOptions", adjustedOptions);
+    console.log('adjustedUrl', adjustedUrl);
+    
 
     const response = await fetch(adjustedUrl, adjustedOptions);
+
+    console.log('response', response);
+    
     if (!response.ok) {
       throw new HttpError(response.status, await response.text());
     }
@@ -57,6 +62,10 @@ export class RestHelper {
     body: any,
     options?: RequestInit
   ): Promise<RestResponse<T>> {
+    console.log("url", url);
+
+    console.log("post body", body);
+
     return this.fetchJSON(url, {
       method: "POST",
       body: body,
