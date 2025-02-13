@@ -7,14 +7,12 @@ export class ClientAPI extends RestHelper {
     super("http://localhost:5000/api/v1");
   }
 
-  protected async interceptOptions(options: RequestInit): Promise<RequestInit> {
-    options = {
-      ...options,
-      credentials: "include",
-    };
-
-    return options;
-  }
+  // protected async interceptOptions(options: RequestInit): Promise<RequestInit> {
+  //   return {
+  //     ...options,
+  //     credentials: "include",
+  //   };
+  // }
 }
 
 export const clientApi = new ClientAPI();
