@@ -2,9 +2,9 @@
 
 import { Button, ButtonProps } from "@/components/ui/button";
 import { Row } from "@tanstack/react-table";
-import { chatSchema } from "../utils/schema";
+import { chatSchema } from "./utils/schema";
 import { Trash2Icon } from "lucide-react";
-import { HistoryTableAlertDialog } from "../history-table-alert-dialog";
+import { HistoryTableAlertDialog } from "./history-table-alert-dialog";
 
 interface DeleteButtonProps<TData> extends ButtonProps {
   row: Row<TData>;
