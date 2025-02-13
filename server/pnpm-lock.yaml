@@ -70,10 +70,10 @@ importers:
         version: 16.4.7
       drizzle-orm:
         specifier: ^0.38.2
-        version: 0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(pg@8.13.1)(react@18.3.1)
+        version: 0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.11)(pg@8.13.1)(react@18.3.1)
       drizzle-zod:
         specifier: ^0.6.0
-        version: 0.6.0(drizzle-orm@0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(pg@8.13.1)(react@18.3.1))(zod@3.24.1)
+        version: 0.6.0(drizzle-orm@0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.11)(pg@8.13.1)(react@18.3.1))(zod@3.24.1)
       express:
         specifier: ^4.21.2
         version: 4.21.2
@@ -186,6 +186,9 @@ importers:
       '@types/passport-google-oauth20':
         specifier: ^2.0.16
         version: 2.0.16
+      '@types/pg':
+        specifier: ^8.11.11
+        version: 8.11.11
       '@types/swagger-stats':
         specifier: ^0.95.11
         version: 0.95.11
@@ -1102,6 +1105,9 @@ packages:
 
   '@types/passport@1.0.17':
     resolution: {integrity: sha512-aciLyx+wDwT2t2/kJGJR2AEeBz0nJU4WuRX04Wu9Dqc5lSUtwu0WERPHYsLhF9PtseiAMPBGNUOtFjxZ56prsg==}
+
+  '@types/pg@8.11.11':
+    resolution: {integrity: sha512-kGT1qKM8wJQ5qlawUrEkXgvMSXoV213KfMGXcwfDwUIfUHXqXYXOfS1nE1LINRJVVVx5wCm70XnFlMHaIcQAfw==}
 
   '@types/pg@8.11.6':
     resolution: {integrity: sha512-/2WmmBXHLsfRqzfHW7BNZ8SbYzE8OSk7i3WjFYvfgRHj7S1xj+16Je5fUKv3lVdVzk/zn9TXOqf+avFCFIE0yQ==}
@@ -5297,7 +5303,7 @@ snapshots:
     dependencies:
       '@types/express': 5.0.0
       '@types/express-session': 1.18.1
-      '@types/pg': 8.11.6
+      '@types/pg': 8.11.11
 
   '@types/connect@3.4.38':
     dependencies:
@@ -5401,6 +5407,12 @@ snapshots:
   '@types/passport@1.0.17':
     dependencies:
       '@types/express': 5.0.0
+
+  '@types/pg@8.11.11':
+    dependencies:
+      '@types/node': 22.10.2
+      pg-protocol: 1.7.0
+      pg-types: 4.0.2
 
   '@types/pg@8.11.6':
     dependencies:
@@ -6679,17 +6691,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(pg@8.13.1)(react@18.3.1):
+  drizzle-orm@0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.11)(pg@8.13.1)(react@18.3.1):
     optionalDependencies:
       '@neondatabase/serverless': 0.10.4
       '@opentelemetry/api': 1.9.0
-      '@types/pg': 8.11.6
+      '@types/pg': 8.11.11
       pg: 8.13.1
       react: 18.3.1
 
-  drizzle-zod@0.6.0(drizzle-orm@0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(pg@8.13.1)(react@18.3.1))(zod@3.24.1):
+  drizzle-zod@0.6.0(drizzle-orm@0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.11)(pg@8.13.1)(react@18.3.1))(zod@3.24.1):
     dependencies:
-      drizzle-orm: 0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(pg@8.13.1)(react@18.3.1)
+      drizzle-orm: 0.38.2(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.11)(pg@8.13.1)(react@18.3.1)
       zod: 3.24.1
 
   dunder-proto@1.0.1:

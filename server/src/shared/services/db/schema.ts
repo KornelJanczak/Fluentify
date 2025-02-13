@@ -1,7 +1,8 @@
-import { integer, pgTable, varchar, boolean } from "drizzle-orm/pg-core";
+// import { integer, pgTable, varchar, boolean } from "drizzle-orm/pg-core";
 import { timestamp, uuid, json } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations, type InferSelectModel } from "drizzle-orm";
+import { integer, pgTable, varchar, boolean } from "drizzle-orm/pg-core";
 
 // USER TABLE
 export const users = pgTable("users", {

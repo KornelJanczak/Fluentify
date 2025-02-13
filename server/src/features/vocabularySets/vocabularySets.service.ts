@@ -12,6 +12,10 @@ import NotFoundError from "@shared/errors/notFound.error";
 class VocabularySetsService {
   private readonly vocabularySetRepository: IVocabularySetRepository;
   private readonly fileName = "vocabularySets.service";
+
+  constructor({ vocabularySetRepository }) {
+    this.vocabularySetRepository = vocabularySetRepository;
+  }
   public async createVocabularySet(
     newVocabularySetData: ICreateVocabularySetArgs
   ) {

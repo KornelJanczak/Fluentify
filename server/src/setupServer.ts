@@ -51,6 +51,7 @@ export class FluentifyServer {
         },
       })
     );
+    
     app.use(hpp());
     app.use(helmet());
     app.use(

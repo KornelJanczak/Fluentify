@@ -24,7 +24,7 @@ router.get(
 router.post(
   BASE_PATH,
   authMiddleware,
-  validateZodSchema(createVocabularySetSchema),
+  // validateZodSchema(createVocabularySetSchema),
   vocabularySetController.createVocabularySet.bind(vocabularySetController)
 );
 

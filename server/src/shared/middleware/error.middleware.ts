@@ -16,6 +16,7 @@ export const globalErrorMiddleware = (
     code: HTTP_STATUS.INTERNAL_SERVER_ERROR,
     name: "Internal Server Error",
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
+    message: "Internal Server Error",
   };
 
   let errorResponse: any = baseResponse;
@@ -26,12 +27,17 @@ export const globalErrorMiddleware = (
       name: err.name,
       fileName: err.fileName,
       service: err.service,
-      message: err.message,
+      message: JSON.stringify(err.message),
       stack: process.env.NODE_ENV === "production" ? null : err.stack,
     };
+  } else {
+    logger.error({
+      code: errorResponse.code,
+      name: errorResponse.name,
+      stack: errorResponse.stack,
+      message: errorResponse.message,
+    });
   }
-
-  logger.error(errorResponse);
 
   if (err instanceof RedisError) {
     errorResponse = baseResponse;
