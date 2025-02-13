@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { FlashCard } from "../services/flash-card/flash-card.service";
+import { FlashCard } from "../services/flash-card/flash-card.interfaces";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { v4 as uuidv4 } from "uuid";
 
