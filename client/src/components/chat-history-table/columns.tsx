@@ -1,14 +1,14 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { HistoryTableColumnHeader } from "./history-table-column-header";
 import { HistoryTableRowActions } from "./history-table-row-actions";
 import { Chat } from "@/common/services/chat/chat.service";
 import { format } from "date-fns";
-import ContinueButton from "./buttons/continue-button";
-import DeleteButton from "./buttons/delete-button";
+import ContinueButton from "./continue-button";
+import DeleteButton from "./delete-button";
 
 export const columns: ColumnDef<Chat>[] = [
   {
