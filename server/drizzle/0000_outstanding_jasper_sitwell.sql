@@ -30,13 +30,6 @@ CREATE TABLE "messages" (
 	"chatId" uuid NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "tutorProfile" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"ssmlGender" varchar(255) NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"languageCode" varchar(255) NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "users" (
 	"id" varchar(255) PRIMARY KEY NOT NULL,
 	"email" varchar(255) NOT NULL,
@@ -60,5 +53,5 @@ CREATE TABLE "vocabularySets" (
 ALTER TABLE "chatSettings" ADD CONSTRAINT "chatSettings_chatId_chats_id_fk" FOREIGN KEY ("chatId") REFERENCES "public"."chats"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "chats" ADD CONSTRAINT "chats_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "flashCards" ADD CONSTRAINT "flashCards_vocabularySetId_vocabularySets_id_fk" FOREIGN KEY ("vocabularySetId") REFERENCES "public"."vocabularySets"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "messages" ADD CONSTRAINT "messages_chatId_chats_id_fk" FOREIGN KEY ("chatId") REFERENCES "public"."chats"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "messages" ADD CONSTRAINT "messages_chatId_chats_id_fk" FOREIGN KEY ("chatId") REFERENCES "public"."chats"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "vocabularySets" ADD CONSTRAINT "vocabularySets_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
