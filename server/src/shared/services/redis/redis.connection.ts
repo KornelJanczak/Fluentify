@@ -3,11 +3,11 @@ import { BaseCache } from "@services/redis/base.cache";
 import { Logger } from "winston";
 import { client } from "./redis.client";
 
-const logger: Logger = config.createLogger("redisConnection");
+const logger: Logger = config.createLogger("redis.connection");
 
 export default class RedisConnection extends BaseCache {
   protected readonly fileName: string = "redis.connection";
-  connect(): void {
+  public connect(): void {
     const service = "connect";
     this.client
       .connect()
