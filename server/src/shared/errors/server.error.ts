@@ -18,18 +18,9 @@ abstract class ServerError extends Error {
     super(message);
     this.name = name;
     this.code = code;
-
-    if (fileName) {
-      (this as any).fileName = fileName;
-    }
-
-    if (service) {
-      (this as any).service = service;
-    }
-
-    if (stack) {
-      (this as any).stack = stack;
-    }
+    this.fileName = fileName;
+    this.service = service;
+    this.stack = stack;
 
     Error.captureStackTrace(this, ServerError);
   }
