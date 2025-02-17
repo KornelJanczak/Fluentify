@@ -23,7 +23,6 @@ class ChatController implements IChatController {
   constructor({
     chatStreamService,
     messagesRepository,
-
     chatCache,
     chatRepository,
   }: IChatControllerDependencies) {
