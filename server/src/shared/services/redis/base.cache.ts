@@ -1,4 +1,4 @@
-import RedisError from "@shared/errors/redis.error";
+import { ServiceError } from "@shared/errors/service.error";
 import { createClient } from "redis";
 import { Logger } from "winston";
 
@@ -24,10 +24,8 @@ export abstract class BaseCache {
     try {
       if (!this.client.isOpen) await this.client.connect();
     } catch (error) {
-      throw new RedisError({
-        fileName: this.fileName,
+      throw ServiceError.RedisError({
         message: error.message,
-        service: "connectionGuard",
         stack: error.stack,
       });
     }
