@@ -1,6 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { config } from "@root/config";
 
 export const customAi = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: config.OPENAI_API_KEY,
 });
