@@ -4,48 +4,44 @@ import {
   IChatController,
   IChatControllerDependencies,
 } from "./chat.interfaces/controller.interfaces";
-import { v4 as uuidv4 } from "uuid";
 import { User } from "@services/db/schema";
 import HTTP_STATUS from "http-status-codes";
-import { IMessagesRepository } from "@shared/repositories/messages.repository";
-import { IChatRepository } from "@shared/repositories/chat.repository";
-import NotFoundError from "@shared/errors/notFound.error";
-import { IChatCache } from "@services/redis/chat.cache";
-import InternalServerError from "@shared/errors/internalServer.error";
+import { IChatService } from "./chat.interfaces/chat.service.interfaces";
+import { HttpError } from "@shared/errors/http.error";
 
 class ChatController implements IChatController {
-  private readonly fileName: string = "chatController";
-  private readonly messagesRepository: IMessagesRepository;
-  private readonly chatRepository: IChatRepository;
+  private readonly chatService: IChatService;
   private readonly chatStreamService: IChatStreamService;
-  private readonly chatCache: IChatCache;
 
-  constructor({
-    chatStreamService,
-    messagesRepository,
-    chatCache,
-    chatRepository,
-  }: IChatControllerDependencies) {
+  constructor({ chatStreamService, chatService }: IChatControllerDependencies) {
     this.chatStreamService = chatStreamService;
-    this.messagesRepository = messagesRepository;
-    this.chatCache = chatCache;
-    this.chatRepository = chatRepository;
+    this.chatService = chatService;
   }
 
   public async startChat(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<Response | void> {
     const { body } = req;
     const user: User = req.user as User;
 
-    return await this.chatStreamService.startChatStream({
-      userId: user.id,
-      tutorId: user.tutorId,
-      studyingLanguageLevel: user.studyingLanguageLevel,
-      res,
-      ...body,
-    });
+    try {
+      return await this.chatStreamService.startChatStream({
+        userId: user.id,
+        tutorId: user.tutorId,
+        studyingLanguageLevel: user.studyingLanguageLevel,
+        res,
+        ...body,
+      });
+    } catch (error) {
+      return next(
+        HttpError.InternalServerError({
+          message: error.message,
+          stack: error.stack,
+        })
+      );
+    }
   }
 
   public async createChat(
@@ -55,25 +51,17 @@ class ChatController implements IChatController {
   ): Promise<Response | void> {
     const user: User = req.user as User;
 
-    const newChat = await this.chatRepository.create({
-      id: uuidv4(),
-      userId: user.id,
-      title: req.body.title,
-      usedTokens: 0,
-      startedAt: new Date(),
-    });
-
-    if (!newChat) {
+    try {
+      const chatId = await this.chatService.createChat(user.id, req.body.title);
+      return res.status(HTTP_STATUS.OK).json(chatId);
+    } catch (error) {
       return next(
-        new NotFoundError({
-          fileName: this.fileName,
-          message: "User has no chats",
-          service: "createChat",
+        HttpError.InternalServerError({
+          message: error.message,
+          stack: error.stack,
         })
       );
     }
-
-    return res.status(HTTP_STATUS.OK).json(newChat.id);
   }
 
   public async getChatsByUserId(
@@ -83,28 +71,16 @@ class ChatController implements IChatController {
   ): Promise<Response | void> {
     const user: User = req.user as User;
 
-    const cachedChats = await this.chatCache.getChatsFromCache(user.id);
-   
-
-    const cacheIsEmpty = !cachedChats || cachedChats.length <= 0;
-
-    if (cacheIsEmpty) {
-      const chats = await this.chatRepository.getChatsByUserId(user.id);
-      await this.chatCache.addChatsToCache(chats, user.id);
-
-      if (!chats || chats.length === 0) {
-        return next(
-          new NotFoundError({
-            fileName: this.fileName,
-            message: "User has no chats",
-            service: "getChatsByUserId",
-          })
-        );
-      }
-
+    try {
+      const chats = await this.chatService.getChatsByUserId(user.id);
       return res.status(HTTP_STATUS.OK).json(chats);
-    } else {
-      return res.status(HTTP_STATUS.OK).json(cachedChats);
+    } catch (error) {
+      return next(
+        HttpError.InternalServerError({
+          message: error.message,
+          stack: error.stack,
+        })
+      );
     }
   }
 
@@ -113,19 +89,17 @@ class ChatController implements IChatController {
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
-    const chat = await this.chatRepository.getById(req.params.id);
-
-    if (!chat) {
+    try {
+      const chat = await this.chatService.getChatById(req.params.id);
+      return res.status(HTTP_STATUS.OK).json(chat);
+    } catch (error) {
       return next(
-        new NotFoundError({
-          fileName: this.fileName,
-          message: "Chat not found",
-          service: "getChatsById",
+        HttpError.InternalServerError({
+          message: error.message,
+          stack: error.stack,
         })
       );
     }
-
-    return res.status(HTTP_STATUS.OK).json(chat);
   }
 
   public async getMessagesByChatId(
@@ -133,21 +107,19 @@ class ChatController implements IChatController {
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
-    const messages = await this.messagesRepository.getMessagesByChatId(
-      req.params.id
-    );
-
-    if (!messages || messages.length === 0) {
+    try {
+      const messages = await this.chatService.getMessagesByChatId(
+        req.params.id
+      );
+      return res.status(HTTP_STATUS.OK).json(messages);
+    } catch (error) {
       return next(
-        new NotFoundError({
-          fileName: this.fileName,
-          message: "Messages not found",
-          service: "getMessagesByChatId",
+        HttpError.InternalServerError({
+          message: error.message,
+          stack: error.stack,
         })
       );
     }
-
-    return res.status(HTTP_STATUS.OK).json(messages);
   }
 
   public async deleteChatById(
@@ -157,21 +129,20 @@ class ChatController implements IChatController {
   ): Promise<Response | void> {
     const user: User = req.user as User;
     const chatId = req.params.id;
-    const deletedChat = await this.chatRepository.deleteById(chatId);
 
-    if (deletedChat) {
-      await this.chatCache.deleteChatFromCache(chatId, user.id);
-      console.log("Chat has been deleted");
-
+    try {
+      const deletedChatId = await this.chatService.deleteChatById(
+        user.id,
+        chatId
+      );
       return res
         .status(HTTP_STATUS.OK)
-        .json({ message: "Chat has been deleted" });
-    } else {
+        .json({ message: "Chat has been deleted", chatId: deletedChatId });
+    } catch (error) {
       return next(
-        new InternalServerError({
-          fileName: this.fileName,
-          message: "Chat has not been deleted",
-          service: "deleteChatById",
+        HttpError.InternalServerError({
+          message: error.message,
+          stack: error.stack,
         })
       );
     }
