@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../services/db";
 import { type User, users } from "../services/db/schema";
-import DatabaseError from "../errors/db.error";
+import { ServiceError } from "@shared/errors/service.error";
 
 interface IUserRepository {
   create(newUser: User): Promise<User>;
@@ -10,8 +10,7 @@ interface IUserRepository {
 }
 
 class UserRepository implements IUserRepository {
-  private readonly fileName = "userRepository";
-  async create(newUser: User): Promise<User> {
+  public async create(newUser: User): Promise<User> {
     try {
       const [createdUser]: User[] = await db
         .insert(users)
@@ -20,16 +19,14 @@ class UserRepository implements IUserRepository {
 
       return createdUser;
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "create",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async getByEmail(email: string): Promise<User> {
+  public async getByEmail(email: string): Promise<User> {
     try {
       const [user]: User[] = await db
         .select()
@@ -38,16 +35,14 @@ class UserRepository implements IUserRepository {
 
       return user;
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "getByEmail",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async getById(id: string): Promise<User> {
+  public async getById(id: string): Promise<User> {
     try {
       const [user]: User[] = await db
         .select()
@@ -56,9 +51,7 @@ class UserRepository implements IUserRepository {
 
       return user;
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "getById",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
