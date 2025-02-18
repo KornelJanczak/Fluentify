@@ -8,15 +8,14 @@ import {
   type IOnFinishStream,
 } from "../chat.interfaces/chatStream.service.interfaces";
 import { IAudioGeneratorService } from "@chat/chat.interfaces/audioGenerator.service.interfaces";
-import NotFoundError from "@shared/errors/notFound.error";
 import { type IChatRepository } from "@shared/repositories/chat.repository";
 import { type IMessagesRepository } from "@shared/repositories/messages.repository";
 import { Logger } from "winston";
 import { Chat } from "@services/db/schema";
 import { ISystemPromptService } from "@chat/chat.interfaces/systemPrompt.service.interface";
 import ChatQueue from "@services/queues/chat.queue";
-import InternalServerError from "@shared/errors/internalServer.error";
 import { BaseCache } from "@services/redis/base.cache";
+import { ServiceError } from "@shared/errors/service.error";
 import { createDataStream } from "ai";
 
 class ChatStreamService implements IChatStreamService {
@@ -61,10 +60,8 @@ class ChatStreamService implements IChatStreamService {
     const chat = await this.chatRepository.getById(chatId);
 
     if (!chat) {
-      throw new NotFoundError({
-        fileName: this.fileName,
-        service: "getChat",
-        message: "Chat not found",
+      throw ServiceError.NotFound({
+        message: `Chat ${chatId} not found`,
       });
     }
 
