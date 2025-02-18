@@ -1,29 +1,14 @@
 import {
   IAudioContent,
   IAudioGeneratorService,
-  IAudioGeneratorServiceDependencies,
   IGenerateAudioRequest,
   IVoice,
 } from "../chat.interfaces/audioGenerator.service.interfaces";
-import NotFoundError from "@shared/errors/notFound.error";
 import { textToSpeechClient } from "@shared/services/textToSpeech";
-import { Logger } from "winston";
+import { ServiceError } from "@shared/errors/service.error";
 
 class AudioGeneratorService implements IAudioGeneratorService {
-  private readonly fileName = "audioGenerator.service";
-  private readonly logger: Logger;
-
-  constructor({ logger }: IAudioGeneratorServiceDependencies) {
-    this.logger = logger;
-  }
-
   async generateAudio(text: string, tutorId: string): Promise<IAudioContent> {
-    this.logger.info({
-      fileName: this.fileName,
-      service: "generateAudio",
-      message: "Start generating audio...",
-    });
-
     const tutorVoices: IVoice[] = await this.getTutorVoices();
     const tutorVoice: IVoice = this.formatTutorVoice(tutorVoices, tutorId);
     const request = await this.createRequest(text, tutorVoice);
@@ -34,19 +19,11 @@ class AudioGeneratorService implements IAudioGeneratorService {
     request: IGenerateAudioRequest
   ): Promise<IAudioContent> {
     try {
-      this.logger.info({
-        fileName: this.fileName,
-        service: "syntheziseAudio",
-        message: "Start synthezising audio...",
-      });
-
       const [response] = await textToSpeechClient.synthesizeSpeech(request);
 
       return response;
     } catch (error) {
-      throw new NotFoundError({
-        fileName: this.fileName,
-        service: "generateAudio",
+      throw ServiceError.NotFound({
         message: error.message,
         stack: error.stack,
       });
@@ -61,9 +38,7 @@ class AudioGeneratorService implements IAudioGeneratorService {
 
       return voices;
     } catch (error) {
-      new NotFoundError({
-        fileName: this.fileName,
-        service: "getTutorVoice",
+      throw ServiceError.NotFound({
         message: error.message,
         stack: error.stack,
       });
@@ -76,10 +51,8 @@ class AudioGeneratorService implements IAudioGeneratorService {
     );
 
     if (!tutorVoice) {
-      throw new NotFoundError({
-        fileName: this.fileName,
-        service: "getTutorVoice",
-        message: "Tutor not found",
+      throw ServiceError.NotFound({
+        message: `Tutor voice ${tutorId} not found`,
       });
     }
 
@@ -88,12 +61,6 @@ class AudioGeneratorService implements IAudioGeneratorService {
       name: tutorVoice.name,
       ssmlGender: tutorVoice.ssmlGender,
     };
-
-    this.logger.info({
-      fileName: this.fileName,
-      service: "getTutorVoice",
-      message: `Tutor id: ${formatedVoice.name}`,
-    });
 
     return formatedVoice;
   }
