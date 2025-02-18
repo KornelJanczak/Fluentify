@@ -1,4 +1,3 @@
-import { IVocabularySetRepository } from "@shared/repositories/vocabularySet.repository";
 import {
   IVocabularySetsController,
   IVocabularySetsControllerDependencies,
@@ -6,76 +5,74 @@ import {
 } from "./vocabularySets.interfaces";
 import { NextFunction, Request, Response } from "express";
 import HTTP_STATUS from "http-status-codes";
-import NotFoundError from "@shared/errors/notFound.error";
 import { Logger } from "winston";
 import { User } from "@services/db/schema";
+import { HttpError } from "@shared/errors/http.error";
 
 class VocabularySetsController implements IVocabularySetsController {
-  private readonly vocabularySetRepository: IVocabularySetRepository;
   private readonly vocabularySetsService: IVocabularySetsService;
-  private readonly fileName = "vocabularySet.controller";
   private readonly logger: Logger;
 
   constructor({
-    vocabularySetRepository,
     vocabularySetsService,
     logger,
   }: IVocabularySetsControllerDependencies) {
-    this.vocabularySetRepository = vocabularySetRepository;
     this.vocabularySetsService = vocabularySetsService;
     this.logger = logger;
   }
 
-  async createVocabularySet(req: Request, res: Response, next: NextFunction) {
-    const service = "createVocabularySet";
-    const user: User = req.user as User;
-    const { body } = req;
-
-    this.logger.info({
-      message: "Creating vocabulary set...",
-      fileName: this.fileName,
-      service,
-    });
-
-    const vocabularySetId =
-      await this.vocabularySetsService.createVocabularySet({
-        userId: user.id,
-        description: body.description,
-        title: body.title,
-        flashCards: body.flashCards,
-      });
-
-    return res.status(HTTP_STATUS.OK).json({ vocabularySetId });
-  }
-
-  async getAllVocabularySetsByUserId(
+  public async createVocabularySet(
     req: Request,
     res: Response,
     next: NextFunction
-  ) {
-    this.logger.info({
-      message: "Getting all vocabulary sets...",
-      fileName: this.fileName,
-      service: "getAllVocabularySets",
-    });
-
+  ): Promise<Response | void> {
     const user: User = req.user as User;
+    const { body } = req;
 
-    const vocabularySets = await this.vocabularySetRepository.getAllByUserId(
-      user.id
-    );
+    this.logger.info(`Create vocabulary set for user ${user.id}`);
 
-    if (!vocabularySets) {
+    try {
+      const vocabularySetId =
+        await this.vocabularySetsService.createVocabularySet({
+          userId: user.id,
+          description: body.description,
+          title: body.title,
+          flashCards: body.flashCards,
+        });
+
+      return res.status(HTTP_STATUS.OK).json({ vocabularySetId });
+    } catch (error) {
       return next(
-        new NotFoundError({
-          message: "Vocabulary sets not found for this user",
-          fileName: this.fileName,
-          service: "getAllVocabularySets",
+        HttpError.InternalServerError({
+          message: error.message,
+          stack: error.stack,
         })
       );
     }
+  }
 
-    return res.status(HTTP_STATUS.OK).json(vocabularySets);
+  public async getAllVocabularySetsByUserId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    const user: User = req.user as User;
+
+    this.logger.info(`Get vocabulary sets by user id: ${user.id}`);
+
+    try {
+      const vocabularySets =
+        await this.vocabularySetsService.getAllVocabularySetsByUserId(user.id);
+
+      return res.status(HTTP_STATUS.OK).json(vocabularySets);
+    } catch (error) {
+      return next(
+        HttpError.InternalServerError({
+          message: error.message,
+          stack: error.stack,
+        })
+      );
+    }
   }
 }
 
