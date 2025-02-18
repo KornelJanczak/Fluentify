@@ -1,7 +1,7 @@
-import RedisError from "@shared/errors/redis.error";
 import { BaseCache, IBaseCacheDependencies } from "./base.cache";
 import { Chat, Message } from "@services/db/schema";
 import { toInteger } from "lodash";
+import { ServiceError } from "@shared/errors/service.error";
 
 export interface IChatCache {
   addChatMessageToCache(chatId: string, value: Message): Promise<void>;
@@ -13,27 +13,26 @@ export interface IChatCache {
 interface IChatCacheDependencies extends IBaseCacheDependencies {}
 
 class ChatCache extends BaseCache implements IChatCache {
-  protected fileName: string = "chat.cache";
-
   constructor({ logger, client }: IChatCacheDependencies) {
     super({ logger, client });
   }
 
-  async addChatMessageToCache(chatId: string, value: Message): Promise<void> {
+  public async addChatMessageToCache(
+    chatId: string,
+    value: Message
+  ): Promise<void> {
     await this.connectionGuard();
     try {
       await this.client.RPUSH(`messages:${chatId}`, JSON.stringify(value));
     } catch (error) {
-      throw new RedisError({
-        fileName: this.fileName,
+      throw ServiceError.RedisError({
         message: error.message,
-        service: "addChatMessageToCache",
         stack: error.stack,
       });
     }
   }
 
-  async addChatsToCache(chats: Chat[], userId: string): Promise<void> {
+  public async addChatsToCache(chats: Chat[], userId: string): Promise<void> {
     const key = `chats:ids:${userId}`;
     await this.connectionGuard();
     try {
@@ -51,16 +50,14 @@ class ChatCache extends BaseCache implements IChatCache {
 
       await multi.EXEC();
     } catch (error) {
-      throw new RedisError({
-        fileName: this.fileName,
+      throw ServiceError.RedisError({
         message: error.message,
-        service: "addChatsToCache",
         stack: error.stack,
       });
     }
   }
 
-  async getChatsFromCache(userId: string): Promise<Chat[]> {
+  public async getChatsFromCache(userId: string): Promise<Chat[]> {
     const key = `chats:ids:${userId}`;
     await this.connectionGuard();
     try {
@@ -81,25 +78,24 @@ class ChatCache extends BaseCache implements IChatCache {
 
       return chats;
     } catch (error) {
-      throw new RedisError({
-        fileName: this.fileName,
+      throw ServiceError.RedisError({
         message: error.message,
-        service: "getChatsFromCache",
         stack: error.stack,
       });
     }
   }
 
-  async deleteChatFromCache(chatId: string, userId: string): Promise<void> {
+  public async deleteChatFromCache(
+    chatId: string,
+    userId: string
+  ): Promise<void> {
     await this.connectionGuard();
     try {
       await this.client.SREM(`chats:ids:${userId}`, chatId);
       await this.client.DEL(`chat:${chatId}`);
     } catch (error) {
-      throw new RedisError({
-        fileName: this.fileName,
+      throw ServiceError.RedisError({
         message: error.message,
-        service: "deleteChatFromCache",
         stack: error.stack,
       });
     }
