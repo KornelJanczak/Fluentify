@@ -1,92 +1,78 @@
 import { db } from "../services/db";
 import { type Chat, chats } from "../services/db/schema";
 import { eq } from "drizzle-orm";
-import DatabaseError from "../errors/db.error";
+import { ServiceError } from "../errors/service.error";
 
 export interface IChatRepository {
-  create(newItem: Chat): Promise<Chat>;
+  create(newItem: Chat): Promise<string>;
   getById(id: string): Promise<Chat>;
   getByUserId(userId: string): Promise<Chat[]>;
   getChatsByUserId(userId: string): Promise<Chat[]>;
-  deleteById(id: string): Promise<Chat[]>;
+  deleteById(id: string): Promise<string>;
 }
 
 class ChatRepository implements IChatRepository {
-  private readonly fileName = "chatRepository";
-  async create(newItem: Chat): Promise<Chat> {
+  public async create(newItem: Chat): Promise<string> {
     try {
-      const [createdItem] = await db.insert(chats).values(newItem).returning();
+      const [chat] = await db
+        .insert(chats)
+        .values(newItem)
+        .returning({ id: chats.id });
 
-      return createdItem;
+      return chat.id;
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "create",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async getChatsByUserId(userId: string): Promise<Chat[]> {
+  public async getChatsByUserId(userId: string): Promise<Chat[]> {
     try {
-      const chatList: Chat[] = await db
-        .select()
-        .from(chats)
-        .where(eq(chats.userId, userId));
-
-      return chatList;
+      return await db.select().from(chats).where(eq(chats.userId, userId));
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "getChatsByUserId",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async getById(id: string): Promise<Chat> {
+  public async getById(id: string): Promise<Chat> {
     try {
       const [item] = await db.select().from(chats).where(eq(chats.id, id));
 
       return item;
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "getById",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async getByUserId(userId: string): Promise<Chat[]> {
+  public async getByUserId(userId: string): Promise<Chat[]> {
     try {
-      const chatList: Chat[] = await db
-        .select()
-        .from(chats)
-        .where(eq(chats.userId, userId));
-
-      return chatList;
+      return await db.select().from(chats).where(eq(chats.userId, userId));
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "getByUserId",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async deleteById(chatId: string): Promise<Chat[]> {
+  public async deleteById(chatId: string): Promise<string> {
     try {
-      return await db.delete(chats).where(eq(chats.id, chatId)).returning();
-      
+      const [chat] = await db
+        .delete(chats)
+        .where(eq(chats.id, chatId))
+        .returning({ id: chats.id });
+
+      return chat.id;
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "deleteById",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
