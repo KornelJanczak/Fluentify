@@ -1,42 +1,58 @@
 import { type IVocabularySetRepository } from "@shared/repositories/vocabularySet.repository";
-import { type ICreateVocabularySetArgs } from "./vocabularySets.interfaces";
-import { v4 as uuid } from "uuid";
+import {
+  IVocabularySetsService,
+  IVocabularySetsServiceDependencies,
+  type ICreateVocabularySetArgs,
+} from "./vocabularySets.interfaces";
 import {
   FlashCardWithoutIds,
   VocabularySetWithoutId,
   type FlashCard,
   type VocabularySet,
 } from "@services/db/schema";
-import NotFoundError from "@shared/errors/notFound.error";
+import { ServiceError } from "@shared/errors/service.error";
 
-class VocabularySetsService {
+class VocabularySetsService implements IVocabularySetsService {
   private readonly vocabularySetRepository: IVocabularySetRepository;
-  private readonly fileName = "vocabularySets.service";
 
-  constructor({ vocabularySetRepository }) {
+  constructor({ vocabularySetRepository }: IVocabularySetsServiceDependencies) {
     this.vocabularySetRepository = vocabularySetRepository;
   }
   public async createVocabularySet(
     newVocabularySetData: ICreateVocabularySetArgs
-  ) {
+  ): Promise<string> {
     const { vocabularySet, flashCards } =
       this.formatVocabularySetWithFlashCards(newVocabularySetData);
 
-    const newVocabularySet =
+    const vocabularySetId =
       await this.vocabularySetRepository.createNewVocabularySet(
         vocabularySet,
         flashCards
       );
 
-    if (!newVocabularySet) {
-      throw new NotFoundError({
-        fileName: this.fileName,
-        service: "createVocabularySet",
+    if (!vocabularySetId) {
+      throw ServiceError.NotFound({
         message: "Vocabulary set not created",
       });
     }
 
-    return newVocabularySet;
+    return vocabularySetId;
+  }
+
+  public async getAllVocabularySetsByUserId(
+    userId: string
+  ): Promise<VocabularySet[]> {
+    const vocabularySets = await this.vocabularySetRepository.getAllByUserId(
+      userId
+    );
+
+    if (!vocabularySets) {
+      throw ServiceError.NotFound({
+        message: "Vocabulary sets not found",
+      });
+    }
+
+    return vocabularySets;
   }
 
   private formatVocabularySetWithFlashCards({
