@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import AuthenticationError from "@shared/errors/authentication.error";
 import { User } from "@services/db/schema";
 import {
   IAuthController,
@@ -7,9 +6,9 @@ import {
 } from "./auth.interfaces";
 import HTTP_STATUS from "http-status-codes";
 import { Logger } from "winston";
+import { HttpError } from "@shared/errors/http.error";
 
 class AuthController implements IAuthController {
-  private readonly fileName = "auth.controller";
   private readonly logger: Logger;
 
   constructor({ logger }: IAuthControllerDependencies) {
@@ -19,18 +18,14 @@ class AuthController implements IAuthController {
   public logOut(req: Request, res: Response, next: NextFunction) {
     req.logout((error) => {
       if (error) {
-        next(
-          new AuthenticationError({
-            fileName: this.fileName,
-            service: "logOut",
-            ...error,
+        return next(
+          HttpError.Unauthorized({
+            message: error.message,
+            stack: error.stack,
           })
         );
       } else {
-        this.logger.info({
-          service: "logOut",
-          message: `User has been logged out`,
-        });
+        this.logger.info(`User has been logged out`);
 
         return res
           .status(HTTP_STATUS.OK)
@@ -39,35 +34,19 @@ class AuthController implements IAuthController {
     });
   }
 
-  public authStatus(req: Request, res: Response, next: NextFunction) {
+  public authSession(req: Request, res: Response, next: NextFunction) {
     const currentUser: User = req.user as User;
 
-    if (!currentUser) {
+    if (!currentUser)
       return next(
-        new AuthenticationError({
-          fileName: this.fileName,
-          service: "authStatus",
+        HttpError.Unauthorized({
           message: "User is not authenticated",
         })
       );
-    }
 
-    this.logger.info({
-      service: "authStatus",
-      message: `User is authenticated ${currentUser.id}`,
-    });
+    this.logger.info(`User is authenticated ${currentUser.id}`);
+
     return res.status(HTTP_STATUS.OK).json(currentUser);
-  }
-
-  public authSession(req: Request, res: Response, __: NextFunction) {
-    if (!req.user) {
-      new AuthenticationError({
-        fileName: this.fileName,
-        service: "authSession",
-        message: "User is not authenticated",
-      });
-    }
-    return res.status(HTTP_STATUS.OK).json(req.user);
   }
 }
 
