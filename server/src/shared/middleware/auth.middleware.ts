@@ -1,23 +1,19 @@
 import { NextFunction, Request, Response } from "express";
-import AuthenticationError from "@shared/errors/authentication.error";
-import { config } from "@root/config";
+import { HttpError } from "@shared/errors/http.error";
+import { logger as authMiddlewareLogger } from "@root/logger";
 
-const logger = config.createLogger("authMiddleware");
+const logger = authMiddlewareLogger.createLogger("authMiddleware");
 
 const authMiddleware = (req: Request, _: Response, next: NextFunction) => {
-  console.log("AUTH SESION", req.session);
-  console.log("AUTH USER", req.user);
-
   if (!req.isAuthenticated()) {
     return next(
-      new AuthenticationError({
-        service: "authMiddleware",
+      HttpError.Unauthorized({
         message: "User is not authenticated",
       })
     );
   }
 
-  logger.info({ message: "User is authenticated" });
+  logger.info("User is authenticated");
   return next();
 };
 
