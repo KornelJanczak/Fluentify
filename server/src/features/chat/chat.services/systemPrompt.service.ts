@@ -6,12 +6,11 @@ import {
 import TopicPromptBase from "./topicPrompt.service/topicPromptBase";
 import VocabPracticePrompt from "./topicPrompt.service/vocabPracticePrompt";
 import { ITopicPromptFactory } from "@chat/chat.interfaces/topicPrompt.service.interfaces";
-import NotFoundError from "@shared/errors/notFound.error";
 import { IFlashCardRepository } from "@shared/repositories/flashCard.repository";
 import { ITutorPromptService } from "@chat/chat.interfaces/tutorPrompt.service.interfaces";
+import { ServiceError } from "@shared/errors/service.error";
 
 class SystemPromptService implements ISystemPromptService {
-  private readonly fileName = "systemPrompt.service";
   private readonly topicPromptFactory: ITopicPromptFactory;
   private readonly flashCardRepository: IFlashCardRepository;
   private readonly tutorPromptService: ITutorPromptService;
@@ -37,7 +36,7 @@ class SystemPromptService implements ISystemPromptService {
       tutorId,
       studyingLanguageLevel
     );
-    
+
     const topicPrompt = await this.generateTopicPrompt(
       chatCategory,
       chatTopic,
@@ -73,9 +72,7 @@ class SystemPromptService implements ISystemPromptService {
       );
 
     if (!flashCards) {
-      throw new NotFoundError({
-        fileName: this.fileName,
-        service: "getFlashCardsByVocabularySetId",
+      throw ServiceError.NotFound({
         message: "Flash cards not found",
       });
     }
