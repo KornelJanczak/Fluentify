@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { IChatRepository } from "@shared/repositories/chat.repository";
-import { IMessagesRepository } from "@shared/repositories/messages.repository";
 import { IChatStreamService } from "./chatStream.service.interfaces";
-import { IChatCache } from "@services/redis/chat.cache";
+import { IChatService } from "./chat.service.interfaces";
 
 export interface IChatController {
   startChat(
@@ -38,8 +36,6 @@ export interface IChatController {
 }
 
 export interface IChatControllerDependencies {
-  chatRepository: IChatRepository;
-  messagesRepository: IMessagesRepository;
+  chatService: IChatService;
   chatStreamService: IChatStreamService;
-  chatCache: IChatCache;
 }
