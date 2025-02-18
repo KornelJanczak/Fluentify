@@ -26,8 +26,8 @@ abstract class BaseQueue {
 
     this.queue = new Queue(queueName, {
       redis: {
-        host: config.REDIS_HOST,
-        port: config.REDIS_PORT,
+        host: config.REDIS.HOST,
+        port: config.REDIS.PORT,
       },
     });
 
