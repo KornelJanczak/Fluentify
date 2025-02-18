@@ -1,12 +1,13 @@
 import passport from "passport";
 import { Strategy, type StrategyOptions } from "passport-google-oauth20";
-import { User } from "../../../shared/services/db/schema";
+import { User } from "@shared/services/db/schema";
 import UserRepository from "@shared/repositories/user.repository";
+import { logger as authLogger } from "@root/logger";
 import { config } from "@root/config";
-import AuthenticationError from "../../../shared/errors/authentication.error";
+import { HttpError } from "@shared/errors/http.error";
 
 const userRepository = new UserRepository();
-const logger = config.createLogger("googleStrategy");
+const logger = authLogger.createLogger("googleStrategy");
 
 export const scope = [
   "profile",
@@ -16,18 +17,15 @@ export const scope = [
 ];
 
 const strategyOptions: StrategyOptions = {
-  clientID: config.GOOGLE_CLIENT_ID,
-  clientSecret: config.GOOGLE_CLIENT_SECRET,
-  callbackURL: config.GOOGLE_CALLBACK_URL,
+  clientID: config.GOOGLE.CLIENT_ID,
+  clientSecret: config.GOOGLE.CLIENT_SECRET,
+  callbackURL: config.GOOGLE.CALLBACK_URL,
   passReqToCallback: false,
   scope,
 };
 
 passport.serializeUser(({ id }: User, done) => {
-  logger.info({
-    message: `User has been serialized: ${id}`,
-    service: "serializeUser",
-  });
+  logger.info(`User has been serialized: ${id}`);
   return done(null, id);
 });
 
@@ -36,17 +34,13 @@ passport.deserializeUser(async (id: string, done) => {
 
   if (!currentUser)
     return done(
-      new AuthenticationError({
+      HttpError.Unauthorized({
         message: "User is not defined",
-        service: "deserializeUser",
       }),
       false
     );
 
-  logger.info({
-    message: `User has been deserialized: ${currentUser.email}`,
-    service: "deserializeUser",
-  });
+  logger.info(`User has been deserialized: ${currentUser.email}`);
 
   return done(null, currentUser);
 });
@@ -77,17 +71,13 @@ export default passport.use(
 
     if (!user)
       return done(
-        new AuthenticationError({
+        HttpError.Unauthorized({
           message: "User is not defined",
-          service: "googleStrategy",
         }),
         false
       );
 
-    logger.info({
-      message: `User ${user.email} has been authenticated`,
-      service: "googleStrategy",
-    });
+    logger.info(`User ${user.email} has been authenticated`);
 
     return done(null, user);
   })
