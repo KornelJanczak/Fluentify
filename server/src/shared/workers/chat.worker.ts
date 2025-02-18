@@ -1,7 +1,6 @@
-import InternalServerError from "@shared/errors/internalServer.error";
+import { ServiceError } from "@shared/errors/service.error";
 import { IMessagesRepository } from "@shared/repositories/messages.repository";
 import { DoneCallback, Job } from "bull";
-import { log } from "console";
 import { Logger } from "winston";
 
 export interface IChatWorker {
@@ -14,7 +13,6 @@ export interface IChatWorkerDependencies {
 }
 
 class ChatWorker implements IChatWorker {
-  private readonly fileName = "chat.worker";
   private readonly logger: Logger;
   private readonly messagesRepository: IMessagesRepository;
 
@@ -25,7 +23,10 @@ class ChatWorker implements IChatWorker {
     console.log("messagesRepository - chat.worker", this.messagesRepository);
   }
 
-  async saveChatMessages(jobQueue: Job, done: DoneCallback): Promise<void> {
+  public async saveChatMessages(
+    jobQueue: Job,
+    done: DoneCallback
+  ): Promise<void> {
     try {
       console.log("jobQueue.data", this.messagesRepository);
       await this.messagesRepository.saveMessages(jobQueue.data);
@@ -34,11 +35,9 @@ class ChatWorker implements IChatWorker {
       return done(null, jobQueue.data);
     } catch (error) {
       return done(
-        new InternalServerError({
-          fileName: this.fileName,
+        ServiceError.WorkerError({
           message: error.message,
           stack: error.stack,
-          service: "saveChatMessages",
         })
       );
     }
