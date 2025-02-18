@@ -1,30 +1,34 @@
 import { NextFunction, Request, Response } from "express";
 import { type Logger } from "winston";
 import { VocabularySet, type FlashCard } from "@services/db/schema";
-import { type IVocabularySetRepository } from "@shared/repositories/vocabularySet.repository";
+import { IVocabularySetRepository } from "@shared/repositories/vocabularySet.repository";
 
 export interface IVocabularySetsController {
-  createVocabularySet(req: Request, res: Response, next: NextFunction): void;
+  createVocabularySet(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void>;
   getAllVocabularySetsByUserId(
     req: Request,
     res: Response,
     next: NextFunction
-  ): void;
+  ): Promise<Response | void>;
 }
 
 export interface IVocabularySetsControllerDependencies {
-  vocabularySetRepository: IVocabularySetRepository;
   vocabularySetsService: IVocabularySetsService;
   logger: Logger;
 }
 
 export interface IVocabularySetsService {
-  createVocabularySet(vocabularySet: ICreateVocabularySetArgs)
+  createVocabularySet(vocabularySet: ICreateVocabularySetArgs): Promise<string>;
+  getAllVocabularySetsByUserId(userId: string): Promise<VocabularySet[]>;
 }
 
-export interface IVocabularySetsServiceDependencies {}
-
-
+export interface IVocabularySetsServiceDependencies {
+  vocabularySetRepository: IVocabularySetRepository;
+}
 
 export interface ICreateVocabularySetArgs {
   userId: string;
