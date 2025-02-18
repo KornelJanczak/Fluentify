@@ -5,11 +5,6 @@ import { config } from "@root/config";
 
 neonConfig.fetchConnectionCache = true;
 const pool = new Pool({
-  // user: "postgres",
-  // host: "localhost",
-  // database: "fluentify",
-  // password: "123",
-  // port: 5432,
   connectionString: config.DATABASE_URL,
 });
 
