@@ -6,7 +6,7 @@ import {
 } from "@services/db/schema";
 import { type FlashCard, type FlashCardWithoutIds } from "@services/db/schema";
 import { db } from "@shared/services/db";
-import DatabaseError from "@shared/errors/db.error";
+import { HttpError } from "@shared/errors/http.error";
 import { eq } from "drizzle-orm";
 
 export interface IVocabularySetRepository {
@@ -18,13 +18,12 @@ export interface IVocabularySetRepository {
 }
 
 class VocabularySetRepository implements IVocabularySetRepository {
-  private readonly fileName = "vocabularySetRepository";
   public async createNewVocabularySet(
     newVocabularySet: VocabularySetWithoutId,
     newFlashCards: FlashCardWithoutIds[]
   ): Promise<string> {
     try {
-      const newVocabularySetId = await db.transaction(async (tx) => {
+      return await db.transaction(async (tx) => {
         const [vocabularySet] = await tx
           .insert(vocabularySets)
           .values(newVocabularySet)
@@ -41,12 +40,8 @@ class VocabularySetRepository implements IVocabularySetRepository {
 
         return vocabularySet.id;
       });
-
-      return newVocabularySetId;
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "create",
+      throw HttpError.InternalServerError({
         message: error.message,
         stack: error.stack,
       });
@@ -60,9 +55,7 @@ class VocabularySetRepository implements IVocabularySetRepository {
         .from(vocabularySets)
         .where(eq(vocabularySets.userId, userId));
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "getByUserId",
+      throw HttpError.InternalServerError({
         message: error.message,
         stack: error.stack,
       });
@@ -71,7 +64,3 @@ class VocabularySetRepository implements IVocabularySetRepository {
 }
 
 export default VocabularySetRepository;
-
-export type CreateVocabularySetDTO = {
-  title: string;
-};
