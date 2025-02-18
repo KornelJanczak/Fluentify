@@ -1,5 +1,5 @@
 import { createContainer, asClass, InjectionMode, asFunction } from "awilix";
-import { config } from "@root/config";
+import { logger } from "../../logger"; // Adjust the import path as necessary
 import AuthController from "./auth.controller";
 
 const container = createContainer({
@@ -8,7 +8,7 @@ const container = createContainer({
 
 container.register({
   authController: asClass(AuthController).singleton().scoped(),
-  logger: asFunction(() => config.createLogger("authLogger")),
+  logger: asFunction(() => logger.createLogger("authLogger")),
 });
 
 export default container;
