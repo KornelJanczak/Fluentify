@@ -16,8 +16,9 @@ import HTTP_STATUS from "http-status-codes";
 import passport from "passport";
 import "@auth/strategies/google-strategy";
 import { redisConnection } from "@services/redis/redis.connection";
+import { logger as setupServerLogger } from "@root/logger";
 
-const logger = config.createLogger("setupServer");
+const logger = setupServerLogger.createLogger("setupServer");
 
 export class FluentifyServer {
   private app: Application;
@@ -51,7 +52,7 @@ export class FluentifyServer {
         },
       })
     );
-    
+
     app.use(hpp());
     app.use(helmet());
     app.use(
@@ -90,6 +91,10 @@ export class FluentifyServer {
   private awilixContainer(app: Application): void {
     applicationContainer(app);
   }
+
+  private httpLoggerMiddleware(app: Application): void {
+    app.use();
+  }
   private apiMonitoring(app: Application): void {
     app.use(
       apiStats.getMiddleware({
@@ -116,10 +121,7 @@ export class FluentifyServer {
 
   private startHttpServer(httpServer: http.Server): void {
     httpServer.listen(config.PORT, () => {
-      logger.info({
-        message: `Server started on port ${config.PORT}`,
-        service: "startHttpServer",
-      });
+      logger.info(`Server started on port ${config.PORT}`);
     });
   }
 }
