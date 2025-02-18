@@ -1,8 +1,8 @@
 import { createContainer, asClass, InjectionMode, asFunction } from "awilix";
 import VocabularySetsController from "./vocabularySets.controller";
 import VocabularySetRepository from "@shared/repositories/vocabularySet.repository";
-import { config } from "@root/config";
 import VocabularySetsService from "./vocabularySets.service";
+import { logger } from "@root/logger";
 
 const container = createContainer({
   injectionMode: InjectionMode.PROXY,
@@ -16,7 +16,7 @@ container.register({
     .singleton()
     .scoped(),
   vocabularySetsService: asClass(VocabularySetsService).singleton().scoped(),
-  logger: asFunction(() => config.createLogger("vocabularySetLogger"))
+  logger: asFunction(() => logger.createLogger("vocabularySetLogger"))
     .singleton()
     .scoped(),
 });
