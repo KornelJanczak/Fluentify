@@ -1,29 +1,21 @@
-import { config } from "@root/config";
 import { BaseCache } from "@services/redis/base.cache";
-import { Logger } from "winston";
+import { logger as redisLogger } from "@root/logger";
 import { client } from "./redis.client";
+import { ServiceError } from "@shared/errors/service.error";
 
-const logger: Logger = config.createLogger("redis.connection");
+const logger = redisLogger.createLogger("redis.connection");
 
 export default class RedisConnection extends BaseCache {
-  protected readonly fileName: string = "redis.connection";
   public connect(): void {
-    const service = "connect";
     this.client
       .connect()
       .then(() => {
-        logger.info({
-          fileName: this.fileName,
-          service,
-          message: `Redis connection: ${this.client.ping()}`,
-        });
+        logger.info(`Redis connection established`);
       })
       .catch((error) => {
-        logger.error({
-          fileName: this.fileName,
-          service,
-          message: "Error connecting to Redis",
-          error,
+        throw ServiceError.RedisError({
+          message: error.message,
+          stack: error.stack,
         });
       });
   }
