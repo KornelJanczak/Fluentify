@@ -1,8 +1,7 @@
 import { db } from "../services/db";
 import { type FlashCard, flashCards } from "../services/db/schema";
 import { eq } from "drizzle-orm";
-import DatabaseError from "../errors/db.error";
-import NotFoundError from "@shared/errors/notFound.error";
+import { ServiceError } from "@shared/errors/service.error";
 
 export interface IFlashCardRepository {
   getFlashCardsByVocabularySetId(vocabularySetId: string): Promise<FlashCard[]>;
@@ -12,9 +11,7 @@ export interface IFlashCardRepository {
 }
 
 class FlashCardRepository implements IFlashCardRepository {
-  private readonly fileName = "flashCardRepository";
-
-  async getFlashCardsByVocabularySetId(
+  public async getFlashCardsByVocabularySetId(
     vocabularySetId: string
   ): Promise<FlashCard[]> {
     try {
@@ -23,16 +20,14 @@ class FlashCardRepository implements IFlashCardRepository {
         .from(flashCards)
         .where(eq(flashCards.vocabularySetId, vocabularySetId));
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "getFlashCardsByVocabularySetId",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async create(newFlashCard: Omit<FlashCard, "id">): Promise<FlashCard> {
+  public async create(newFlashCard: Omit<FlashCard, "id">): Promise<FlashCard> {
     try {
       const [createdFlashCard] = await db
         .insert(flashCards)
@@ -41,52 +36,42 @@ class FlashCardRepository implements IFlashCardRepository {
 
       return createdFlashCard;
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "createFlashCard",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async deleteFlashCardById(flashCardId: string): Promise<void> {
+  public async deleteFlashCardById(flashCardId: string): Promise<void> {
     try {
       await db.delete(flashCards).where(eq(flashCards.id, flashCardId));
     } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "deleteFlashCardById",
+      throw ServiceError.DatabaseError({
         message: error.message,
         stack: error.stack,
       });
     }
   }
 
-  async updateFlashCardById(flashCard: Partial<FlashCard>): Promise<FlashCard> {
+  public async updateFlashCardById(
+    flashCard: Partial<FlashCard>
+  ): Promise<FlashCard> {
     if (!flashCard.id)
-      throw new NotFoundError({
-        message: "Flash card not found",
-        fileName: this.fileName,
-        service: "updateFlashCardById",
-      });
+      try {
+        const [updatedFlashCard] = await db
+          .update(flashCards)
+          .set({ ...flashCard })
+          .where(eq(flashCards.id, flashCard.id))
+          .returning();
 
-    try {
-      const [updatedFlashCard] = await db
-        .update(flashCards)
-        .set({ ...flashCard })
-        .where(eq(flashCards.id, flashCard.id))
-        .returning();
-
-      return updatedFlashCard;
-    } catch (error) {
-      throw new DatabaseError({
-        fileName: this.fileName,
-        service: "updateFlashCardById",
-        message: error.message,
-        stack: error.stack,
-      });
-    }
+        return updatedFlashCard;
+      } catch (error) {
+        throw ServiceError.DatabaseError({
+          message: error.message,
+          stack: error.stack,
+        });
+      }
   }
 }
 
