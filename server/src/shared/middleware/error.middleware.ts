@@ -1,26 +1,24 @@
-import { Request, Response, NextFunction } from "express";
+import e, { Request, Response, NextFunction } from "express";
 import ServerError from "../errors/server.error";
 import HTTP_STATUS from "http-status-codes";
 import { HttpError } from "@shared/errors/http.error";
 import { logger as errorLogger } from "@root/logger";
 import { ServiceError } from "@shared/errors/service.error";
 
-const logger = errorLogger.createLogger("errorMiddleware");
-
 export const globalErrorMiddleware = (
   err: Error | ServerError,
-  _: Request,
+  req: Request,
   res: Response,
   __: NextFunction
 ) => {
-  const baseResponse = {
+  const logger = errorLogger.createLogger("errorMiddleware");
+
+  let errorResponse = {
     code: HTTP_STATUS.INTERNAL_SERVER_ERROR,
     name: "Internal Server Error",
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
-    message: "Internal Server Error",
+    message: "Server is busy, please try again later",
   };
-
-  let errorResponse: any = baseResponse;
 
   if (err instanceof HttpError) {
     errorResponse = {
@@ -38,9 +36,9 @@ export const globalErrorMiddleware = (
     });
   } else if (err instanceof ServiceError) {
     logger.error({
-      name: errorResponse.name,
-      stack: errorResponse.stack,
-      message: errorResponse.message,
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
     });
   }
 
