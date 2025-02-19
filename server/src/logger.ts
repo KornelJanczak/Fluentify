@@ -28,22 +28,15 @@ class Logger {
         winston.format.errors({ stack: true }),
 
         winston.format.printf((info) => {
-          const { timestamp, level, message, code, stack } = info;
+          const { timestamp, level, message, name, code, stack } = info;
           const ifErrorCodeExist = code ? `(${code})` : "";
+          const isName = name ? `[${name}]` : `[${service}]`;
           let loggMessage: string;
 
-      
-          
-
-          if (typeof info === "string") {
-            loggMessage = `${timestamp} ${level} [${service}]: ${info}`;
-            return loggMessage;
-          }
-
-          loggMessage = `${timestamp} ${level}${ifErrorCodeExist} [${service}]: ${message}`;
+          loggMessage = `${timestamp} ${level}${ifErrorCodeExist} ${isName}: ${message}`;
 
           if (stack) {
-            return `${loggMessage}\nStack: ${stack}`;
+            return `${loggMessage}\nError stack:\n${stack}`;
           }
 
           return loggMessage;
