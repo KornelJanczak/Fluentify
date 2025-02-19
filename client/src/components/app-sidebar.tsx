@@ -85,8 +85,8 @@ const data = {
           url: "/dashboard/vocabulary/create-new",
         },
         {
-          title: "Your sets",
-          url: "#",
+          title: "Sets",
+          url: "/dashboard/vocabulary/sets",
         },
       ],
     },
