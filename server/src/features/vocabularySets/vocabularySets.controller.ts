@@ -7,7 +7,6 @@ import { NextFunction, Request, Response } from "express";
 import HTTP_STATUS from "http-status-codes";
 import { Logger } from "winston";
 import { User } from "@services/db/schema";
-import { HttpError } from "@shared/errors/http.error";
 
 class VocabularySetsController implements IVocabularySetsController {
   private readonly vocabularySetsService: IVocabularySetsService;
@@ -29,8 +28,6 @@ class VocabularySetsController implements IVocabularySetsController {
     const user: User = req.user as User;
     const { body } = req;
 
-    this.logger.info(`Create vocabulary set for user ${user.id}`);
-
     try {
       const vocabularySetId =
         await this.vocabularySetsService.createVocabularySet({
@@ -40,14 +37,13 @@ class VocabularySetsController implements IVocabularySetsController {
           flashCards: body.flashCards,
         });
 
+      this.logger.info(
+        `Create vocabulary set for user ${user.id}, vocabulary set id: ${vocabularySetId}`
+      );
+
       return res.status(HTTP_STATUS.OK).json({ vocabularySetId });
     } catch (error) {
-      return next(
-        HttpError.InternalServerError({
-          message: error.message,
-          stack: error.stack,
-        })
-      );
+      return next(error);
     }
   }
 
@@ -58,20 +54,15 @@ class VocabularySetsController implements IVocabularySetsController {
   ): Promise<Response | void> {
     const user: User = req.user as User;
 
-    this.logger.info(`Get vocabulary sets by user id: ${user.id}`);
-
     try {
       const vocabularySets =
         await this.vocabularySetsService.getAllVocabularySetsByUserId(user.id);
 
+      this.logger.info(`Get vocabulary sets by user id: ${user.id}`);
+
       return res.status(HTTP_STATUS.OK).json(vocabularySets);
     } catch (error) {
-      return next(
-        HttpError.InternalServerError({
-          message: error.message,
-          stack: error.stack,
-        })
-      );
+      return next(error);
     }
   }
 }
