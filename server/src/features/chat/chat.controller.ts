@@ -7,7 +7,6 @@ import {
 import { User } from "@services/db/schema";
 import HTTP_STATUS from "http-status-codes";
 import { IChatService } from "./chat.interfaces/chat.service.interfaces";
-import { HttpError } from "@shared/errors/http.error";
 
 class ChatController implements IChatController {
   private readonly chatService: IChatService;
@@ -35,12 +34,7 @@ class ChatController implements IChatController {
         ...body,
       });
     } catch (error) {
-      return next(
-        HttpError.InternalServerError({
-          message: error.message,
-          stack: error.stack,
-        })
-      );
+      return next(error);
     }
   }
 
@@ -55,12 +49,7 @@ class ChatController implements IChatController {
       const chatId = await this.chatService.createChat(user.id, req.body.title);
       return res.status(HTTP_STATUS.OK).json(chatId);
     } catch (error) {
-      return next(
-        HttpError.InternalServerError({
-          message: error.message,
-          stack: error.stack,
-        })
-      );
+      return next(error);
     }
   }
 
@@ -75,12 +64,7 @@ class ChatController implements IChatController {
       const chats = await this.chatService.getChatsByUserId(user.id);
       return res.status(HTTP_STATUS.OK).json(chats);
     } catch (error) {
-      return next(
-        HttpError.InternalServerError({
-          message: error.message,
-          stack: error.stack,
-        })
-      );
+      return next(error);
     }
   }
 
@@ -93,12 +77,7 @@ class ChatController implements IChatController {
       const chat = await this.chatService.getChatById(req.params.id);
       return res.status(HTTP_STATUS.OK).json(chat);
     } catch (error) {
-      return next(
-        HttpError.InternalServerError({
-          message: error.message,
-          stack: error.stack,
-        })
-      );
+      return next(error);
     }
   }
 
@@ -113,12 +92,7 @@ class ChatController implements IChatController {
       );
       return res.status(HTTP_STATUS.OK).json(messages);
     } catch (error) {
-      return next(
-        HttpError.InternalServerError({
-          message: error.message,
-          stack: error.stack,
-        })
-      );
+      return next(error);
     }
   }
 
@@ -139,12 +113,7 @@ class ChatController implements IChatController {
         .status(HTTP_STATUS.OK)
         .json({ message: "Chat has been deleted", chatId: deletedChatId });
     } catch (error) {
-      return next(
-        HttpError.InternalServerError({
-          message: error.message,
-          stack: error.stack,
-        })
-      );
+      return next(error);
     }
   }
 }
