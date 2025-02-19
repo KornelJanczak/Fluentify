@@ -50,7 +50,7 @@ export default passport.use(
     const account = profile._json;
     let user: User;
 
-    const existingUser: User = await userRepository.getByEmail(account.email);
+    const existingUser = await userRepository.getByEmail(account.email);
 
     if (existingUser) {
       user = existingUser;
