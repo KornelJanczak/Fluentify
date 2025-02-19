@@ -17,14 +17,12 @@ export default function VocabularySetCreateNew() {
     });
 
   return (
-    <div className="space-y-4 py-10 px-8">
-      <VocabularySet
-        onFormSubmit={handleFormSubmit}
-        onDeleteFlashCard={deleteFlashCard}
-        flashCards={flashCards}
-        flashCardsNumber={flashCardsNumber}
-        onAddFlashCard={addFlashCard}
-      />
-    </div>
+    <VocabularySet
+      onFormSubmit={handleFormSubmit}
+      onDeleteFlashCard={deleteFlashCard}
+      flashCards={flashCards}
+      flashCardsNumber={flashCardsNumber}
+      onAddFlashCard={addFlashCard}
+    />
   );
 }
