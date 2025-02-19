@@ -7,14 +7,21 @@ import {
 import { User } from "@services/db/schema";
 import HTTP_STATUS from "http-status-codes";
 import { IChatService } from "./chat.interfaces/chat.service.interfaces";
+import { Logger } from "winston";
 
 class ChatController implements IChatController {
   private readonly chatService: IChatService;
   private readonly chatStreamService: IChatStreamService;
+  private readonly logger: Logger;
 
-  constructor({ chatStreamService, chatService }: IChatControllerDependencies) {
+  constructor({
+    chatStreamService,
+    chatService,
+    logger,
+  }: IChatControllerDependencies) {
     this.chatStreamService = chatStreamService;
     this.chatService = chatService;
+    this.logger = logger;
   }
 
   public async startChat(
@@ -26,6 +33,8 @@ class ChatController implements IChatController {
     const user: User = req.user as User;
 
     try {
+      this.logger.info(`User ${user.id} is starting chat stream`);
+
       return await this.chatStreamService.startChatStream({
         userId: user.id,
         tutorId: user.tutorId,
@@ -47,6 +56,9 @@ class ChatController implements IChatController {
 
     try {
       const chatId = await this.chatService.createChat(user.id, req.body.title);
+
+      this.logger.info(`User ${user.id} has created chat ${chatId}`);
+
       return res.status(HTTP_STATUS.OK).json(chatId);
     } catch (error) {
       return next(error);
@@ -62,6 +74,11 @@ class ChatController implements IChatController {
 
     try {
       const chats = await this.chatService.getChatsByUserId(user.id);
+
+      this.logger.info(
+        `User ${user.id} gets chats by user id, chats: ${chats}`
+      );
+
       return res.status(HTTP_STATUS.OK).json(chats);
     } catch (error) {
       return next(error);
@@ -75,6 +92,9 @@ class ChatController implements IChatController {
   ): Promise<Response | void> {
     try {
       const chat = await this.chatService.getChatById(req.params.id);
+
+      this.logger.info(`Chat ${chat.id} has been found`);
+
       return res.status(HTTP_STATUS.OK).json(chat);
     } catch (error) {
       return next(error);
@@ -109,6 +129,11 @@ class ChatController implements IChatController {
         user.id,
         chatId
       );
+
+      this.logger.info(
+        `Chat ${deletedChatId} has been deleted by user ${user.id}`
+      );
+
       return res
         .status(HTTP_STATUS.OK)
         .json({ message: "Chat has been deleted", chatId: deletedChatId });
