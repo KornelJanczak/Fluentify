@@ -6,6 +6,7 @@ import { Markdown } from "../markdown";
 import FlashCards, { FlashCardsProps } from "./flash-cards";
 import AddFlashCard from "./add-flash-card";
 import { Button } from "../ui/button";
+import SectionWrapper from "../section-wrapper";
 
 export interface VocabularySet extends FlashCardsProps {
   defaultFormValues?: FlashCardsSetFormValues;
@@ -24,7 +25,7 @@ export default function VocabularySet({
   onAddFlashCard,
 }: VocabularySet) {
   return (
-    <section className="flex flex-col justify-center items-center w-full">
+    <SectionWrapper>
       <div className="flex flex-col space-y-6 w-full max-w-5xl">
         <Markdown>## Create new vocabulary set</Markdown>
         <VocabularySetForm
@@ -47,6 +48,6 @@ export default function VocabularySet({
           Create
         </Button>
       </div>
-    </section>
+    </SectionWrapper>
   );
 }
