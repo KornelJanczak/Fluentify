@@ -76,7 +76,7 @@ class ChatController implements IChatController {
       const chats = await this.chatService.getChatsByUserId(user.id);
 
       this.logger.info(
-        `User ${user.id} gets chats by user id, chats: ${chats}`
+        `User ${user.id} gets chats by user id, : ${JSON.stringify(chats)}`
       );
 
       return res.status(HTTP_STATUS.OK).json(chats);
@@ -106,10 +106,15 @@ class ChatController implements IChatController {
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
+    const chatId = req.params.id;
+
     try {
-      const messages = await this.chatService.getMessagesByChatId(
-        req.params.id
+      const messages = await this.chatService.getMessagesByChatId(chatId);
+
+      this.logger.info(
+        `Messages for chat ${chatId} have been found, messages: ${messages.length}`
       );
+
       return res.status(HTTP_STATUS.OK).json(messages);
     } catch (error) {
       return next(error);
