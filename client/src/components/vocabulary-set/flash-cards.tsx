@@ -1,6 +1,6 @@
 "use client";
 
-import { FlashCard as FlashCardType } from "@/common/services/flash-card/flash-card.service";
+import { FlashCard as FlashCardType } from "@/common/services/flash-card/flash-card.interfaces";
 import FlashCard from "./flash-card";
 import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 import { scaleAndFadeAnimation } from "@/common/animations";
