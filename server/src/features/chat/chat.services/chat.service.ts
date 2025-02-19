@@ -74,13 +74,13 @@ class ChatService implements IChatService {
   public async getMessagesByChatId(chatId: string): Promise<Message[]> {
     const messages = await this.messagesRepository.getMessagesByChatId(chatId);
 
-    const isMessagesEmpty = !messages || messages.length === 0;
+    // const isMessagesEmpty = !messages || messages.length === 0;
 
-    if (isMessagesEmpty) {
-      throw ServiceError.NotFound({
-        message: `Chat ${chatId} has no messages`,
-      });
-    }
+    // if (isMessagesEmpty) {
+    //   throw ServiceError.NotFound({
+    //     message: `Chat ${chatId} has no messages`,
+    //   });
+    // }
 
     return messages;
   }
