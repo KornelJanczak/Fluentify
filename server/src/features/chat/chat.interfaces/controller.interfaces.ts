@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { IChatStreamService } from "./chatStream.service.interfaces";
 import { IChatService } from "./chat.service.interfaces";
+import { Logger } from "winston";
 
 export interface IChatController {
   startChat(
@@ -38,4 +39,5 @@ export interface IChatController {
 export interface IChatControllerDependencies {
   chatService: IChatService;
   chatStreamService: IChatStreamService;
+  logger: Logger;
 }
