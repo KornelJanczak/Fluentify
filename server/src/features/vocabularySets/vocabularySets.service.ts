@@ -1,4 +1,7 @@
-import { type IVocabularySetRepository } from "@shared/repositories/vocabularySet.repository";
+import {
+  VocabularySetWithFlashCardsCount,
+  type IVocabularySetRepository,
+} from "@shared/repositories/vocabularySet.repository";
 import {
   IVocabularySetsService,
   IVocabularySetsServiceDependencies,
@@ -41,7 +44,7 @@ class VocabularySetsService implements IVocabularySetsService {
 
   public async getAllVocabularySetsByUserId(
     userId: string
-  ): Promise<VocabularySet[]> {
+  ): Promise<VocabularySetWithFlashCardsCount[]> {
     const vocabularySets = await this.vocabularySetRepository.getAllByUserId(
       userId
     );
