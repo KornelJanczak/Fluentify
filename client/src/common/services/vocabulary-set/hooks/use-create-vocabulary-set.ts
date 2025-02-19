@@ -7,29 +7,17 @@ import { toast } from "sonner";
 
 export const useCreateVocabularySet = () => {
   const mutation = useMutation({
-    // mutationFn: async (vocabularySet: CreateVocabularySetRequest) =>
-    //   (
-    //     await clientApi.post<CreateVocabularySetResponse>(
-    //       `/vocabulary-set`,
-    //       formatCreateVocabularySetData(vocabularySet)
-    //     )
-    //   ).data,
-    mutationFn: async (vocabularySet: CreateVocabularySetRequest) => {
-      await fetch("http://localhost:5000/api/v1/vocabulary-set", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: formatCreateVocabularySetData(vocabularySet),
-      });
-    },
+    mutationFn: async (vocabularySet: CreateVocabularySetRequest) =>
+      (
+        await clientApi.post<CreateVocabularySetResponse>(
+          `/vocabulary-set`,
+          formatCreateVocabularySetData(vocabularySet)
+        )
+      ).data,
     onSuccess: () => {
       toast.success("Vocabulary set has been created successfully!");
     },
-    onError: (error) => {
-      console.log("error", error);
-
+    onError: () => {
       toast.error("Failed to create vocabulary set!");
     },
   });
@@ -53,7 +41,6 @@ const formatCreateVocabularySetData = ({
       )
       .filter(Boolean),
   };
-  console.log("obj", obj);
 
   return JSON.stringify(obj);
 };
