@@ -1,8 +1,10 @@
 import { HttpError } from "@/common/services/api/rest-helper";
+import { FlashCard } from "@/common/services/flash-card/flash-card.interfaces";
 import { ServerAPI, serverApi } from "@/common/services/api/server-api";
 
 interface IVocabularySetService {
   getVocabularySets(): Promise<VocabularySetResponse>;
+  getVocabularySetDetails(id: string): Promise<VocabularySetDetailsResponse>;
 }
 
 const vocabularySetKey = ["vocabularySet"];
@@ -15,7 +17,7 @@ class VocabularySetService implements IVocabularySetService {
     this.serverApi = serverApi;
   }
 
-  public async getVocabularySets() {
+  public async getVocabularySets(): Promise<VocabularySetResponse> {
     try {
       return (
         await this.serverApi.get<VocabularySetResponse>(this.BASIC_PATH, {
@@ -31,14 +33,18 @@ class VocabularySetService implements IVocabularySetService {
     }
   }
 
-  public async getVocabularySetDetails(id: string) {
+  public async getVocabularySetDetails(
+    id: string
+  ): Promise<VocabularySetDetailsResponse> {
     try {
-      await this.serverApi.get<VocabularySetDetailsResponse>(
-        `${this.BASIC_PATH}/${id}`,
-        {
-          next: { tags: [vocabularySetKey.join()] },
-        }
-      );
+      return (
+        await this.serverApi.get<VocabularySetDetailsResponse>(
+          `${this.BASIC_PATH}/${id}`,
+          {
+            next: { tags: [vocabularySetKey.join()] },
+          }
+        )
+      ).data;
     } catch (error) {
       if (!(error instanceof HttpError)) {
         throw error;
@@ -60,8 +66,13 @@ export type VocabularySet = {
   flashCardsCount: number;
 };
 
-export type VocabularySetResponse = VocabularySet[] | null;
-export type VocabularySetDetailsResponse = Omit<
+export type VocabularySetWithFlashCards = Omit<
   VocabularySet,
   "flashCardsCount"
-> | null;
+> & {
+  flashCards: Omit<FlashCard, "vocabularySetId">[];
+};
+
+export type VocabularySetResponse = VocabularySet[] | null;
+
+export type VocabularySetDetailsResponse = VocabularySetWithFlashCards | null;
