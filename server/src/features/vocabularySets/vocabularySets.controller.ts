@@ -65,6 +65,28 @@ class VocabularySetsController implements IVocabularySetsController {
       return next(error);
     }
   }
+
+  public async getVocabularySetWithFlashCardsById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    const user: User = req.user as User;
+    const { id } = req.params;
+
+    try {
+      const vocabularySet =
+        await this.vocabularySetsService.getVocabularySetWithFlashCardsById(id);
+
+      this.logger.info(
+        `Get vocabulary set with flash cards by id: ${id} for user: ${user.id}`
+      );
+
+      return res.status(HTTP_STATUS.OK).json(vocabularySet);
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 export default VocabularySetsController;
