@@ -1,6 +1,7 @@
 import {
-  VocabularySetWithFlashCardsCount,
+  type VocabularySetWithFlashCardsCount,
   type IVocabularySetRepository,
+  type VocabularySetWithFlashCards,
 } from "@shared/repositories/vocabularySet.repository";
 import {
   IVocabularySetsService,
@@ -85,6 +86,21 @@ class VocabularySetsService implements IVocabularySetsService {
       vocabularySet: formattedVocabularySet,
       flashCards: formattedFlashCards,
     };
+  }
+
+  public async getVocabularySetWithFlashCardsById(
+    id: string
+  ): Promise<VocabularySetWithFlashCards> {
+    const vocabularySet =
+      await this.vocabularySetRepository.getWithFlashCardsById(id);
+
+    if (!vocabularySet) {
+      throw ServiceError.NotFound({
+        message: "Vocabulary set not found",
+      });
+    }
+
+    return vocabularySet;
   }
 }
 
