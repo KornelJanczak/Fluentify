@@ -15,6 +15,7 @@ export interface IVocabularySetRepository {
     flashCards: FlashCardWithoutIds[]
   ): Promise<string>;
   getAllByUserId(userId: string): Promise<VocabularySetWithFlashCardsCount[]>;
+  getWithFlashCardsById(id: string): Promise<VocabularySetWithFlashCards>;
 }
 
 class VocabularySetRepository implements IVocabularySetRepository {
@@ -72,12 +73,45 @@ class VocabularySetRepository implements IVocabularySetRepository {
       });
     }
   }
+
+  public async getWithFlashCardsById(
+    id: string
+  ): Promise<VocabularySetWithFlashCards> {
+    try {
+      const [result] = await db
+        .select({
+          id: vocabularySets.id,
+          title: vocabularySets.title,
+          description: vocabularySets.description,
+          createdAt: vocabularySets.createdAt,
+          userId: vocabularySets.userId,
+          flashCards: {
+            id: flashCards.id,
+            definition: flashCards.definition,
+            translation: flashCards.translation,
+          },
+        })
+        .from(vocabularySets)
+        .where(eq(vocabularySets.id, id))
+        .leftJoin(flashCards, eq(flashCards.vocabularySetId, vocabularySets.id))
+        .groupBy(vocabularySets.id);
+
+      return result;
+    } catch (error) {
+      throw ServiceError.DatabaseError({
+        message: error.message,
+        stack: error.stack,
+      });
+    }
+  }
 }
 
 export default VocabularySetRepository;
 
-export type VocabularySetWithFlashCardsCount =
-  VocabularySet & {
-    flashCardsCount: number;
-  }
+export type VocabularySetWithFlashCardsCount = VocabularySet & {
+  flashCardsCount: number;
+};
 
+export type VocabularySetWithFlashCards = VocabularySet & {
+  flashCards: Omit<FlashCard, "vocabularySetId">;
+};
