@@ -21,6 +21,14 @@ router.get(
   )
 );
 
+router.get(
+  `${BASE_PATH}/:id`,
+  authMiddleware,
+  vocabularySetController.getVocabularySetWithFlashCardsById.bind(
+    vocabularySetController
+  )
+);
+
 router.post(
   BASE_PATH,
   authMiddleware,
