@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 interface FlashCardsStore {
   flashCards: FlashCardStore[];
   flashCardsNumber: number;
+  addFlashCards: (flashCards: FlashCardStore[]) => void;
   addFlashCard: () => void;
   deleteFlashCard: (flashCardId: string) => void;
   updateDefinitionOnChange: (flashCardId: string, definition: string) => void;
@@ -19,6 +20,10 @@ export const useFlashCardsStore = create<FlashCardsStore>()(
     (set) => ({
       flashCards: [],
       flashCardsNumber: 0,
+      addFlashCards: (flashCards: FlashCardStore[]) =>
+        set(() => ({
+          flashCards: flashCards,
+        })),
       addFlashCard: () =>
         set((state) => ({
           flashCards: [
