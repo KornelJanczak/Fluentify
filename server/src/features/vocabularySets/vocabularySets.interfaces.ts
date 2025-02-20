@@ -3,6 +3,7 @@ import { type Logger } from "winston";
 import { VocabularySet, type FlashCard } from "@services/db/schema";
 import {
   IVocabularySetRepository,
+  VocabularySetWithFlashCards,
   VocabularySetWithFlashCardsCount,
 } from "@shared/repositories/vocabularySet.repository";
 
@@ -13,6 +14,11 @@ export interface IVocabularySetsController {
     next: NextFunction
   ): Promise<Response | void>;
   getAllVocabularySetsByUserId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void>;
+  getVocabularySetWithFlashCardsById(
     req: Request,
     res: Response,
     next: NextFunction
@@ -29,6 +35,9 @@ export interface IVocabularySetsService {
   getAllVocabularySetsByUserId(
     userId: string
   ): Promise<VocabularySetWithFlashCardsCount[]>;
+  getVocabularySetWithFlashCardsById(
+    id: string
+  ): Promise<VocabularySetWithFlashCards>;
 }
 
 export interface IVocabularySetsServiceDependencies {
