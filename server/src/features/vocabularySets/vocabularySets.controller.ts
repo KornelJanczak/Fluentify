@@ -1,12 +1,12 @@
-import {
+import HTTP_STATUS from "http-status-codes";
+import type {
   IVocabularySetsController,
   IVocabularySetsControllerDependencies,
   IVocabularySetsService,
 } from "./vocabularySets.interfaces";
-import { NextFunction, Request, Response } from "express";
-import HTTP_STATUS from "http-status-codes";
-import { Logger } from "winston";
-import { User } from "@services/db/schema";
+import type { NextFunction, Request, Response } from "express";
+import type { Logger } from "winston";
+import type { User } from "@services/db/schema";
 
 class VocabularySetsController implements IVocabularySetsController {
   private readonly vocabularySetsService: IVocabularySetsService;
