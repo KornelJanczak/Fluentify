@@ -3,11 +3,13 @@ import {
   type VocabularySetWithoutId,
   vocabularySets,
   flashCards,
+  users,
 } from "@services/db/schema";
 import { type FlashCard, type FlashCardWithoutIds } from "@services/db/schema";
 import { db } from "@shared/services/db";
 import { ServiceError } from "@shared/errors/service.error";
 import { count, eq } from "drizzle-orm";
+import { chats } from "drizzle/schema";
 
 export interface IVocabularySetRepository {
   createNewVocabularySet(
@@ -78,24 +80,24 @@ class VocabularySetRepository implements IVocabularySetRepository {
     id: string
   ): Promise<VocabularySetWithFlashCards> {
     try {
-      const [result] = await db
-        .select({
-          id: vocabularySets.id,
-          title: vocabularySets.title,
-          description: vocabularySets.description,
-          createdAt: vocabularySets.createdAt,
-          userId: vocabularySets.userId,
-          flashCards: {
-            id: flashCards.id,
-            definition: flashCards.definition,
-            translation: flashCards.translation,
-          },
-        })
-        .from(vocabularySets)
-        .where(eq(vocabularySets.id, id))
-        .leftJoin(flashCards, eq(flashCards.vocabularySetId, vocabularySets.id))
-        .groupBy(vocabularySets.id);
+      // const result = await db.query.vocabularySets.findFirst({
+      //   where: eq(vocabularySets.id, id),
+      //   with: {
+      //     flashCards: true,
+      //   },
+      // });
 
+      // console.log("result", result);
+
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, "104257642802966296935"),
+
+      });
+
+      console.log('user', user);
+      
+
+      //@ts-ignore
       return result;
     } catch (error) {
       throw ServiceError.DatabaseError({
