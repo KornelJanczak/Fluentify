@@ -6,18 +6,23 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import React from "react";
+import { cookies } from "next/headers";
 
 export default async function Page({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await authService.getUser();
+  const [user, cookieStore] = await Promise.all([
+    authService.getUser(),
+    cookies(),
+  ]);
+  const isCollapsed = cookieStore.get("sidebar:state")?.value !== "true";
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={!isCollapsed}>
       <AppSidebar user={user} />
-      <SidebarTrigger className="ml-1" />
+      <SidebarTrigger className="mt-1" />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );
