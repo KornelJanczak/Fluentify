@@ -23,7 +23,7 @@ export function Chat({ id, initialMessages }: ChatProps) {
     body: {
       chatCategory: "Vocabulary practice",
       chatTopic: "Practice vocabulary word by word",
-      vocabularySetId: "e884f64a-9b44-48a5-b15d-f0dd23d75877",
+      vocabularySetId: "da1229c4-4881-4b21-b224-b94369e2d134",
       chatId: id,
     },
     onFinish(message) {
