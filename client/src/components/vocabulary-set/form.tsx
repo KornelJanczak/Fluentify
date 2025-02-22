@@ -39,7 +39,7 @@ export function VocabularySetForm({
             <FormItem>
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input placeholder="Set title" {...field} />
+                <Input variant="secondary" placeholder="Set title" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -52,7 +52,11 @@ export function VocabularySetForm({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input placeholder="Add description..." {...field} />
+                <Input
+                  variant="secondary"
+                  placeholder="Add description..."
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
