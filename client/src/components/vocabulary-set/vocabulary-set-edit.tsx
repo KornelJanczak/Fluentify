@@ -12,6 +12,9 @@ interface VocabularySetEditProps {
 export default function VocabularySetEdit({
   vocabularySet,
 }: VocabularySetEditProps) {
+
+  console.log(vocabularySet);
+  
   const { flashCards, addFlashCards } = useFlashCardsStore((state) => state);
 
   useEffect(() => {
