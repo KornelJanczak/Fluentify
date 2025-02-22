@@ -4,10 +4,6 @@ import CreateChatButton from "@/components/chat/create-chat-button";
 import { redirect } from "next/dist/server/api-utils";
 
 export default async function PrivatePage() {
-  const currentUser = await getUser();
-  const sessionCookie = await getSessionCookie();
-
-  if (!currentUser) return;
 
   return (
     <>
@@ -15,7 +11,7 @@ export default async function PrivatePage() {
         Private Page
       </h1>
 
-      <CreateChatButton sessionCookie={sessionCookie} />
+      <CreateChatButton />
     </>
   );
 }
