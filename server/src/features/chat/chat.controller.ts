@@ -1,13 +1,14 @@
-import { NextFunction, Request, Response } from "express";
-import { IChatStreamService } from "./chat.interfaces/chatStream.service.interfaces";
-import {
+import HTTP_STATUS from "http-status-codes";
+
+import type { NextFunction, Request, Response } from "express";
+import type { IChatStreamService } from "./chat.interfaces/chatStream.service.interfaces";
+import type {
   IChatController,
   IChatControllerDependencies,
 } from "./chat.interfaces/controller.interfaces";
-import { User } from "@services/db/schema";
-import HTTP_STATUS from "http-status-codes";
-import { IChatService } from "./chat.interfaces/chat.service.interfaces";
-import { Logger } from "winston";
+import type { User } from "@services/db/schema";
+import type { IChatService } from "./chat.interfaces/chat.service.interfaces";
+import type { Logger } from "winston";
 
 class ChatController implements IChatController {
   private readonly chatService: IChatService;
