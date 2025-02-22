@@ -16,7 +16,7 @@ container.register({
     .singleton()
     .scoped(),
   vocabularySetsService: asClass(VocabularySetsService).singleton().scoped(),
-  logger: asFunction(() => logger.createLogger("vocabularySetLogger"))
+  logger: asFunction(() => logger.createLogger("vocabularySetService"))
     .singleton()
     .scoped(),
 });
