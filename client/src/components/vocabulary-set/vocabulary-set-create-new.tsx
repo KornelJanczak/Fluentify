@@ -18,10 +18,10 @@ export default function VocabularySetCreateNew() {
 
   return (
     <VocabularySet
-      onFormSubmit={handleFormSubmit}
-      onDeleteFlashCard={deleteFlashCard}
       flashCards={flashCards}
       flashCardsNumber={flashCardsNumber}
+      onFormSubmit={handleFormSubmit}
+      onDeleteFlashCard={deleteFlashCard}
       onAddFlashCard={addFlashCard}
     />
   );
