@@ -1,4 +1,4 @@
-import e, { Request, Response, NextFunction } from "express";
+import type { Request, Response } from "express";
 import ServerError from "../errors/server.error";
 import HTTP_STATUS from "http-status-codes";
 import { HttpError } from "@shared/errors/http.error";
@@ -8,10 +8,11 @@ import { ServiceError } from "@shared/errors/service.error";
 export const globalErrorMiddleware = (
   err: Error | ServerError,
   req: Request,
-  res: Response,
-  __: NextFunction
+  res: Response
 ) => {
   const logger = errorLogger.createLogger("errorMiddleware");
+
+  console.log("globalErrorMiddleware", err);
 
   let errorResponse = {
     code: HTTP_STATUS.INTERNAL_SERVER_ERROR,
@@ -35,6 +36,8 @@ export const globalErrorMiddleware = (
       message: errorResponse.message,
     });
   } else if (err instanceof ServiceError) {
+    console.log("ServiceError", err);
+
     logger.error({
       name: err.name,
       message: err.message,
