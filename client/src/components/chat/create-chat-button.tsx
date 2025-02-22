@@ -1,6 +1,7 @@
 "use client";
 
 import { redirect } from "next/navigation";
+import { Button } from "../ui/button";
 
 export default function CreateChatButton() {
   const createChatHandler = async () => {
@@ -24,12 +25,5 @@ export default function CreateChatButton() {
     redirect(`/dashboard/chat/${chatId}`);
   };
 
-  return (
-    <button
-      className="mt-10 block rounded bg-pink-800/50 px-2 py-1 text-white hover:opacity-70"
-      onClick={createChatHandler}
-    >
-      Talk with AI
-    </button>
-  );
+  return <Button onClick={createChatHandler}>Talk with AI</Button>;
 }
