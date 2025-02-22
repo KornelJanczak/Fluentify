@@ -5,8 +5,8 @@ export const createVocabularySetSchema = z.object({
   description: z.string().min(2),
   flashCards: z.array(
     z.object({
-      title: z.string().min(2),
-      description: z.string().min(2),
+      translation: z.string().min(2),
+      definition: z.string().min(2),
     })
   ),
 });
