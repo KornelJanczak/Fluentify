@@ -32,25 +32,19 @@ export function Chat({ id, initialMessages }: ChatProps) {
   });
 
   return (
-    <>
-      <div className="flex flex-col min-w-0 h-dvh bg-background">
-        <Messages
-          isLoading={isLoading}
-          messages={messages}
-          audioRef={audioRef}
-        />
+    <div className="flex flex-col min-w-0 h-dvh bg-background">
+      <Messages isLoading={isLoading} messages={messages} audioRef={audioRef} />
 
-        <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
-          <MultimodalInput
-            chatId={id}
-            input={input}
-            setInput={setInput}
-            handleSubmit={handleSubmit}
-            isLoading={isLoading}
-            stop={stop}
-          />
-        </form>
-      </div>
-    </>
+      <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
+        <MultimodalInput
+          chatId={id}
+          input={input}
+          setInput={setInput}
+          handleSubmit={handleSubmit}
+          isLoading={isLoading}
+          stop={stop}
+        />
+      </form>
+    </div>
   );
 }
