@@ -18,15 +18,15 @@ export default function VocabularySetEdit({
     addFlashCards(vocabularySet.flashCards);
   }, [vocabularySet.flashCards, addFlashCards]);
 
-  return (
-    <VocabularySet
-      flashCards={flashCards}
-      defaultFormValues={{
-        title: vocabularySet.title,
-        description: vocabularySet.description,
-      }}
-      flashCardsNumber={vocabularySet.flashCards.length}
-      
-    />
-  );
+  return <div></div>;
+  // return (
+  //   <VocabularySet
+  //     defaultFormValues={{
+  //       title: vocabularySet.title,
+  //       description: vocabularySet.description,
+  //     }}
+  //     flashCards={flashCards}
+  //     flashCardsNumber={vocabularySet.flashCards.length}
+  //   />
+  // );
 }
