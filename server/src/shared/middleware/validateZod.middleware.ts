@@ -6,12 +6,13 @@ export const validateZodSchema = (
 ) => {
   return (req: Request, _: Response, next: NextFunction) => {
     try {
+      console.log("req.body", req.body);
+
       schema.parse(req.body);
       return next();
     } catch (error) {
       if (error instanceof ZodError) {
         console.log("error", error);
-
         throw new Error("Zod error");
       }
     }
