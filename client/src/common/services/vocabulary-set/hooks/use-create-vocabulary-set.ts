@@ -29,21 +29,17 @@ const formatCreateVocabularySetData = ({
   title,
   description,
   flashCards,
-}: CreateVocabularySetRequest) => {
-  const obj = {
-    title,
-    description,
-    flashCards: flashCards
-      .map(({ translation, definition }) =>
-        translation !== "" && definition !== ""
-          ? { translation, definition }
-          : null
-      )
-      .filter(Boolean),
-  };
-
-  return JSON.stringify(obj);
-};
+}: CreateVocabularySetRequest) => ({
+  title,
+  description,
+  flashCards: flashCards
+    .map(({ translation, definition }) =>
+      translation !== "" && definition !== ""
+        ? { translation, definition }
+        : null
+    )
+    .filter(Boolean),
+});
 
 export type CreateVocabularySetResponse = {
   vocabularySetId: string;
