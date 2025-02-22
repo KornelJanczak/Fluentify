@@ -16,10 +16,8 @@ import { ISystemPromptService } from "@chat/chat.interfaces/systemPrompt.service
 import ChatQueue from "@services/queues/chat.queue";
 import { BaseCache } from "@services/redis/base.cache";
 import { ServiceError } from "@shared/errors/service.error";
-import { createDataStream } from "ai";
 
 class ChatStreamService implements IChatStreamService {
-  private readonly fileName = "chatStream.service";
   private readonly audioGeneratorService: IAudioGeneratorService;
   private readonly systemPromptService: ISystemPromptService;
   private readonly messagesRepository: IMessagesRepository;
@@ -103,12 +101,6 @@ class ChatStreamService implements IChatStreamService {
       tutorId,
     } = chatRequest;
 
-    this.logger.info({
-      fileName: this.fileName,
-      message: "Start streaming chat...",
-      service: "streamChatToResponse",
-    });
-
     const sytemPrompt = await this.systemPromptService.getSystemPrompt({
       studyingLanguageLevel,
       chatCategory,
@@ -173,12 +165,6 @@ class ChatStreamService implements IChatStreamService {
     streamWriter.writeMessageAnnotation({
       type: "audio",
       data: JSON.stringify(audioContent),
-    });
-
-    this.logger.info({
-      fileName: this.fileName,
-      message: "Finished streaming text",
-      service: "onFinishStream",
     });
 
     // console.log("messagesRepo", this.messagesRepository);
