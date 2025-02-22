@@ -1,18 +1,29 @@
-import { Suspense } from "react";
-import VocabularySetsList from "./vocabulary-sets-list";
+import SectionWrapper from "../section-wrapper";
+import { Markdown } from "../markdown";
 import { type VocabularySet } from "@/common/services/vocabulary-set/vocabulary-set.service";
-import VocabularySetsContent from "./vocabulary-sets-content";
+import VocabularySetsList from "./vocabulary-sets-list";
+import { Separator } from "../ui/separator";
+import { Suspense } from "react";
+import { SkeletonVocabularyList } from "./skeleton-vocabulary-list";
 
 export interface VocabularySetsProps {
   vocabularySets: VocabularySet[];
 }
 
-export default function VocabularySets({
+export default async function VocabularySets({
   vocabularySets,
 }: VocabularySetsProps) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <VocabularySetsContent vocabularySets={vocabularySets} />
-    </Suspense>
+    <SectionWrapper>
+      <div className="w-full max-w-5xl">
+        <Markdown>## Your vocabulary sets</Markdown>
+        <Separator className="w-full my-10" />
+        <Suspense
+          fallback={<SkeletonVocabularyList length={vocabularySets.length} />}
+        >
+          <VocabularySetsList vocabularySets={vocabularySets} />
+        </Suspense>
+      </div>
+    </SectionWrapper>
   );
 }
