@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
-import { FlashCard as FlashCardType } from "@/common/services/flash-card/flash-card.service";
+import { type FlashCard } from "@/common/services/flash-card/flash-card.interfaces";
 import { Separator } from "@/components/ui/separator";
 import { Markdown } from "../markdown";
 import { Input } from "../ui/input";
@@ -10,7 +10,7 @@ import DeleteButton from "../delete-button";
 import { useFlashCardsStore } from "@/common/hooks/use-flash-cards-store";
 
 interface FlashCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  flashCard: Omit<FlashCardType, "vocabularySetId">;
+  flashCard: Omit<FlashCard, "vocabularySetId">;
   index: number;
   onDeleteFlashCard: (flashCardId: string) => void;
 }
@@ -38,12 +38,14 @@ export default function FlashCard(props: FlashCardProps) {
           onChange={(e) =>
             updateDefinitionOnChange(flashCard.id, e.target.value)
           }
+          defaultValue={flashCard.definition}
           placeholder="Definition"
         />
         <Input
           onChange={(e) =>
             updateTranslationOnChange(flashCard.id, e.target.value)
           }
+          defaultValue={flashCard.translation}
           placeholder="Translation"
         />
       </CardContent>
