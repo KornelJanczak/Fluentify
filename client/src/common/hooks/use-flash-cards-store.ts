@@ -13,13 +13,18 @@ interface FlashCardsStore {
   deleteFlashCard: (flashCardId: string) => void;
   updateDefinitionOnChange: (flashCardId: string, definition: string) => void;
   updateTranslationOnChange: (flashCardId: string, translation: string) => void;
+  resetState: () => void;
 }
+
+const initialState = {
+  flashCards: [],
+  flashCardsNumber: 0,
+};
 
 export const useFlashCardsStore = create<FlashCardsStore>()(
   persist(
     (set) => ({
-      flashCards: [],
-      flashCardsNumber: 0,
+      ...initialState,
       addFlashCards: (flashCards: FlashCardStore[]) =>
         set(() => ({
           flashCards: flashCards,
@@ -63,6 +68,9 @@ export const useFlashCardsStore = create<FlashCardsStore>()(
           ),
           flashCardsNumber: state.flashCardsNumber,
         })),
+      resetState: () => {
+        set(initialState);
+      },
     }),
     {
       name: "flash-cards-storage",
