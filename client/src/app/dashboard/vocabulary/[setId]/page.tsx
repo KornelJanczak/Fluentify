@@ -6,8 +6,9 @@ export default async function VocabularySet({
 }: {
   params: { setId: string };
 }) {
+  const { setId } = await params;
   const vocabularySet = await vocabularySetService.getVocabularySetDetails(
-    params.setId
+    setId
   );
   return <VocabularySetEdit vocabularySet={vocabularySet} />;
 }
