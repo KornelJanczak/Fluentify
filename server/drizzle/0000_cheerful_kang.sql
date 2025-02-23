@@ -11,7 +11,7 @@ CREATE TABLE "chats" (
 	"title" varchar(255) NOT NULL,
 	"usedTokens" integer NOT NULL,
 	"startedAt" timestamp NOT NULL,
-	"userId" varchar NOT NULL
+	"userId" varchar
 );
 --> statement-breakpoint
 CREATE TABLE "flashCards" (
@@ -51,7 +51,6 @@ CREATE TABLE "vocabularySets" (
 );
 --> statement-breakpoint
 ALTER TABLE "chatSettings" ADD CONSTRAINT "chatSettings_chatId_chats_id_fk" FOREIGN KEY ("chatId") REFERENCES "public"."chats"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "chats" ADD CONSTRAINT "chats_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "flashCards" ADD CONSTRAINT "flashCards_vocabularySetId_vocabularySets_id_fk" FOREIGN KEY ("vocabularySetId") REFERENCES "public"."vocabularySets"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "messages" ADD CONSTRAINT "messages_chatId_chats_id_fk" FOREIGN KEY ("chatId") REFERENCES "public"."chats"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "vocabularySets" ADD CONSTRAINT "vocabularySets_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;

@@ -1,5 +1,5 @@
 {
-  "id": "1f7fb918-b814-4d7d-be92-92e5f4d53831",
+  "id": "75e3e2b4-570e-4708-8c91-37bd1b16dccd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -95,25 +95,11 @@
           "name": "userId",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "chats_userId_users_id_fk": {
-          "name": "chats_userId_users_id_fk",
-          "tableFrom": "chats",
-          "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
