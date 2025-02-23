@@ -12,24 +12,26 @@ interface VocabularySetEditProps {
 export default function VocabularySetEdit({
   vocabularySet,
 }: VocabularySetEditProps) {
-
   console.log(vocabularySet);
-  
-  const { flashCards, addFlashCards } = useFlashCardsStore((state) => state);
+
+  const { flashCards, addFlashCards, addFlashCard, deleteFlashCard } =
+    useFlashCardsStore((state) => state);
 
   useEffect(() => {
     addFlashCards(vocabularySet.flashCards);
   }, [vocabularySet.flashCards, addFlashCards]);
 
-  return <div></div>;
-  // return (
-  //   <VocabularySet
-  //     defaultFormValues={{
-  //       title: vocabularySet.title,
-  //       description: vocabularySet.description,
-  //     }}
-  //     flashCards={flashCards}
-  //     flashCardsNumber={vocabularySet.flashCards.length}
-  //   />
-  // );
+  return (
+    <VocabularySet
+      defaultFormValues={{
+        title: vocabularySet.title,
+        description: vocabularySet.description,
+      }}
+      flashCards={flashCards}
+      flashCardsNumber={vocabularySet.flashCards.length}
+      onAddFlashCard={addFlashCard}
+      onDeleteFlashCard={deleteFlashCard}
+      onFormSubmit={(values) => console.log(values)}
+    />
+  );
 }
