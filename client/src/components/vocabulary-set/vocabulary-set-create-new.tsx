@@ -6,15 +6,22 @@ import { useCreateVocabularySet } from "@/common/services/vocabulary-set/hooks/u
 import { FlashCardsSetFormValues } from "@/common/hooks/use-flash-cards-set-form";
 
 export default function VocabularySetCreateNew() {
-  const { flashCards, addFlashCard, deleteFlashCard, flashCardsNumber } =
-    useFlashCardsStore((state) => state);
+  const {
+    flashCards,
+    addFlashCard,
+    deleteFlashCard,
+    flashCardsNumber,
+    resetState,
+  } = useFlashCardsStore((state) => state);
   const { mutate } = useCreateVocabularySet();
 
-  const handleFormSubmit = (values: FlashCardsSetFormValues) =>
+  const handleFormSubmit = (values: FlashCardsSetFormValues) => {
     mutate({
       ...values,
       flashCards,
     });
+    resetState();
+  };
 
   return (
     <VocabularySet
