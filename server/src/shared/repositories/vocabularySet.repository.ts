@@ -16,6 +16,10 @@ export interface IVocabularySetRepository {
   ): Promise<string>;
   getAllByUserId(userId: string): Promise<VocabularySetWithFlashCardsCount[]>;
   getWithFlashCardsById(id: string): Promise<VocabularySetWithFlashCards>;
+  updateVocabularySet(
+    id: string,
+    vocabularySet: VocabularySetWithFlashCards
+  ): Promise<string>;
 }
 
 class VocabularySetRepository implements IVocabularySetRepository {
@@ -89,6 +93,37 @@ class VocabularySetRepository implements IVocabularySetRepository {
             },
           },
         },
+      });
+    } catch (error) {
+      throw ServiceError.DatabaseError({
+        message: error.message,
+        stack: error.stack,
+      });
+    }
+  }
+
+  public async updateVocabularySet(
+    id: string,
+    vocabularySet: VocabularySetWithFlashCards
+  ): Promise<string> {
+    try {
+      return await db.transaction(async (tx) => {
+        const [updatedVocabularySet] = await tx
+          .update(vocabularySets)
+          .set({
+            title: vocabularySet.title,
+            description: vocabularySet.description,
+          })
+          .where(eq(vocabularySets.id, id))
+          .returning();
+        for (const flashCard of vocabularySet.flashCards) {
+          await tx
+            .update(flashCards)
+            .set(flashCard)
+            .where(eq(flashCards.id, flashCard.id));
+        }
+
+        return updatedVocabularySet.id;
       });
     } catch (error) {
       throw ServiceError.DatabaseError({
