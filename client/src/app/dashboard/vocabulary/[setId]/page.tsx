@@ -1,4 +1,4 @@
-import { vocabularySetService } from "@/common/services/vocabulary-set/vocabulary-set.service";
+import { vocabularySetService } from "@/common/api/services/vocabulary-set.service";
 import VocabularySetEdit from "@/components/vocabulary-set/vocabulary-set-edit";
 
 export default async function VocabularySet({
