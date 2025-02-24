@@ -1,18 +1,18 @@
-import {
-  type VocabularySetWithFlashCardsCount,
-  type IVocabularySetRepository,
-  type VocabularySetWithFlashCards,
+import type {
+  VocabularySetWithFlashCardsCount,
+  IVocabularySetRepository,
+  VocabularySetWithFlashCards,
 } from "@shared/repositories/vocabularySet.repository";
-import {
+import type {
   IVocabularySetsService,
   IVocabularySetsServiceDependencies,
-  type ICreateVocabularySetArgs,
+  ICreateVocabularySetArgs,
 } from "./vocabularySets.interfaces";
-import {
+import type {
   FlashCardWithoutIds,
   VocabularySetWithoutId,
-  type FlashCard,
-  type VocabularySet,
+  FlashCard,
+  VocabularySet,
 } from "@services/db/schema";
 import { ServiceError } from "@shared/errors/service.error";
 
@@ -59,6 +59,36 @@ class VocabularySetsService implements IVocabularySetsService {
     return vocabularySets;
   }
 
+  public async getVocabularySetWithFlashCardsById(
+    id: string
+  ): Promise<VocabularySetWithFlashCards> {
+    const vocabularySet =
+      await this.vocabularySetRepository.getWithFlashCardsById(id);
+
+    if (!vocabularySet) {
+      throw ServiceError.NotFound({
+        message: "Vocabulary set not found",
+      });
+    }
+
+    return vocabularySet;
+  }
+
+  public async updateVocabularySet(
+    id: string,
+    vocabularySet: VocabularySetWithFlashCards
+  ): Promise<string> {
+    const updatedVocabularySetId =
+      await this.vocabularySetRepository.updateVocabularySet(id, vocabularySet);
+
+    if (!updatedVocabularySetId)
+      throw ServiceError.NotFound({
+        message: "Vocabulary set not updated",
+      });
+
+    return updatedVocabularySetId;
+  }
+
   private formatVocabularySetWithFlashCards({
     userId,
     title,
@@ -86,21 +116,6 @@ class VocabularySetsService implements IVocabularySetsService {
       vocabularySet: formattedVocabularySet,
       flashCards: formattedFlashCards,
     };
-  }
-
-  public async getVocabularySetWithFlashCardsById(
-    id: string
-  ): Promise<VocabularySetWithFlashCards> {
-    const vocabularySet =
-      await this.vocabularySetRepository.getWithFlashCardsById(id);
-
-    if (!vocabularySet) {
-      throw ServiceError.NotFound({
-        message: "Vocabulary set not found",
-      });
-    }
-
-    return vocabularySet;
   }
 }
 
