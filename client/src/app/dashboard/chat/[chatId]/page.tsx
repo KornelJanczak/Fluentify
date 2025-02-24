@@ -1,4 +1,4 @@
-import { messagesService } from "@/common/services/messages/messages.service";
+import { messagesService } from "@/common/services/api/services/messages.service";
 import { Chat } from "@/components/chat";
 
 interface ChatPageProps {
