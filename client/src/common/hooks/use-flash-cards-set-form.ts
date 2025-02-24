@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useState } from "react";
 
 const flashCardSchema = z.object({
   definition: z.string().min(2, {
@@ -19,9 +18,10 @@ const formSchema = z.object({
     message: "Title must be at least 2 characters.",
   }),
   description: z.string().optional(),
+  flashCards: z.array(flashCardSchema).min(2, {
+    message: "There must be at least 2 flash cards.",
+  }),
 });
-
-type FlashCard = z.infer<typeof flashCardSchema>;
 
 interface UseFlashCardsSetFormProps {
   defaultValues?: FlashCardsSetFormValues;
@@ -30,7 +30,6 @@ interface UseFlashCardsSetFormProps {
 export const useFlashCardsSetForm = ({
   defaultValues,
 }: UseFlashCardsSetFormProps) => {
-  // 1. Define your form.
   const form = useForm<FlashCardsSetFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues
@@ -40,15 +39,6 @@ export const useFlashCardsSetForm = ({
           description: "",
         },
   });
-
-  // 2. Define a submit handler.
-  // const onSubmit: SubmitHandler<FlashCardsSetFormValues> = (
-  //   values: FlashCardsSetFormValues
-  // ) => {
-  //   // Do something with the form values.
-  //   // ✅ This will be type-safe and validated.
-  //   console.log(values);
-  // };
 
   return { form };
 };

@@ -14,7 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Chat } from "../services/chat/chat.service";
+import { Chat } from "../services/api/services/chat.service";
 
 interface UseHistoryTableProps {
   chats: Chat[];
