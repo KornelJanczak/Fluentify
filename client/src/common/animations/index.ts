@@ -14,8 +14,8 @@ export const scaleAndFadeAnimation: (isPresent: boolean) => Variants = (
   style: {
     position: isPresent ? "static" : ("absolute" as any),
   },
-  initial: { scale: 0, opacity: 0 },
+  initial: { scale: 0.6, opacity: 0 },
   animate: { scale: 1, opacity: 1 },
-  exit: { scale: 0, opacity: 0 },
+  exit: { scale: 0.6, opacity: 0 },
   transition: { type: "spring", stiffness: 900, damping: 40 },
 });
