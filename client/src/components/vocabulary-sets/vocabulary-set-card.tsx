@@ -4,7 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { type VocabularySet } from "@/common/services/vocabulary-set/vocabulary-set.service";
+import { type VocabularySet } from "@/common/api/services/vocabulary-set.service";
 import Link from "next/link";
 
 interface VocabularySetCardProps {
