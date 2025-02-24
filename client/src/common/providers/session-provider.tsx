@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useEffect, useMemo, useState } from "react";
-import { User } from "../services/auth/auth.service";
+import { User } from "../services/api/services/auth.service";
 
 export interface Session {
   user?: User;
