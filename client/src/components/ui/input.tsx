@@ -10,7 +10,11 @@ const inputVariants = cva(
       variant: {
         default:
           "ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        secondary: "",
+
+        secondary:
+          "focus:outline-none bg-card border-0 border-b-[2.5px] border-primary-foreground rounded-none px-0 focus:border-b-primary",
+
+        outline: "focus:outline-none bg-card  focus:border-b-primary",
       },
     },
   }
