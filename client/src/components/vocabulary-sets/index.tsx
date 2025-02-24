@@ -1,6 +1,6 @@
 import SectionWrapper from "../section-wrapper";
 import { Markdown } from "../markdown";
-import { type VocabularySet } from "@/common/services/vocabulary-set/vocabulary-set.service";
+import { type VocabularySet } from "@/common/api/services/vocabulary-set.service";
 import VocabularySetsList from "./vocabulary-sets-list";
 import { Separator } from "../ui/separator";
 import { Suspense } from "react";
