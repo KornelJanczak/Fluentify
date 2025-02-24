@@ -23,6 +23,11 @@ export interface IVocabularySetsController {
     res: Response,
     next: NextFunction
   ): Promise<Response | void>;
+  updateVocabularySet(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void>;
 }
 
 export interface IVocabularySetsControllerDependencies {
@@ -38,6 +43,10 @@ export interface IVocabularySetsService {
   getVocabularySetWithFlashCardsById(
     id: string
   ): Promise<VocabularySetWithFlashCards>;
+  updateVocabularySet(
+    id: string,
+    vocabularySet: VocabularySetWithFlashCards
+  ): Promise<string>;
 }
 
 export interface IVocabularySetsServiceDependencies {
