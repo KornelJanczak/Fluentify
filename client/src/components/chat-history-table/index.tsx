@@ -1,5 +1,5 @@
 "use client";
-import { Chat } from "@/common/services/chat/chat.service";
+import { Chat } from "@/common/services/api/services/chat.service";
 
 import * as React from "react";
 import { flexRender } from "@tanstack/react-table";
