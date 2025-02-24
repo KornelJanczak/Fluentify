@@ -104,14 +104,14 @@ export class FluentifyServer {
   }
 
   private globalErrorHandler(app: Application): void {
+    //@ts-ignore
+    app.use(globalErrorMiddleware);
+    
     app.all("*", (req: Request, res: Response) => {
       res
         .status(HTTP_STATUS.NOT_FOUND)
         .json({ message: `${req.originalUrl} not found` });
     });
-
-    //@ts-ignore
-    app.use(globalErrorMiddleware);
   }
 
   private startServer(app: Application): void {
