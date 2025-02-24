@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HistoryTableColumnHeader } from "./history-table-column-header";
 import { HistoryTableRowActions } from "./history-table-row-actions";
-import { Chat } from "@/common/services/chat/chat.service";
+import { Chat } from "@/common/services/api/services/chat.service";
 import { format } from "date-fns";
 import ContinueButton from "./continue-button";
 import DeleteButton from "./delete-button";
