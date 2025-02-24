@@ -3,7 +3,10 @@ import vocabularySetsContainer from "./vocabularySets.container";
 import authMiddleware from "@shared/middleware/auth.middleware";
 import { validateZodSchema } from "@shared/middleware/validateZod.middleware";
 import { IVocabularySetsController } from "./vocabularySets.interfaces";
-import { createVocabularySetSchema } from "./vocabularySets.schema";
+import {
+  createVocabularySetSchema,
+  updateVocabularySetSchema,
+} from "./vocabularySets.schema";
 
 const BASE_PATH = "/vocabulary-set";
 
@@ -34,6 +37,13 @@ router.post(
   authMiddleware,
   validateZodSchema(createVocabularySetSchema),
   vocabularySetController.createVocabularySet.bind(vocabularySetController)
+);
+
+router.put(
+  `${BASE_PATH}/:id`,
+  authMiddleware,
+  validateZodSchema(updateVocabularySetSchema),
+  vocabularySetController.updateVocabularySet.bind(vocabularySetController)
 );
 
 export default router;
