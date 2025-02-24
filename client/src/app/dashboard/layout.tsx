@@ -1,4 +1,4 @@
-import { authService } from "@/common/services/auth/auth.service";
+import { authService } from "@/common/api/services/auth.service";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
