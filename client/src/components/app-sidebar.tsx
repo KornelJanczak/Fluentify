@@ -27,7 +27,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { User } from "@/common/services/auth/auth.service";
+import { User } from "@/common/services/api/services/auth.service";
 import { url } from "inspector";
 
 // This is sample data.
