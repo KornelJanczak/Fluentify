@@ -7,6 +7,7 @@ import type {
 import type { NextFunction, Request, Response } from "express";
 import type { Logger } from "winston";
 import type { User } from "@services/db/schema";
+import { ServiceError } from "@shared/errors/service.error";
 
 class VocabularySetsController implements IVocabularySetsController {
   private readonly vocabularySetsService: IVocabularySetsService;
@@ -83,6 +84,26 @@ class VocabularySetsController implements IVocabularySetsController {
       );
 
       return res.status(HTTP_STATUS.OK).json(vocabularySet);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async updateVocabularySet(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    const { body } = req;
+    const { id } = req.params;
+
+    try {
+      const vocabularySetId =
+        await this.vocabularySetsService.updateVocabularySet(id, body);
+
+      this.logger.info(`Update vocabulary set by id: ${id}`);
+
+      return res.status(HTTP_STATUS.OK).json({ vocabularySetId });
     } catch (error) {
       return next(error);
     }
