@@ -24,7 +24,7 @@ export default async function RootLayout({
           >
             {children}
 
-            <Toaster />
+            <Toaster position="top-center" />
           </ThemeProvider>
         </TanstackQueryProvider>
       </body>
