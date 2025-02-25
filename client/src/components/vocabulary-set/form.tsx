@@ -30,7 +30,7 @@ export function VocabularySetForm({
       <form
         id="flash-cards-set-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 pt-8"
+        className="space-y-8"
       >
         <FormField
           control={form.control}
