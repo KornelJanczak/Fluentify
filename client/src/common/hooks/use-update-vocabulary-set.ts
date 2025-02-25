@@ -7,17 +7,13 @@ import { toast } from "sonner";
 
 export const useUpdateVocabularySet = () => {
   const mutation = useMutation({
-    mutationFn: async ({ id, vocabularySet }: UpdateVocabularySetRequest) => {
-      console.log("id", id);
-      console.log("vocabularySet", vocabularySet);
-
+    mutationFn: async ({ id, vocabularySet }: UpdateVocabularySetRequest) =>
       (
         await clientApi.put<UpdateVocabularySetResponse>(
           `/vocabulary-set/${id}`,
           vocabularySet
         )
-      ).data;
-    },
+      ).data,
     onSuccess: () => {
       toast.success("Vocabulary set has been saved successfully!");
     },
