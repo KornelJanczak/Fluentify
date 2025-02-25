@@ -17,7 +17,7 @@ const vocabularySetController =
   );
 
 router.get(
-  BASE_PATH,
+  `${BASE_PATH}s/:page`,
   authMiddleware,
   vocabularySetController.getAllVocabularySetsByUserId.bind(
     vocabularySetController
