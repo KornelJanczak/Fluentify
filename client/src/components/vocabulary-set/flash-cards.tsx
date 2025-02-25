@@ -13,7 +13,7 @@ export default function FlashCards({ flashCards }: FlashCardsProps) {
   const isPresent = useIsPresent();
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col space-y-4 pt-10">
       <AnimatePresence>
         {flashCards.map((flashCard: FlashCard, index: number) => (
           <motion.div
