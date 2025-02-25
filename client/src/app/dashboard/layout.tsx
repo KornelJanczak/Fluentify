@@ -22,7 +22,7 @@ export default async function Page({
   return (
     <SidebarProvider defaultOpen={!isCollapsed}>
       <AppSidebar user={user} />
-      <SidebarTrigger className="mt-1" />
+      <SidebarTrigger className="sticky top-0 left-0" />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );
