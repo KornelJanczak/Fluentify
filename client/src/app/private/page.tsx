@@ -1,4 +1,4 @@
-import { getUser, getSessionCookie } from "@/common/lib/auth";
+
 import CreateChatButton from "@/components/chat/create-chat-button";
 
 import { redirect } from "next/dist/server/api-utils";
