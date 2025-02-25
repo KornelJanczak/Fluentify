@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { clientApi } from "../api/client-api";
 import { FlashCard } from "../api/services/vocabulary-set.service";
+import { formatCreateVocabularySetData } from "@/lib/formaters";
 import { toast } from "sonner";
 
 export const useCreateVocabularySet = () => {
@@ -24,22 +25,6 @@ export const useCreateVocabularySet = () => {
 
   return mutation;
 };
-
-const formatCreateVocabularySetData = ({
-  title,
-  description,
-  flashCards,
-}: CreateVocabularySetRequest) => ({
-  title,
-  description,
-  flashCards: flashCards
-    .map(({ translation, definition }) =>
-      translation !== "" && definition !== ""
-        ? { translation, definition }
-        : null
-    )
-    .filter(Boolean),
-});
 
 export type CreateVocabularySetResponse = {
   vocabularySetId: string;
