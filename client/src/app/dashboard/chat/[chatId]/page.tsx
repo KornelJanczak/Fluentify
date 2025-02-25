@@ -1,4 +1,4 @@
-import { messagesService } from "@/common/services/api/services/messages.service";
+import { chatService } from "@/common/api/services/chat.service";
 import { Chat } from "@/components/chat";
 
 interface ChatPageProps {
@@ -7,6 +7,6 @@ interface ChatPageProps {
 
 export default async function ChatPage({ params }: ChatPageProps) {
   const chatId = params.chatId;
-  const messages = await messagesService.getMessagesByChatId(chatId);
+  const messages = await chatService.getMessagesByChatId(chatId);
   return <Chat id={chatId} initialMessages={messages} />;
 }
