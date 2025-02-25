@@ -2,7 +2,7 @@ import { HttpError } from "@/common/api/rest-helper";
 import { ServerAPI, serverApi } from "@/common/api/server-api";
 
 interface IVocabularySetService {
-  getVocabularySets(): Promise<VocabularySetResponse>;
+  getVocabularySets(page: string): Promise<VocabularySetResponse>;
   getVocabularySetDetails(id: string): Promise<VocabularySetDetailsResponse>;
 }
 
@@ -16,12 +16,15 @@ class VocabularySetService implements IVocabularySetService {
     this.serverApi = serverApi;
   }
 
-  public async getVocabularySets(): Promise<VocabularySetResponse> {
+  public async getVocabularySets(page: string): Promise<VocabularySetResponse> {
     try {
       return (
-        await this.serverApi.get<VocabularySetResponse>(this.BASIC_PATH, {
-          next: { tags: [vocabularySetKey.join()] },
-        })
+        await this.serverApi.get<VocabularySetResponse>(
+          `${this.BASIC_PATH}s/${page}`,
+          {
+            next: { tags: [vocabularySetKey.join()] },
+          }
+        )
       ).data;
     } catch (error) {
       if (!(error instanceof HttpError)) {
