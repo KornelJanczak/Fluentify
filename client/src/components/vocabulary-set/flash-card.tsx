@@ -20,6 +20,7 @@ export default function FlashCard(props: FlashCardProps) {
   const {
     updateDefinitionOnChange,
     updateTranslationOnChange,
+    flashCardsNumber,
     deleteFlashCard,
   } = useFlashCardsStore((state) => state);
 
@@ -30,6 +31,7 @@ export default function FlashCard(props: FlashCardProps) {
           <Markdown className="px-4">{numberOfFlasCard}</Markdown>
           <DeleteButton
             className="bg-none bg-inherit px-3 py-1 mr-2 my-1 hover:bg-secondary rounded-full"
+            disabled={flashCardsNumber <= 2}
             onClick={() => deleteFlashCard(flashCard.id)}
           />
         </div>
