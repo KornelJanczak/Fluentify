@@ -7,7 +7,6 @@ import type {
 import type { NextFunction, Request, Response } from "express";
 import type { Logger } from "winston";
 import type { User } from "@services/db/schema";
-import { ServiceError } from "@shared/errors/service.error";
 
 class VocabularySetsController implements IVocabularySetsController {
   private readonly vocabularySetsService: IVocabularySetsService;
@@ -54,10 +53,14 @@ class VocabularySetsController implements IVocabularySetsController {
     next: NextFunction
   ): Promise<Response | void> {
     const user: User = req.user as User;
+    const { page } = req.params;
 
     try {
       const vocabularySets =
-        await this.vocabularySetsService.getAllVocabularySetsByUserId(user.id);
+        await this.vocabularySetsService.getAllVocabularySetsByUserId(
+          user.id,
+          page
+        );
 
       this.logger.info(`Get vocabulary sets by user id: ${user.id}`);
 
@@ -78,6 +81,9 @@ class VocabularySetsController implements IVocabularySetsController {
     try {
       const vocabularySet =
         await this.vocabularySetsService.getVocabularySetWithFlashCardsById(id);
+
+        console.log('vocabularySet', vocabularySet);
+        
 
       this.logger.info(
         `Get vocabulary set with flash cards by id: ${id} for user: ${user.id}`
