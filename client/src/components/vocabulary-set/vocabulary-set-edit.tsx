@@ -6,6 +6,7 @@ import { useFlashCardsStore } from "@/common/hooks/use-flash-cards-store";
 import { useEffect } from "react";
 import { useUpdateVocabularySet } from "@/common/hooks/use-update-vocabulary-set";
 import { FlashCardsSetFormValues } from "@/common/hooks/use-flash-cards-set-form";
+import { validateFlashCards } from "@/lib/helpers";
 
 interface VocabularySetEditProps {
   vocabularySet: VocabularySetWithFlashCards;
@@ -15,13 +16,17 @@ export default function VocabularySetEdit({
   vocabularySet,
 }: VocabularySetEditProps) {
   const { flashCards, addFlashCards } = useFlashCardsStore((state) => state);
-  const { mutate } = useUpdateVocabularySet();
+  const { mutate, isPending } = useUpdateVocabularySet();
 
   useEffect(() => {
     addFlashCards(vocabularySet.flashCards);
   }, [vocabularySet.flashCards]);
 
   const handleFormSubmit = (values: FlashCardsSetFormValues) => {
+    const isValid = validateFlashCards(flashCards);
+
+    if (!isValid) return;
+
     mutate({
       id: vocabularySet.id,
       vocabularySet: { ...values, flashCards: flashCards },
@@ -34,6 +39,7 @@ export default function VocabularySetEdit({
       buttonContent="Save"
       flashCards={flashCards}
       onFormSubmit={handleFormSubmit}
+      isPending={isPending}
       defaultFormValues={{
         title: vocabularySet.title,
         description: vocabularySet.description,
