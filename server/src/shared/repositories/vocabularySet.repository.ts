@@ -14,7 +14,10 @@ export interface IVocabularySetRepository {
     newVocabularySet: VocabularySetWithoutId,
     flashCards: FlashCardWithoutIds[]
   ): Promise<string>;
-  getAllByUserId(userId: string): Promise<VocabularySetWithFlashCardsCount[]>;
+  getAllByUserId(
+    userId: string,
+    page: string
+  ): Promise<VocabularySetWithFlashCardsCount[]>;
   getWithFlashCardsById(id: string): Promise<VocabularySetWithFlashCards>;
   updateVocabularySet(
     id: string,
@@ -54,8 +57,12 @@ class VocabularySetRepository implements IVocabularySetRepository {
   }
 
   public async getAllByUserId(
-    userId: string
+    userId: string,
+    page: string
   ): Promise<VocabularySetWithFlashCardsCount[]> {
+    const itemsPerPage = 5;
+    const offset = (parseInt(page) - 1) * itemsPerPage;
+
     try {
       return await db
         .select({
@@ -67,6 +74,8 @@ class VocabularySetRepository implements IVocabularySetRepository {
           flashCardsCount: count(flashCards.id),
         })
         .from(vocabularySets)
+        .limit(itemsPerPage)
+        .offset(offset)
         .where(eq(vocabularySets.userId, userId))
         .leftJoin(flashCards, eq(flashCards.vocabularySetId, vocabularySets.id))
         .groupBy(vocabularySets.id);
