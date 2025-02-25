@@ -7,11 +7,13 @@ import FlashCards, { FlashCardsProps } from "./flash-cards";
 import AddFlashCard from "./add-flash-card";
 import { Button } from "../ui/button";
 import SectionWrapper from "../section-wrapper";
+import { Oval } from "react-loader-spinner";
 
 export interface VocabularySet extends FlashCardsProps {
   markdownContent: string;
   buttonContent: string;
   defaultFormValues?: FlashCardsSetFormValues;
+  isPending: boolean;
   onFormSubmit: (values: FlashCardsSetFormValues) => void;
 }
 
@@ -20,6 +22,7 @@ export default function VocabularySet({
   buttonContent,
   defaultFormValues,
   flashCards,
+  isPending,
   onFormSubmit,
 }: VocabularySet) {
   return (
@@ -30,14 +33,17 @@ export default function VocabularySet({
           onSubmit={onFormSubmit}
           defaultValues={defaultFormValues}
         />
+
         <FlashCards flashCards={flashCards} />
         <AddFlashCard />
         <Button
           type="submit"
           form="flash-cards-set-form"
           className="mt-4 self-end"
+          disabled={isPending}
         >
-          {buttonContent}
+          {!isPending && buttonContent}
+          {isPending && <Oval color="#fff" height={20} width={20} />}
         </Button>
       </div>
     </SectionWrapper>
