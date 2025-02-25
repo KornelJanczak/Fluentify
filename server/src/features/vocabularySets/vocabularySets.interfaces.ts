@@ -38,7 +38,8 @@ export interface IVocabularySetsControllerDependencies {
 export interface IVocabularySetsService {
   createVocabularySet(vocabularySet: ICreateVocabularySetArgs): Promise<string>;
   getAllVocabularySetsByUserId(
-    userId: string
+    userId: string,
+    page: string
   ): Promise<VocabularySetWithFlashCardsCount[]>;
   getVocabularySetWithFlashCardsById(
     id: string
