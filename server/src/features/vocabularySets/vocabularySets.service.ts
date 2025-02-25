@@ -44,10 +44,12 @@ class VocabularySetsService implements IVocabularySetsService {
   }
 
   public async getAllVocabularySetsByUserId(
-    userId: string
+    userId: string,
+    page: string
   ): Promise<VocabularySetWithFlashCardsCount[]> {
     const vocabularySets = await this.vocabularySetRepository.getAllByUserId(
-      userId
+      userId,
+      page
     );
 
     if (!vocabularySets) {
