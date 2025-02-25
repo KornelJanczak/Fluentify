@@ -23,7 +23,7 @@ export default function AddFlashCard(props: AddFlashCard) {
             {nextNumberOfFlashCard}
           </Markdown>
           <div className="flex justify-center items-center">
-            <Button variant="secondary" onClick={addFlashCard}>
+            <Button variant="outline" onClick={addFlashCard}>
               ADD FLASHCARD
             </Button>
           </div>
