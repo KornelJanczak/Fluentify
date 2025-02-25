@@ -5,6 +5,7 @@ import VocabularySetsList from "./vocabulary-sets-list";
 import { Separator } from "../ui/separator";
 import { Suspense } from "react";
 import { SkeletonVocabularyList } from "./skeleton-vocabulary-list";
+import { VocabularySetsPagination } from "./vocabulary-sets-pagination";
 
 export interface VocabularySetsProps {
   vocabularySets: VocabularySet[];
@@ -23,6 +24,7 @@ export default async function VocabularySets({
         >
           <VocabularySetsList vocabularySets={vocabularySets} />
         </Suspense>
+        <VocabularySetsPagination />
       </div>
     </SectionWrapper>
   );
