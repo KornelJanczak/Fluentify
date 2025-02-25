@@ -4,17 +4,21 @@ import { useFlashCardsStore } from "@/common/hooks/use-flash-cards-store";
 import VocabularySet from "./vocabulary-set";
 import { useCreateVocabularySet } from "@/common/hooks/use-create-vocabulary-set";
 import { FlashCardsSetFormValues } from "@/common/hooks/use-flash-cards-set-form";
+import { validateFlashCards } from "@/lib/helpers";
 
 export default function VocabularySetCreateNew() {
-  const { flashCards, resetState } = useFlashCardsStore((state) => state);
-  const { mutate } = useCreateVocabularySet();
+  const { flashCards } = useFlashCardsStore((state) => state);
+  const { mutate, isPending } = useCreateVocabularySet();
 
   const handleFormSubmit = (values: FlashCardsSetFormValues) => {
+    const isValid = validateFlashCards(flashCards);
+
+    if (!isValid) return;
+
     mutate({
       ...values,
       flashCards,
     });
-    resetState();
   };
 
   return (
@@ -23,6 +27,7 @@ export default function VocabularySetCreateNew() {
       buttonContent="Create"
       flashCards={flashCards}
       onFormSubmit={handleFormSubmit}
+      isPending={isPending}
     />
   );
 }
