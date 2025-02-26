@@ -16,15 +16,19 @@ class VocabularySetService implements IVocabularySetService {
     this.serverApi = serverApi;
   }
 
-  public async getVocabularySets(page: string): Promise<VocabularySetResponse> {
+  public async getVocabularySets(
+    page?: string,
+    searchInput?: string
+  ): Promise<VocabularySetResponse> {
+    const PATH = `${this.BASIC_PATH}s/${page ? page : 1}${
+      searchInput ? `/${searchInput}` : ""
+    }`;
+
     try {
       return (
-        await this.serverApi.get<VocabularySetResponse>(
-          `${this.BASIC_PATH}s/${page}`,
-          {
-            next: { tags: [vocabularySetKey.join()] },
-          }
-        )
+        await this.serverApi.get<VocabularySetResponse>(PATH, {
+          next: { tags: [vocabularySetKey.join()] },
+        })
       ).data;
     } catch (error) {
       if (!(error instanceof HttpError)) {
@@ -82,6 +86,9 @@ export type VocabularySetWithFlashCards = Omit<
   flashCards: Omit<FlashCard, "vocabularySetId">[];
 };
 
-export type VocabularySetResponse = VocabularySet[] | null;
+export type VocabularySetResponse = {
+  vocabularySets: VocabularySet[];
+  hasMore: boolean;
+} | null;
 
 export type VocabularySetDetailsResponse = VocabularySetWithFlashCards | null;
