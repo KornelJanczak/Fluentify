@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { useUpdateVocabularySet } from "@/common/hooks/use-update-vocabulary-set";
 import { FlashCardsSetFormValues } from "@/common/hooks/use-flash-cards-set-form";
 import { validateFlashCards } from "@/lib/helpers";
+import { VocabularySetAlertDialog } from "./vocabulary-set-alert-dialog";
 
 interface VocabularySetEditProps {
   vocabularySet: VocabularySetWithFlashCards;
@@ -16,7 +17,7 @@ export default function VocabularySetEdit({
   vocabularySet,
 }: VocabularySetEditProps) {
   const { flashCards, addFlashCards } = useFlashCardsStore((state) => state);
-  const { mutate, isPending } = useUpdateVocabularySet();
+  const { mutate: updateVocabularySet, isPending } = useUpdateVocabularySet();
 
   useEffect(() => {
     addFlashCards(vocabularySet.flashCards);
@@ -27,7 +28,7 @@ export default function VocabularySetEdit({
 
     if (!isValid) return;
 
-    mutate({
+    updateVocabularySet({
       id: vocabularySet.id,
       vocabularySet: { ...values, flashCards: flashCards },
     });
@@ -44,6 +45,7 @@ export default function VocabularySetEdit({
         title: vocabularySet.title,
         description: vocabularySet.description,
       }}
+      deleteButton={<VocabularySetAlertDialog id={vocabularySet.id} />}
     />
   );
 }

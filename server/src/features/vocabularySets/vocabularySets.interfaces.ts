@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { type Logger } from "winston";
-import { VocabularySet, type FlashCard } from "@services/db/schema";
+import { type FlashCard } from "@services/db/schema";
 import {
   IVocabularySetRepository,
   VocabularySetWithFlashCards,
@@ -28,6 +28,11 @@ export interface IVocabularySetsController {
     res: Response,
     next: NextFunction
   ): Promise<Response | void>;
+  deleteVocabularySet(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void>;
 }
 
 export interface IVocabularySetsControllerDependencies {
@@ -39,8 +44,9 @@ export interface IVocabularySetsService {
   createVocabularySet(vocabularySet: ICreateVocabularySetArgs): Promise<string>;
   getAllVocabularySetsByUserId(
     userId: string,
-    page: string
-  ): Promise<VocabularySetWithFlashCardsCount[]>;
+    page?: string,
+    searchInput?: string
+  ): Promise<IGetAllVocabularySetsArgs>;
   getVocabularySetWithFlashCardsById(
     id: string
   ): Promise<VocabularySetWithFlashCards>;
@@ -48,6 +54,7 @@ export interface IVocabularySetsService {
     id: string,
     vocabularySet: VocabularySetWithFlashCards
   ): Promise<string>;
+  deleteVocabularySet(id: string): Promise<string>;
 }
 
 export interface IVocabularySetsServiceDependencies {
@@ -59,4 +66,9 @@ export interface ICreateVocabularySetArgs {
   title: string;
   description: string;
   flashCards: Omit<FlashCard, "id">[];
+}
+
+export interface IGetAllVocabularySetsArgs {
+  vocabularySets: VocabularySetWithFlashCardsCount[];
+  hasMore: boolean;
 }

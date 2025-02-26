@@ -13,6 +13,7 @@ export interface VocabularySet extends FlashCardsProps {
   markdownContent: string;
   buttonContent: string;
   defaultFormValues?: FlashCardsSetFormValues;
+  deleteButton?: React.ReactNode;
   isPending: boolean;
   onFormSubmit: (values: FlashCardsSetFormValues) => void;
 }
@@ -22,13 +23,17 @@ export default function VocabularySet({
   buttonContent,
   defaultFormValues,
   flashCards,
+  deleteButton,
   isPending,
   onFormSubmit,
 }: VocabularySet) {
   return (
     <SectionWrapper>
       <div className="flex flex-col space-y-6 w-full max-w-5xl">
-        <Markdown>{`## ${markdownContent}`}</Markdown>
+        <div className="flex justify-between items-center w-full">
+          <Markdown>{`## ${markdownContent}`}</Markdown>
+          {deleteButton}
+        </div>
         <VocabularySetForm
           onSubmit={onFormSubmit}
           defaultValues={defaultFormValues}

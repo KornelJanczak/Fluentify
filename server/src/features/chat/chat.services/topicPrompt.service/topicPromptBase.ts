@@ -12,7 +12,7 @@ abstract class TopicPromptBase {
     this.topic = topic;
   }
 
-  getTopicPrompt() {
+  public getTopicPrompt() {
     return this.chooseAdditionalRules();
   }
 

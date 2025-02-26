@@ -14,7 +14,7 @@ interface VocabularySetCardProps {
 export default function VocabularySetCard({
   vocabularySet,
 }: VocabularySetCardProps) {
-  const { id, title, description, createdAt, flashCardsCount } = vocabularySet;
+  const { id, title, description, flashCardsCount } = vocabularySet;
 
   const termOrTerms = flashCardsCount === 1 ? "term" : "terms";
 

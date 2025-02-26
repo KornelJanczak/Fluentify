@@ -25,11 +25,16 @@ class ChatService implements IChatService {
     this.chatCache = chatCache;
   }
 
-  public async createChat(userId: string, title: string): Promise<string> {
+  public async createChat(
+    userId: string,
+    topic: string,
+    category: string
+  ): Promise<string> {
     const newChatId = await this.chatRepository.create({
       id: uuidv4(),
       userId: userId,
-      title: title,
+      topic: topic,
+      category: category,
       usedTokens: 0,
       startedAt: new Date(),
     });

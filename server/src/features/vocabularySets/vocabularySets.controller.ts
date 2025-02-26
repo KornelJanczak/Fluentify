@@ -53,13 +53,14 @@ class VocabularySetsController implements IVocabularySetsController {
     next: NextFunction
   ): Promise<Response | void> {
     const user: User = req.user as User;
-    const { page } = req.params;
+    const { page, searchInput } = req.params;
 
     try {
       const vocabularySets =
         await this.vocabularySetsService.getAllVocabularySetsByUserId(
           user.id,
-          page
+          page,
+          searchInput
         );
 
       this.logger.info(`Get vocabulary sets by user id: ${user.id}`);
@@ -81,9 +82,6 @@ class VocabularySetsController implements IVocabularySetsController {
     try {
       const vocabularySet =
         await this.vocabularySetsService.getVocabularySetWithFlashCardsById(id);
-
-        console.log('vocabularySet', vocabularySet);
-        
 
       this.logger.info(
         `Get vocabulary set with flash cards by id: ${id} for user: ${user.id}`
@@ -110,6 +108,27 @@ class VocabularySetsController implements IVocabularySetsController {
       this.logger.info(`Update vocabulary set by id: ${id}`);
 
       return res.status(HTTP_STATUS.OK).json({ vocabularySetId });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async deleteVocabularySet(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    const user: User = req.user as User;
+    const { id } = req.params;
+
+    try {
+      await this.vocabularySetsService.deleteVocabularySet(id);
+
+      this.logger.info(`Delete vocabulary set by id: ${id} by user ${user.id}`);
+
+      return res
+        .status(HTTP_STATUS.OK)
+        .json({ message: "Vocabulary set has been deleted" });
     } catch (error) {
       return next(error);
     }

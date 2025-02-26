@@ -17,7 +17,7 @@ const vocabularySetController =
   );
 
 router.get(
-  `${BASE_PATH}s/:page`,
+  `${BASE_PATH}s/:page?/:searchInput?`,
   authMiddleware,
   vocabularySetController.getAllVocabularySetsByUserId.bind(
     vocabularySetController
@@ -44,6 +44,12 @@ router.put(
   authMiddleware,
   validateZodSchema(updateVocabularySetSchema),
   vocabularySetController.updateVocabularySet.bind(vocabularySetController)
+);
+
+router.delete(
+  `${BASE_PATH}/:id`,
+  authMiddleware,
+  vocabularySetController.deleteVocabularySet.bind(vocabularySetController)
 );
 
 export default router;

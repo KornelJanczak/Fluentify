@@ -1,0 +1,1 @@
+CREATE INDEX "title_search_index" ON "vocabularySets" USING gin (to_tsvector('english', "title"));

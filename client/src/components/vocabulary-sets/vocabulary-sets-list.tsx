@@ -1,7 +1,9 @@
-import { VocabularySetsProps } from ".";
+import { type VocabularySet } from "@/common/api/services/vocabulary-set.service";
 import VocabularySetCard from "./vocabulary-set-card";
 
-interface VocabularySetsListProps extends VocabularySetsProps {}
+interface VocabularySetsListProps {
+  vocabularySets: VocabularySet[];
+}
 
 export default async function VocabularySetsList({
   vocabularySets,

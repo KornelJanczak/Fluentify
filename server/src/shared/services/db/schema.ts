@@ -1,7 +1,5 @@
-// import { integer, pgTable, varchar, boolean } from "drizzle-orm/pg-core";
-import { timestamp, uuid, json } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { relations, type InferSelectModel } from "drizzle-orm";
+import { timestamp, uuid, json, index } from "drizzle-orm/pg-core";
+import { relations, sql, type InferSelectModel } from "drizzle-orm";
 import { integer, pgTable, varchar, boolean } from "drizzle-orm/pg-core";
 
 // USERS TABLE
@@ -29,9 +27,10 @@ export type User = InferSelectModel<typeof users>;
 // CHAT TABLE
 export const chats = pgTable("chats", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
-  title: varchar({ length: 255 }).notNull(),
   usedTokens: integer().notNull(),
   startedAt: timestamp().notNull(),
+  category: varchar({ length: 255 }).notNull(),
+  topic: varchar({ length: 255 }).notNull(),
   userId: varchar("userId"),
 });
 
@@ -95,13 +94,22 @@ export type Message = InferSelectModel<typeof messages>;
 // #################################################################### //
 
 // VOCABULARYSET TABLE
-export const vocabularySets = pgTable("vocabularySets", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  title: varchar({ length: 255 }).notNull(),
-  description: varchar({ length: 255 }).notNull(),
-  createdAt: timestamp("createdAt").notNull(),
-  userId: varchar("userId").references(() => users.id),
-});
+export const vocabularySets = pgTable(
+  "vocabularySets",
+  {
+    id: uuid("id").primaryKey().notNull().defaultRandom(),
+    title: varchar({ length: 255 }).notNull(),
+    description: varchar({ length: 255 }).notNull(),
+    createdAt: timestamp("createdAt").notNull(),
+    userId: varchar("userId").references(() => users.id),
+  },
+  (table) => [
+    index("title_search_index").using(
+      "gin",
+      sql`to_tsvector('english', ${table.title})`
+    ),
+  ]
+);
 
 // VOCABULARYSET RELATIONS
 export const vocabularySetsRelations = relations(
@@ -127,7 +135,7 @@ export const flashCards = pgTable("flashCards", {
   translation: varchar({ length: 255 }).notNull(),
   vocabularySetId: uuid("vocabularySetId")
     .notNull()
-    .references(() => vocabularySets.id),
+    .references(() => vocabularySets.id, { onDelete: "cascade" }),
 });
 
 // FLASHCARDS RELATIONS

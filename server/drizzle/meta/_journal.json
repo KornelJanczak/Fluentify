@@ -8,6 +8,27 @@
       "when": 1740348410129,
       "tag": "0000_cheerful_kang",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1740598642010,
+      "tag": "0001_goofy_mercury",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1740606290945,
+      "tag": "0002_outstanding_black_tom",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1740607699647,
+      "tag": "0003_blue_snowbird",
+      "breakpoints": true
     }
   ]
 }

@@ -54,9 +54,14 @@ class ChatController implements IChatController {
     next: NextFunction
   ): Promise<Response | void> {
     const user: User = req.user as User;
+    const { title, category } = req.body;
 
     try {
-      const chatId = await this.chatService.createChat(user.id, req.body.title);
+      const chatId = await this.chatService.createChat(
+        user.id,
+        title,
+        category
+      );
 
       this.logger.info(`User ${user.id} has created chat ${chatId}`);
 

@@ -7,6 +7,7 @@ import type {
   IVocabularySetsService,
   IVocabularySetsServiceDependencies,
   ICreateVocabularySetArgs,
+  IGetAllVocabularySetsArgs,
 } from "./vocabularySets.interfaces";
 import type {
   FlashCardWithoutIds,
@@ -45,11 +46,15 @@ class VocabularySetsService implements IVocabularySetsService {
 
   public async getAllVocabularySetsByUserId(
     userId: string,
-    page: string
-  ): Promise<VocabularySetWithFlashCardsCount[]> {
+    page?: string,
+    searchInput?: string
+  ): Promise<IGetAllVocabularySetsArgs> {
+    const itemsPerPage = 5;
+
     const vocabularySets = await this.vocabularySetRepository.getAllByUserId(
       userId,
-      page
+      page,
+      searchInput
     );
 
     if (!vocabularySets) {
@@ -58,7 +63,13 @@ class VocabularySetsService implements IVocabularySetsService {
       });
     }
 
-    return vocabularySets;
+    const hasMore = vocabularySets.length > itemsPerPage;
+
+    const paginatedResults = hasMore
+      ? vocabularySets.slice(0, itemsPerPage)
+      : vocabularySets;
+
+    return { vocabularySets: paginatedResults, hasMore };
   }
 
   public async getVocabularySetWithFlashCardsById(
@@ -89,6 +100,11 @@ class VocabularySetsService implements IVocabularySetsService {
       });
 
     return updatedVocabularySetId;
+  }
+
+  public async deleteVocabularySet(id: string): Promise<string> {
+    await this.vocabularySetRepository.deleteVocabularySetById(id);
+    return id;
   }
 
   private formatVocabularySetWithFlashCards({

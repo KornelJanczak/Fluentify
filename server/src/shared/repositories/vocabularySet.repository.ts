@@ -7,7 +7,7 @@ import {
 import { type FlashCard, type FlashCardWithoutIds } from "@services/db/schema";
 import { db } from "@shared/services/db";
 import { ServiceError } from "@shared/errors/service.error";
-import { count, eq } from "drizzle-orm";
+import { and, count, eq, or, sql } from "drizzle-orm";
 
 export interface IVocabularySetRepository {
   createNewVocabularySet(
@@ -16,13 +16,15 @@ export interface IVocabularySetRepository {
   ): Promise<string>;
   getAllByUserId(
     userId: string,
-    page: string
+    page?: string,
+    searchInput?: string
   ): Promise<VocabularySetWithFlashCardsCount[]>;
   getWithFlashCardsById(id: string): Promise<VocabularySetWithFlashCards>;
   updateVocabularySet(
     id: string,
     vocabularySet: VocabularySetWithFlashCards
   ): Promise<string>;
+  deleteVocabularySetById(id: string): Promise<void>;
 }
 
 class VocabularySetRepository implements IVocabularySetRepository {
@@ -58,7 +60,8 @@ class VocabularySetRepository implements IVocabularySetRepository {
 
   public async getAllByUserId(
     userId: string,
-    page: string
+    page?: string,
+    searchInput?: string
   ): Promise<VocabularySetWithFlashCardsCount[]> {
     const itemsPerPage = 5;
     const offset = (parseInt(page) - 1) * itemsPerPage;
@@ -74,9 +77,15 @@ class VocabularySetRepository implements IVocabularySetRepository {
           flashCardsCount: count(flashCards.id),
         })
         .from(vocabularySets)
-        .limit(itemsPerPage)
+        .limit(itemsPerPage + 1)
         .offset(offset)
-        .where(eq(vocabularySets.userId, userId))
+        .where(
+          and(
+            eq(vocabularySets.userId, userId),
+            searchInput &&
+              sql`to_tsvector('english', ${vocabularySets.title}) @@ to_tsquery('english', ${searchInput})`
+          )
+        )
         .leftJoin(flashCards, eq(flashCards.vocabularySetId, vocabularySets.id))
         .groupBy(vocabularySets.id);
     } catch (error) {
@@ -133,6 +142,20 @@ class VocabularySetRepository implements IVocabularySetRepository {
         }
 
         return updatedVocabularySet.id;
+      });
+    } catch (error) {
+      throw ServiceError.DatabaseError({
+        message: error.message,
+        stack: error.stack,
+      });
+    }
+  }
+
+  public async deleteVocabularySetById(id: string): Promise<void> {
+    try {
+      await db.transaction(async (tx) => {
+        await tx.delete(vocabularySets).where(eq(vocabularySets.id, id));
+        await tx.delete(flashCards).where(eq(flashCards.vocabularySetId, id));
       });
     } catch (error) {
       throw ServiceError.DatabaseError({

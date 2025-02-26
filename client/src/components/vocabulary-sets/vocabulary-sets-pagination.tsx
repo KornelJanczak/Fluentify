@@ -13,11 +13,20 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 const DEFAULT_PAGE = 1;
-export function VocabularySetsPagination() {
+
+interface VocabularySetsPaginationProps {
+  hasMore: boolean;
+}
+
+export function VocabularySetsPagination({
+  hasMore,
+}: VocabularySetsPaginationProps) {
+  console.log(hasMore);
+  
   const [page, setPage] = useState(DEFAULT_PAGE);
   const param = useSearchParams();
   const currentPage = Number(param.get("page"));
-  const isActive = currentPage === page;
+  const isActive = currentPage === page || !currentPage;
 
   const previousPage = page - 1;
   const nextPage = page + 1;
@@ -30,7 +39,7 @@ export function VocabularySetsPagination() {
 
   return (
     <Pagination>
-      <PaginationContent className="ml-auto pt-8">
+      <PaginationContent className="mx-auto pt-8 sm:ml-auto">
         <PaginationItem>
           <PaginationPrevious
             href={`?page=${page - 1}`}
@@ -48,25 +57,27 @@ export function VocabularySetsPagination() {
           </PaginationLink>
         </PaginationItem>
         <PaginationItem>
-          <PaginationLink
-            href={`?page=${page}`}
-            isActive={isActive}
-          >
+          <PaginationLink href={`?page=${page}`} isActive={isActive}>
             {page}
           </PaginationLink>
         </PaginationItem>
         <PaginationItem>
-          <PaginationLink href={`?page=${nextPage}`}>{nextPage}</PaginationLink>
+          <PaginationLink
+            href={`?page=${nextPage}`}
+            className={!hasMore ? "pointer-events-none opacity-55" : ""}
+            aria-disabled={!hasMore}
+          >
+            {nextPage}
+          </PaginationLink>
         </PaginationItem>
         <PaginationItem>
-          <PaginationEllipsis />
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationNext href={`?page=${nextPage}`} />
+          <PaginationNext
+            href={`?page=${nextPage}`}
+            className={!hasMore ? "pointer-events-none opacity-55" : ""}
+            aria-disabled={!hasMore}
+          />
         </PaginationItem>
       </PaginationContent>
     </Pagination>
   );
 }
-
-// default = page 1,
