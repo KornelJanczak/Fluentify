@@ -6,9 +6,13 @@ export default async function SetsPage({
 }: {
   searchParams: {
     page: string;
+    search: string;
   };
 }) {
-  const page = await searchParams.page;
-  const vocabularySets = await vocabularySetService.getVocabularySets(page);
-  return <VocabularySets vocabularySets={vocabularySets} />;
+  const { page, search } = await searchParams;
+
+  const { vocabularySets, hasMore } =
+    await vocabularySetService.getVocabularySets(page, search);
+
+  return <VocabularySets vocabularySets={vocabularySets} hasMore={hasMore} />;
 }
