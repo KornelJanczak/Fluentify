@@ -1,13 +1,13 @@
 import { Chat, Message } from "@services/db/schema";
-import { IChatRepository } from "@shared/repositories/chat.repository";
+import { ChatWithMessages, IChatRepository } from "@shared/repositories/chat.repository";
 import { IMessagesRepository } from "@shared/repositories/messages.repository";
 import { IChatCache } from "@services/redis/chat.cache";
 
 export interface IChatService {
-  createChat(user: string, topic: string, category: string): Promise<string>;
+  createChat(values: ICreateChat): Promise<string>;
   getChatsByUserId(userId: string): Promise<Chat[]>;
   getChatById(chatId: string): Promise<Chat>;
-  getMessagesByChatId(chatId: string): Promise<Message[]>;
+  getChatWithMessagesByChatId(chatId: string): Promise<ChatWithMessages>;
   deleteChatById(user: string, chatId: string): Promise<string>;
 }
 
@@ -15,4 +15,11 @@ export interface IChatServiceDependencies {
   chatRepository: IChatRepository;
   messagesRepository: IMessagesRepository;
   chatCache: IChatCache;
+}
+
+export interface ICreateChat {
+  userId: string;
+  topic: string;
+  category: string;
+  vocabularySetId: string;
 }
