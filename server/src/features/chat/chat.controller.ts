@@ -54,14 +54,15 @@ class ChatController implements IChatController {
     next: NextFunction
   ): Promise<Response | void> {
     const user: User = req.user as User;
-    const { title, category } = req.body;
+    const { topic, category, vocabularySetId } = req.body;
 
     try {
-      const chatId = await this.chatService.createChat(
-        user.id,
-        title,
-        category
-      );
+      const chatId = await this.chatService.createChat({
+        userId: user.id,
+        topic,
+        category,
+        vocabularySetId,
+      });
 
       this.logger.info(`User ${user.id} has created chat ${chatId}`);
 
@@ -115,13 +116,13 @@ class ChatController implements IChatController {
     const chatId = req.params.id;
 
     try {
-      const messages = await this.chatService.getMessagesByChatId(chatId);
+      const chat = await this.chatService.getChatWithMessagesByChatId(chatId);
 
       this.logger.info(
-        `Messages for chat ${chatId} have been found, messages: ${messages.length}`
+        `Messages for chat ${chatId} have been found, messages: ${chat.messages.length}`
       );
 
-      return res.status(HTTP_STATUS.OK).json(messages);
+      return res.status(HTTP_STATUS.OK).json(chat);
     } catch (error) {
       return next(error);
     }
