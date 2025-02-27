@@ -1,4 +1,7 @@
-import { IChatRepository } from "@shared/repositories/chat.repository";
+import {
+  ChatWithMessages,
+  IChatRepository,
+} from "@shared/repositories/chat.repository";
 import { IMessagesRepository } from "@shared/repositories/messages.repository";
 import { IChatCache } from "@services/redis/chat.cache";
 import { v4 as uuidv4 } from "uuid";
@@ -8,7 +11,9 @@ import { Message } from "@services/db/schema";
 import {
   IChatService,
   IChatServiceDependencies,
+  ICreateChat,
 } from "@chat/chat.interfaces/chat.service.interfaces";
+import { IChatRequest } from "@chat/chat.interfaces/chatStream.service.interfaces";
 
 class ChatService implements IChatService {
   private readonly chatRepository: IChatRepository;
@@ -25,16 +30,10 @@ class ChatService implements IChatService {
     this.chatCache = chatCache;
   }
 
-  public async createChat(
-    userId: string,
-    topic: string,
-    category: string
-  ): Promise<string> {
+  public async createChat(values: ICreateChat): Promise<string> {
     const newChatId = await this.chatRepository.create({
       id: uuidv4(),
-      userId: userId,
-      topic: topic,
-      category: category,
+      ...values,
       usedTokens: 0,
       startedAt: new Date(),
     });
@@ -69,25 +68,16 @@ class ChatService implements IChatService {
   public async getChatById(chatId: string): Promise<Chat> {
     const chat = await this.chatRepository.getById(chatId);
 
-    if (!chat) {
+    if (!chat)
       throw ServiceError.NotFound({ message: `Chat ${chatId} not found` });
-    }
 
     return chat;
   }
 
-  public async getMessagesByChatId(chatId: string): Promise<Message[]> {
-    const messages = await this.messagesRepository.getMessagesByChatId(chatId);
-
-    // const isMessagesEmpty = !messages || messages.length === 0;
-
-    // if (isMessagesEmpty) {
-    //   throw ServiceError.NotFound({
-    //     message: `Chat ${chatId} has no messages`,
-    //   });
-    // }
-
-    return messages;
+  public async getChatWithMessagesByChatId(
+    chatId: string
+  ): Promise<ChatWithMessages> {
+    return await this.chatRepository.getChatWithMessagesById(chatId);
   }
 
   public async deleteChatById(userId: string, chatId: string): Promise<string> {
