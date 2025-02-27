@@ -1,5 +1,7 @@
+import { vocabularySetService } from "@/common/api/services/vocabulary-set.service";
 import NewChat from "@/components/new-chat";
 
-export default function NewChatPage() {
-  return <NewChat />;
+export default async function NewChatPage() {
+  const { vocabularySets } = await vocabularySetService.getVocabularySets();
+  return <NewChat vocabularySets={vocabularySets} />;
 }
