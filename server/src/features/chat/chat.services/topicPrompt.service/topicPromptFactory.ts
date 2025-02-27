@@ -4,13 +4,13 @@ import AnyTopicPrompt from "./anyTopicPrompt";
 import { ITopicPromptFactory } from "@chat/chat.interfaces/topicPrompt.service.interfaces";
 
 class TopicPromptFactory implements ITopicPromptFactory {
-  createTopicPrompt(category: string, topic: string): TopicPromptBase {
+  public createTopicPrompt(category: string, topic: string): TopicPromptBase {
     switch (category) {
-      case "Vocabulary practice":
+      case "vocabulary":
         return new VocabPracticePrompt({
           topic,
         });
-      case "Chat about anything":
+      case "anything":
         return new AnyTopicPrompt({ topic });
       default:
         throw new Error("Invalid category");
