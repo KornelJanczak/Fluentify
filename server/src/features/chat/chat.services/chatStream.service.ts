@@ -44,24 +44,36 @@ class ChatStreamService implements IChatStreamService {
     this.logger = logger;
   }
 
-  async startChatStream(chatRequest: IChatRequest): Promise<void> {
+  public async startChatStream(chatRequest: IChatRequest): Promise<void> {
+    // Check if chat exists
     const chat = await this.getChat(chatRequest.chatId);
 
+    // Extract last user message
     const lastUserMessage = this.extractLastUserMessage(chatRequest.messages);
 
-    await this.saveUserMessage(chat.id, lastUserMessage);
+    // Save user message
+    await this.saveMessage(chat.id, lastUserMessage);
 
-    return await this.streamChatToResponse({ ...chatRequest });
+    // Get system prompt to start the conversation
+    const sytemPrompt = await this.systemPromptService.getSystemPrompt({
+      tutorId: chatRequest.tutorId,
+      chatCategory: chat.category,
+      chatTopic: chat.topic,
+      studyingLanguageLevel: chatRequest.studyingLanguageLevel,
+      vocabularySetId: chatRequest.vocabularySetId,
+    });
+
+    // Start chat with AI
+    return await this.streamChatToResponse(chatRequest, sytemPrompt);
   }
 
   private async getChat(chatId: string): Promise<Chat> {
     const chat = await this.chatRepository.getById(chatId);
 
-    if (!chat) {
+    if (!chat)
       throw ServiceError.NotFound({
         message: `Chat ${chatId} not found`,
       });
-    }
 
     return chat;
   }
@@ -72,6 +84,71 @@ class ChatStreamService implements IChatStreamService {
       .at(-1);
 
     return lastUserMessage;
+  }
+
+  private async streamChatToResponse(
+    chatRequest: IChatRequest,
+    systemPrompt: string
+  ): Promise<void> {
+    const { res, chatId, messages, tutorId } = chatRequest;
+
+    return pipeDataStreamToResponse(res, {
+      execute: async (streamWriter) => {
+        const result = streamText({
+          model: customAi("gpt-3.5-turbo"),
+          system: systemPrompt,
+          messages,
+          onFinish: async ({ text, usage }) =>
+            await this.onFinishStream({
+              chatId,
+              content: text,
+              streamWriter,
+              tutorId,
+              usedTokens: Number(usage),
+            }),
+        });
+
+        // for await (const part of result.fullStream) {
+        //   const error = part.type.includes("error");
+
+        //   if (error)
+
+        return result.mergeIntoDataStream(streamWriter);
+      },
+    });
+  }
+
+  private async onFinishStream({
+    chatId,
+    content,
+    streamWriter,
+    tutorId,
+    usedTokens,
+  }: IOnFinishStream): Promise<void> {
+    const { audioContent } = await this.audioGeneratorService.generateAudio(
+      content,
+      tutorId
+    );
+
+    // Attache audio content to the stream
+    streamWriter.writeMessageAnnotation({
+      type: "audio",
+      data: JSON.stringify(audioContent),
+    });
+
+    // this.chatQueue.addChatJob("saveChatMessages", [
+    //   {
+    //     id: uuidv4(),
+    //     content: text,
+    //     createdAt: new Date(),
+    //     role: "assistant",
+    //     chatId: chatId,
+    //     usedTokens: 0,
+    //   },
+    // ]);
+
+    await this.saveAssistantMessage(chatId, content);
+    // await this.saveMessage(chatId, { content, role: "assistant" }, usedTokens);
   }
 
   private async saveUserMessage(
@@ -89,105 +166,34 @@ class ChatStreamService implements IChatStreamService {
     ]);
   }
 
-  private async streamChatToResponse(chatRequest: IChatRequest): Promise<void> {
-    const {
-      res,
-      chatId,
-      messages,
-      vocabularySetId,
-      chatCategory,
-      chatTopic,
-      studyingLanguageLevel,
-      tutorId,
-    } = chatRequest;
-
-    const sytemPrompt = await this.systemPromptService.getSystemPrompt({
-      studyingLanguageLevel,
-      chatCategory,
-      chatTopic,
-      tutorId,
-      vocabularySetId,
-    });
-
-    return pipeDataStreamToResponse(res, {
-      execute: async (streamWriter) => {
-        // try {
-        const result = streamText({
-          model: customAi("gpt-3.5-turbo"),
-          system: sytemPrompt,
-          messages,
-          onFinish: async ({ text }) =>
-            await this.onFinishStream({
-              chatId,
-              text,
-              streamWriter,
-              tutorId,
-            }),
-        });
-
-        // for await (const part of result.fullStream) {
-        //   const error = part.type.includes("error");
-
-        //   if (error)
-        //     throw new InternalServerError({
-        //       fileName: this.fileName,
-        //       message: "",
-        //       service: "",
-        //     });
-        // }
-        console.log("result", result);
-        console.log("streamWriter", streamWriter);
-
-        return result.mergeIntoDataStream(streamWriter);
-        // } catch (error) {
-        //   throw new InternalServerError({
-        //     service: "streamChatToResponse",
-        //     fileName: this.fileName,
-        //     message: error.message,
-        //     stack: error.message,
-        //   });
-        // }
-      },
-    });
-  }
-
-  private async onFinishStream({
-    chatId,
-    text,
-    streamWriter,
-    tutorId,
-  }: IOnFinishStream): Promise<void> {
-    const { audioContent } = await this.audioGeneratorService.generateAudio(
-      text,
-      tutorId
-    );
-
-    streamWriter.writeMessageAnnotation({
-      type: "audio",
-      data: JSON.stringify(audioContent),
-    });
-
-    // console.log("messagesRepo", this.messagesRepository);
-
-    // this.chatQueue.addChatJob("saveChatMessages", [
-    //   {
-    //     id: uuidv4(),
-    //     content: text,
-    //     createdAt: new Date(),
-    //     role: "assistant",
-    //     chatId: chatId,
-    //     usedTokens: 0,
-    //   },
-    // ]);
-
+  private async saveAssistantMessage(
+    chatId: string,
+    text: string
+  ): Promise<void> {
     await this.messagesRepository.saveMessages([
       {
         id: uuidv4(),
         content: text,
-        createdAt: new Date(),
         role: "assistant",
+        createdAt: new Date(),
         chatId: chatId,
         usedTokens: 0,
+      },
+    ]);
+  }
+
+  private async saveMessage(
+    chatId: string,
+    message: CoreMessage,
+    usedTokens?: number
+  ): Promise<void> {
+    await this.messagesRepository.saveMessages([
+      {
+        id: uuidv4(),
+        ...message,
+        createdAt: new Date(),
+        chatId: chatId,
+        usedTokens: usedTokens,
       },
     ]);
   }
