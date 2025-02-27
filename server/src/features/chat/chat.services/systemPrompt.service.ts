@@ -12,8 +12,8 @@ import { ServiceError } from "@shared/errors/service.error";
 
 class SystemPromptService implements ISystemPromptService {
   private readonly topicPromptFactory: ITopicPromptFactory;
-  private readonly flashCardRepository: IFlashCardRepository;
   private readonly tutorPromptService: ITutorPromptService;
+  private readonly flashCardRepository: IFlashCardRepository;
 
   constructor({
     topicPromptFactory,
@@ -25,7 +25,7 @@ class SystemPromptService implements ISystemPromptService {
     this.tutorPromptService = tutorPromptService;
   }
 
-  async getSystemPrompt({
+  public async getSystemPrompt({
     tutorId,
     studyingLanguageLevel,
     chatCategory,
