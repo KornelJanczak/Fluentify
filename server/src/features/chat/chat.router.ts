@@ -37,7 +37,7 @@ router.get(
 router.get(
   "/chat/:id/messages",
   authMiddleware,
-  chatController.getMessagesByChatId.bind(chatController)
+  chatController.getChatWithMessagesByChatId.bind(chatController)
 );
 
 router.delete(
