@@ -4,45 +4,44 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import Markdown from "react-markdown";
 import SectionWrapper from "../section-wrapper";
+import { type ChatTopic, chatTopics } from "./chat-topics";
+import ChooseVocabularySetDialog from "./choose-vocabulary-set-dialog";
+import type { VocabularySet } from "@/common/api/services/vocabulary-set.service";
 
-const chatTopics = [
-  {
-    title: "Practice vocabulary",
-    categories: [
-      {
-        title: "Vocab",
-        category: "Practice vocabulary word by word",
-      },
-    ],
-  },
-  {
-    title: "Chat about anything",
-    categories: [
-      {
-        title: "General conversation",
-        category: "Free chat",
-      },
-    ],
-  },
-];
+interface NewChatProps {
+  vocabularySets: VocabularySet[];
+}
 
-export default function NewChat() {
-  const [selectedTopic, setSelectedTopic] = useState("");
+export default function NewChat({ vocabularySets }: NewChatProps) {
+  const [selectedTopic, setSelectedTopic] = useState<null | ChatTopic>(null);
 
-  const handleSelectTopic = (topic: string) => {
+  const handleSelectTopic = (topic: ChatTopic) => {
     setSelectedTopic(topic);
   };
 
   return (
     <SectionWrapper className="h-screen">
       <Markdown>## Choose an option</Markdown>
-      {chatTopics.map((topic) => (
-        <div key={topic.title} className="flex m-2">
-          <Button onClick={() => handleSelectTopic(topic.title)}>
+      {selectedTopic === null &&
+        chatTopics.map((topic) => (
+          <Button key={topic.title} onClick={() => handleSelectTopic(topic)}>
             {topic.title}
           </Button>
-        </div>
-      ))}
+        ))}
+      {selectedTopic != null &&
+        selectedTopic.categories.map((topic) =>
+          topic.category === "vocabulary" ? (
+            <ChooseVocabularySetDialog
+              key={topic.title}
+              title={topic.title}
+              topic={topic.topic}
+              category={topic.category}
+              vocabularySets={vocabularySets}
+            />
+          ) : (
+            <Button key={topic.title}>{topic.title}</Button>
+          )
+        )}
     </SectionWrapper>
   );
 }
