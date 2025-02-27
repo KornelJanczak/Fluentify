@@ -27,8 +27,6 @@ export interface IChatRequest {
   tutorId: string;
   messages: CoreMessage[];
   userId: string;
-  chatCategory: string;
-  chatTopic: string;
   studyingLanguageLevel: string;
   vocabularySetId?: string;
 }
@@ -48,7 +46,8 @@ export interface IChatStreamServiceDependencies {
 
 export interface IOnFinishStream {
   chatId: string;
-  text: string;
+  content: string;
   streamWriter: DataStreamWriter;
   tutorId: string;
+  usedTokens: number;
 }
