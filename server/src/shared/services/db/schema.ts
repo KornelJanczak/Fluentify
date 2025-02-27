@@ -32,6 +32,7 @@ export const chats = pgTable("chats", {
   category: varchar({ length: 255 }).notNull(),
   topic: varchar({ length: 255 }).notNull(),
   userId: varchar("userId"),
+  vocabularySetId: uuid("vocabularySetId").references(() => vocabularySets.id),
 });
 
 // CHATS RELATIONS
@@ -42,6 +43,7 @@ export const chatsRelations = relations(chats, ({ one, many }) => ({
   }),
   chatSettings: one(chatSettings),
   messages: many(messages),
+  vocabularySets: one(vocabularySets),
 }));
 
 export type Chat = InferSelectModel<typeof chats>;
@@ -74,7 +76,7 @@ export const messages = pgTable("messages", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   role: varchar({ length: 255 }).notNull(),
   content: json("content").notNull(),
-  usedTokens: integer().notNull(),
+  usedTokens: integer(),
   createdAt: timestamp("createdAt").notNull(),
   chatId: uuid("chatId")
     .notNull()
