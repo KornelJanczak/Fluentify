@@ -2,11 +2,11 @@ import TopicPromptBase from "./topicPromptBase";
 import { ITopicPromptBaseDependencies } from "@chat/chat.interfaces/topicPrompt.service.interfaces";
 
 class AnyTopicPrompt extends TopicPromptBase {
-  protected readonly category = "Chat about anything";
+  protected readonly category = "anything";
   protected readonly topic: string;
   protected readonly topics = [
     {
-      topic: "Anything",
+      topic: "free chat",
       additionalRules: ` 
           - You can talk about anything you want
           - You can ask student about anything       
@@ -16,7 +16,7 @@ class AnyTopicPrompt extends TopicPromptBase {
         `,
     },
     {
-      topic: "Chat with lots slangs and idioms",
+      topic: "slangs and idioms",
       additionalRules: `
         - You should use slangs from English speaking sphere that you are
         - You should use as many slangs and idioms as possible, but with keeping natural conversation flow
@@ -24,7 +24,7 @@ class AnyTopicPrompt extends TopicPromptBase {
       `,
     },
     {
-      topic: "One of my interests",
+      topic: "my interests",
       additionalRules: `
         - You should talk about one of student interests at the beggining of the conversation
         - You should asking question about details of student interest
