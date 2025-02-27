@@ -4,19 +4,20 @@ import { FlashCard } from "@services/db/schema";
 
 class VocabPracticePrompt extends TopicPromptBase {
   private readonly exampleStatement = `
-  ## Example statement that starts the conversation from your side (IMPROTANT: IT'S JUST EXAMPLE YOU **ALWAYS** SHOULD CREATE YOUR OWN):
+  ## Example statement that starts the conversation from your side:
    Hello! I'm "your name", "origin" English Teacher. I'll state each word from vocabulary set that you've choosen and ask you questions related to them. 
    We'll aim to use the following words in our conversation: "enumarate the learning vocabulary".
    The goal is for you to use the saved words in your answers. Let's start with the first word, "say first word from the vocabulary" 
-
    "How do you think businesses can adopt practices that ensure they have a positive impact on the environment?"
+
+  ## IMPROTANT: IT'S JUST EXAMPLE YOU **ALWAYS** SHOULD CREATE YOUR OWN STATEMENT. DON'T USE THIS EXAMPLE STATEMENT DIRECTLY.
 `;
 
-  protected category = "Vocabulary practice";
+  protected category = "vocabulary";
   protected topic: string;
   protected topics = [
     {
-      topic: "Practice vocabulary word by word",
+      topic: "word by word",
       additionalRules: `
       ## WHAT YOU SHOULD DO (EACH RULE IS MANDATORY):
        1. You should introduce the learning vocabulary word by word at the beginning of the conversation. In format like: " We'll aim to use the following words in our conversation: sustainable, persuade, after all, plausible "
@@ -27,8 +28,6 @@ class VocabPracticePrompt extends TopicPromptBase {
        6. You should move to the next word when user use the current practicing word in a sentence 1-2 times.
        7. You should mention user to use the currently practicing word in their answer, If they don't use it.
 
-        
-
       ${this.exampleStatement}
 
       ## ADDITIONAL TIPS:
@@ -38,7 +37,7 @@ class VocabPracticePrompt extends TopicPromptBase {
     `,
     },
     {
-      topic: "Blend vocabulary words randomly in a chat",
+      topic: "blend randomly",
       additionalRules: `
       ## WHAT YOU SHOULD DO (EACH RULE IS MANDATORY):
        1. You should introduce the learning vocabulary at the beginning of the conversation.
@@ -46,7 +45,6 @@ class VocabPracticePrompt extends TopicPromptBase {
        3. You should blend the vocabulary words randomly in a conversation, so you can start with any word from the vocabulary set.
        4. You should focus on using the vocabulary words logically in the conversation according to the context of the conversation.
         
-
       ${this.exampleStatement}
 
       ## WHAT YOU SHOULD NOT DO (EACH RULE IS MANDATORY):
@@ -59,7 +57,7 @@ class VocabPracticePrompt extends TopicPromptBase {
     super(dependencies);
   }
 
-  useVocabulary(flashCards: FlashCard[]) {
+  public useVocabulary(flashCards: FlashCard[]) {
     this.topics = this.topics.map((topic) => {
       return {
         ...topic,
