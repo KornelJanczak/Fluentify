@@ -10,13 +10,20 @@ class TutorPromptService implements ITutorPromptService {
     "en-AU-Neural2-C": { name: "Charlotte", origin: "Australia" },
   };
 
-  getTutorPrompt(tutorId: string, studyingLanguageLevel: string): string {
+  public getTutorPrompt(
+    tutorId: string,
+    studyingLanguageLevel: string
+  ): string {
     const { name, origin } = this.getTutorName(tutorId);
+
     const tutorCharacterPrompt = this.getTutorCharacterPrompt(name, origin);
+
     const generalRulesPrompt = this.getGeneralRulesPrompt(
       studyingLanguageLevel
     );
+
     const mergedPrompts: string = tutorCharacterPrompt + generalRulesPrompt;
+
     return mergedPrompts;
   }
 
