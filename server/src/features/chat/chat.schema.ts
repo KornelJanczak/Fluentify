@@ -9,5 +9,7 @@ export const startChatSchema = z.object({
 });
 
 export const createChatSchema = z.object({
-  title: z.string(),
+  category: z.string(),
+  topic: z.string(),
+  vocabularySetId: z.string().uuid().optional(),
 });
