@@ -29,6 +29,20 @@
       "when": 1740607699647,
       "tag": "0003_blue_snowbird",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1740695155367,
+      "tag": "0004_colossal_doorman",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1740695439266,
+      "tag": "0005_fearless_barracuda",
+      "breakpoints": true
     }
   ]
 }
