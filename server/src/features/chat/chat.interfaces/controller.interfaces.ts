@@ -24,7 +24,7 @@ export interface IChatController {
     res: Response,
     next: NextFunction
   ): Promise<Response | void>;
-  getMessagesByChatId(
+  getChatWithMessagesByChatId(
     req: Request,
     res: Response,
     next: NextFunction
