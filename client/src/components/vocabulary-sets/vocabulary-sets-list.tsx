@@ -1,5 +1,6 @@
 import { type VocabularySet } from "@/common/api/services/vocabulary-set.service";
 import VocabularySetCard from "./vocabulary-set-card";
+import Link from "next/link";
 
 interface VocabularySetsListProps {
   vocabularySets: VocabularySet[];
@@ -11,10 +12,12 @@ export default async function VocabularySetsList({
   return (
     <div className="flex flex-col items-stretch space-y-4 w-full">
       {vocabularySets.map((vocabularySet) => (
-        <VocabularySetCard
+        <Link
           key={vocabularySet.id}
-          vocabularySet={vocabularySet}
-        />
+          href={`/dashboard/vocabulary/${vocabularySet.id}`}
+        >
+          <VocabularySetCard vocabularySet={vocabularySet} />
+        </Link>
       ))}
     </div>
   );
