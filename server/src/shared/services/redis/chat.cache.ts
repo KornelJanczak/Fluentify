@@ -74,6 +74,7 @@ class ChatCache extends BaseCache implements IChatCache {
             userId: chat.userId,
             topic: chat.topic,
             category: chat.category,
+            vocabularySetId: chat.vocabularySetId,
           } as Chat;
         })
       );
