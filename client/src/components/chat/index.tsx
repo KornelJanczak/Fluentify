@@ -15,7 +15,13 @@ interface ChatProps {
   initialMessages: Array<Message>;
 }
 
-export function Chat({ initialMessages, id, ...props }: ChatProps) {
+export function Chat({
+  initialMessages,
+  id,
+  vocabularySetId,
+  category,
+  topic,
+}: ChatProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const { messages, handleSubmit, input, setInput, isLoading, stop } = useChat({
@@ -25,7 +31,9 @@ export function Chat({ initialMessages, id, ...props }: ChatProps) {
     credentials: "include",
     body: {
       chatId: id,
-      ...props,
+      vocabularySetId,
+      category,
+      topic,
     },
     onFinish(message) {
       useAudioPlayer({ message, audioRef });
