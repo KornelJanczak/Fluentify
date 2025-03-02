@@ -108,7 +108,7 @@ class ChatController implements IChatController {
     }
   }
 
-  public async getMessagesByChatId(
+  public async getChatWithMessagesByChatId(
     req: Request,
     res: Response,
     next: NextFunction
