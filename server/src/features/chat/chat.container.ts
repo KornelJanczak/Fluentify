@@ -20,6 +20,7 @@ import ChatCache from "@services/redis/chat.cache";
 import { client as redisClient } from "@services/redis/redis.client";
 import { logger as chatLogger } from "@root/logger";
 import ChatService from "./chat.services/chat.service";
+import AudioUploaderService from "./chat.services/audioUploader.service";
 
 const container = createContainer({
   injectionMode: InjectionMode.PROXY,
@@ -30,6 +31,7 @@ container.register({
   chatService: asClass(ChatService).singleton().scoped(),
   chatStreamService: asClass(ChatStreamService).singleton().scoped(),
   audioGeneratorService: asClass(AudioGeneratorService).singleton().scoped(),
+  audioUploaderService: asClass(AudioUploaderService).singleton().scoped(),
   systemPromptService: asClass(SystemPromptService).singleton().scoped(),
   tutorPromptService: asClass(TutorPromptService).singleton().scoped(),
   topicPromptFactory: asClass(TopicPromptFactory).singleton().scoped(),
