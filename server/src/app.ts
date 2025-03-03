@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import { FluentifyServer } from "@root/setupServer";
 import "@auth/strategies/google-strategy";
 import { logger as appLogger } from "@root/logger";
+;
 
 const logger = appLogger.createLogger("app");
 
