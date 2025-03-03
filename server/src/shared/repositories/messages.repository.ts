@@ -4,14 +4,18 @@ import { eq } from "drizzle-orm";
 import { ServiceError } from "@shared/errors/service.error";
 
 export interface IMessagesRepository {
-  saveMessages(newMessages: Message[]): Promise<Message[]>;
+  saveMessages(newMessages: Message[]): Promise<string>;
   getMessagesByChatId(chatId: string): Promise<Message[]>;
 }
 
 class MessagesRepository implements IMessagesRepository {
-  public async saveMessages(newMessages: Message[]): Promise<Message[]> {
+  public async saveMessages(newMessages: Message[]): Promise<string> {
     try {
-      return await db.insert(messages).values(newMessages).returning();
+      const [{ id }] = await db
+        .insert(messages)
+        .values(newMessages)
+        .returning({ id: messages.id });
+      return id;
     } catch (error) {
       throw ServiceError.DatabaseError({
         message: error.message,
