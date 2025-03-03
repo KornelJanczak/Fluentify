@@ -22,7 +22,7 @@ export default function CreateChatVocabularySetCard({
     <VocabularySetCard
       onClick={() => mutate({ category, topic, vocabularySetId })}
       vocabularySet={vocabularySet}
-      className="cursor-pointer"
+      className="relative cursor-pointer"
     />
   );
 }
