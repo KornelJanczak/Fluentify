@@ -77,8 +77,6 @@ class AudioGeneratorService implements IAudioGeneratorService {
 
     return request;
   }
-
-  private async saveAudioFile() {}
 }
 
 export default AudioGeneratorService;
