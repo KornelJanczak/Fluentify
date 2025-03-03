@@ -6,7 +6,6 @@ dotenv.config();
 
 class Config {
   public readonly PORT: number;
-  // public readonly NODE_ENV: string;
   public readonly DATABASE_URL: string;
   public readonly SESSION_SECRET: string;
   public readonly CLIENT_URL: string;
@@ -30,6 +29,13 @@ class Config {
     CALLBACK_URL: string;
     // API_KEY: string;
     // GENERATIVE_AI_API_KEY: string;
+  };
+
+  public readonly AWS: {
+    BUCKET_NAME: string;
+    ACCESS_KEY: string;
+    SECRET_ACCESS_KEY: string;
+    REGION: string;
   };
 
   readonly LOGGER_LEVELS = {
@@ -67,6 +73,13 @@ class Config {
       CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL || "",
       // API_KEY: process.env.GOOGLE_API_KEY || "",
       // GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY || "",
+    };
+
+    this.AWS = {
+      BUCKET_NAME: process.env.AWS_BUCKET_NAME || "",
+      ACCESS_KEY: process.env.AWS_ACCESS_KEY || "",
+      SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || "",
+      REGION: process.env.AWS_REGION || "",
     };
 
     this.validateConfig();
