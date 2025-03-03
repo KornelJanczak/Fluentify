@@ -11,6 +11,7 @@ import { ISystemPromptService } from "./systemPrompt.service.interface";
 import BaseQueue from "@services/queues/base.queue";
 import ChatQueue from "@services/queues/chat.queue";
 import { BaseCache } from "@services/redis/base.cache";
+import { IAudioUploaderService } from "./audioUploader.service.interfaces";
 
 export interface IChatStreamService {
   startChatStream({
@@ -33,6 +34,7 @@ export interface IChatRequest {
 
 export interface IChatStreamServiceDependencies {
   audioGeneratorService: IAudioGeneratorService;
+  audioUploaderService: IAudioUploaderService;
   systemPromptService: ISystemPromptService;
   chatRepository: IChatRepository;
   messagesRepository: IMessagesRepository;
