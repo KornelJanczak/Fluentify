@@ -9,7 +9,7 @@ import type { VocabularySet } from "@/common/api/services/vocabulary-set.service
 import CreateChatVocabularySetCard from "./create-chat-vocabulary-set-card";
 
 interface ChooseVocabularySetDialogProps {
-  title: string
+  title: string;
   topic: string;
   category: string;
   vocabularySets: VocabularySet[];
@@ -24,7 +24,7 @@ export default function ChooseVocabularySetDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="flex m-2">{title}</Button>
+        <Button size="lg">{title}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle className="pb-2">
