@@ -4,7 +4,7 @@ import VocabularySetEdit from "@/components/vocabulary-set/vocabulary-set-edit";
 export default async function VocabularySet({
   params,
 }: {
-  params: { setId: string };
+  params: Promise<{ setId: string }>;
 }) {
   const { setId } = await params;
   const vocabularySet = await vocabularySetService.getVocabularySetDetails(
