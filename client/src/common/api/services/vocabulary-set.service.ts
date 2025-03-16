@@ -20,8 +20,10 @@ class VocabularySetService implements IVocabularySetService {
     page?: string,
     searchInput?: string
   ): Promise<VocabularySetResponse> {
-    const PATH = `${this.BASIC_PATH}s/${page ? page : 1}${
-      searchInput ? `/${searchInput}` : ""
+    const isSearchInput = searchInput && searchInput.trim().length > 0;
+
+    const PATH = `${this.BASIC_PATH}/${page ? page : 1}${
+      isSearchInput ? `?searchInput=${searchInput}` : ""
     }`;
 
     try {
@@ -45,7 +47,7 @@ class VocabularySetService implements IVocabularySetService {
     try {
       return (
         await this.serverApi.get<VocabularySetDetailsResponse>(
-          `${this.BASIC_PATH}/${id}`,
+          `${this.BASIC_PATH}/details/${id}`,
           {
             next: { tags: [vocabularySetKey.join()] },
           }
