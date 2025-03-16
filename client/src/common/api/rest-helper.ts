@@ -29,10 +29,18 @@ export class RestHelper {
     const response = await fetch(adjustedUrl, adjustedOptions);
 
     if (!response.ok) {
+      console.log("nie ok", response);
       throw new HttpError(response.status, await response.text());
     }
 
+    // console.log("response 3", response);
+    console.log("bodydas json",  response);
+
     const data = await response.json();
+
+    // console.log("data", data);
+    // console.log("headers", response.headers);
+    // console.log("status", response.status);
 
     return {
       status: response.status,

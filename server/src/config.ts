@@ -55,7 +55,7 @@ class Config {
     this.CLIENT_URL = process.env.CLIENT_URL || "";
     this.LOG_LEVEL = process.env.LOG_LEVEL || "";
     this.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
-    this.BULL_BASE_PATH = process.env.BULL_BASE_PATH || "";
+    // this.BULL_BASE_PATH = process.env.BULL_BASE_PATH || "";
 
     this.SECRETS = {
       ONE: process.env.SECRET_KEY_ONE || "",
@@ -76,10 +76,10 @@ class Config {
     };
 
     this.AWS = {
-      BUCKET_NAME: process.env.AWS_BUCKET_NAME || "",
-      ACCESS_KEY: process.env.AWS_ACCESS_KEY || "",
-      SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || "",
-      REGION: process.env.AWS_REGION || "",
+      BUCKET_NAME: process.env.AWS_BUCKET_NAME || "asdassadsda",
+      ACCESS_KEY: process.env.AWS_ACCESS_KEY || "asdasd",
+      SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || "asdas",
+      REGION: process.env.AWS_REGION || "adsads",
     };
 
     this.validateConfig();

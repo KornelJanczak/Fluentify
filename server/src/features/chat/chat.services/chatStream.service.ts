@@ -19,20 +19,20 @@ import { IAudioUploaderService } from "@chat/chat.interfaces/audioUploader.servi
 class ChatStreamService implements IChatStreamService {
   private readonly audioGeneratorService: IAudioGeneratorService;
   private readonly systemPromptService: ISystemPromptService;
-  private readonly audioUploaderService: IAudioUploaderService;
+  // private readonly audioUploaderService: IAudioUploaderService;
   private readonly messagesRepository: IMessagesRepository;
   private readonly chatRepository: IChatRepository;
 
   constructor({
     audioGeneratorService,
     systemPromptService,
-    audioUploaderService,
+    // audioUploaderService,
     messagesRepository,
     chatRepository,
   }: IChatStreamServiceDependencies) {
     this.audioGeneratorService = audioGeneratorService;
     this.systemPromptService = systemPromptService;
-    this.audioUploaderService = audioUploaderService;
+    // this.audioUploaderService = audioUploaderService;
     this.messagesRepository = messagesRepository;
     this.chatRepository = chatRepository;
   }
@@ -123,7 +123,7 @@ class ChatStreamService implements IChatStreamService {
       usedTokens
     );
 
-    await this.audioUploaderService.uploadAudio(audioContent, messageId);
+    // await this.audioUploaderService.uploadAudio(audioContent, messageId);
   }
 
   private async saveMessage(
