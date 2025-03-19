@@ -1,71 +1,62 @@
-import { db } from "../services/db";
-import { type Chat, type Message, chats } from "../services/db/schema";
-import { eq } from "drizzle-orm";
-import { ServiceError } from "../errors/service.error";
+import { type Chat, type Message, chats, messages } from '../db/db.schema';
+import { eq } from 'drizzle-orm';
+import { ServiceError } from 'src/common/service-error';
+import { Inject, Injectable } from '@nestjs/common';
+import { Drizzle, DrizzleAsyncProvider } from '../db/db.provider';
+import {
+  CreateChatDto,
+  FindWithMessagesByIdResponseDto,
+} from 'src/modules/chat/chat.dto';
 
-export interface IChatRepository {
-  create(newItem: Chat): Promise<string>;
-  getById(id: string): Promise<Chat>;
-  getByUserId(userId: string): Promise<Chat[]>;
-  getChatsByUserId(userId: string): Promise<Chat[]>;
-  getChatWithMessagesById(chatId: string): Promise<ChatWithMessages>;
-  deleteById(id: string): Promise<string>;
-}
+@Injectable()
+export class ChatRepository {
+  constructor(@Inject(DrizzleAsyncProvider) private db: Drizzle) {}
 
-class ChatRepository implements IChatRepository {
-  public async create(newItem: Chat): Promise<string> {
+  public async create(
+    createChatDto: CreateChatDto,
+    userId: string,
+  ): Promise<string> {
+    const newChat = {
+      ...createChatDto,
+      userId,
+    };
+
+    console.log('newChat', newChat);
+
     try {
-      const [chat] = await db
+      const [chat] = await this.db
         .insert(chats)
-        .values(newItem)
+        .values(newChat)
         .returning({ id: chats.id });
 
       return chat.id;
     } catch (error) {
-      throw ServiceError.DatabaseError({
-        message: error.message,
-        stack: error.stack,
-      });
+      throw ServiceError.DatabaseError(error.message, error.stack);
     }
   }
 
-  public async getChatsByUserId(userId: string): Promise<Chat[]> {
+  public async findAllByUserId(userId: string): Promise<Chat[]> {
     try {
-      return await db.select().from(chats).where(eq(chats.userId, userId));
+      return await this.db.select().from(chats).where(eq(chats.userId, userId));
     } catch (error) {
-      throw ServiceError.DatabaseError({
-        message: error.message,
-        stack: error.stack,
-      });
+      throw ServiceError.DatabaseError(error.message, error.stack);
     }
   }
 
-  public async getById(id: string): Promise<Chat> {
+  public async findById(id: string): Promise<Chat> {
     try {
-      const [item] = await db.select().from(chats).where(eq(chats.id, id));
+      const [item] = await this.db.select().from(chats).where(eq(chats.id, id));
       return item;
     } catch (error) {
-      throw ServiceError.DatabaseError({
-        message: error.message,
-        stack: error.stack,
-      });
+      throw ServiceError.DatabaseError(error.message, error.stack);
     }
   }
 
-  public async getByUserId(userId: string): Promise<Chat[]> {
+  public async findWithMessagesById(
+    chatId: string,
+  ): Promise<FindWithMessagesByIdResponseDto> {
     try {
-      return await db.select().from(chats).where(eq(chats.userId, userId));
-    } catch (error) {
-      throw ServiceError.DatabaseError({
-        message: error.message,
-        stack: error.stack,
-      });
-    }
-  }
-
-  public async getChatWithMessagesById(chatId: string): Promise<ChatWithMessages> {
-    try {
-      return await db.query.chats.findFirst({
+      return await this.db.query.chats.findFirst({
         where: eq(chats.id, chatId),
         with: {
           messages: {
@@ -80,32 +71,36 @@ class ChatRepository implements IChatRepository {
         },
       });
     } catch (error) {
-      throw ServiceError.DatabaseError({
-        message: error.message,
-        stack: error.stack,
-      });
+      throw ServiceError.DatabaseError(error.message, error.stack);
     }
   }
 
   public async deleteById(chatId: string): Promise<string> {
     try {
-      const [chat] = await db
+      const [chat] = await this.db
         .delete(chats)
         .where(eq(chats.id, chatId))
         .returning({ id: chats.id });
 
       return chat.id;
     } catch (error) {
-      throw ServiceError.DatabaseError({
-        message: error.message,
-        stack: error.stack,
-      });
+      throw ServiceError.DatabaseError(error.message, error.stack);
+    }
+  }
+
+  public async saveMessages(newMessages: Message[]): Promise<string> {
+    try {
+      const [{ id }] = await this.db
+        .insert(messages)
+        .values(newMessages)
+        .returning({ id: messages.id });
+      return id;
+    } catch (error) {
+      throw ServiceError.DatabaseError(error.message, error.stack);
     }
   }
 }
 
-export default ChatRepository;
-
 export type ChatWithMessages = Chat & {
-  messages: Omit<Message, "chatId">[];
+  messages: Omit<Message, 'chatId'>[];
 };

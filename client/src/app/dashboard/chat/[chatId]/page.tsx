@@ -7,16 +7,7 @@ interface ChatPageProps {
 
 export default async function ChatPage({ params }: ChatPageProps) {
   const chatId = params.chatId;
-  const { category, topic, vocabularySetId, messages } =
-    await chatService.getChatWithMessagesByChatId(chatId);
+  const { messages } = await chatService.getChatWithMessagesByChatId(chatId);
 
-  return (
-    <Chat
-      id={chatId}
-      vocabularySetId={vocabularySetId}
-      category={category}
-      topic={topic}
-      initialMessages={messages}
-    />
-  );
+  return <Chat id={chatId} initialMessages={messages} />;
 }

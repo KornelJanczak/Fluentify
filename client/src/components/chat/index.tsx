@@ -9,31 +9,19 @@ import { useRef } from "react";
 
 interface ChatProps {
   id: string;
-  category: string;
-  topic: string;
-  vocabularySetId: string;
   initialMessages: Array<Message>;
 }
 
-export function Chat({
-  initialMessages,
-  id,
-  vocabularySetId,
-  category,
-  topic,
-}: ChatProps) {
+export function Chat({ initialMessages, id }: ChatProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const { messages, handleSubmit, input, setInput, isLoading, stop } = useChat({
     id,
     initialMessages,
-    api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
+    api: `${process.env.NEXT_PUBLIC_API_URL}/chat/start-chat`,
     credentials: "include",
     body: {
       chatId: id,
-      vocabularySetId,
-      category,
-      topic,
     },
     onFinish(message) {
       useAudioPlayer({ message, audioRef });

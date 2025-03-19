@@ -1,5 +1,5 @@
 {
-  "id": "75e3e2b4-570e-4708-8c91-37bd1b16dccd",
+  "id": "9f584714-c0d8-4625-a4fb-23f51651a66a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -73,21 +73,28 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "title": {
-          "name": "title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "usedTokens": {
           "name": "usedTokens",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "startedAt": {
           "name": "startedAt",
           "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "category": {
+          "name": "category",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "topic": {
+          "name": "topic",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -96,10 +103,30 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
+        },
+        "vocabularySetId": {
+          "name": "vocabularySetId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "chats_vocabularySetId_vocabularySets_id_fk": {
+          "name": "chats_vocabularySetId_vocabularySets_id_fk",
+          "tableFrom": "chats",
+          "tableTo": "vocabularySets",
+          "columnsFrom": [
+            "vocabularySetId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -148,7 +175,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -185,7 +212,7 @@
           "name": "usedTokens",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -318,7 +345,8 @@
           "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "userId": {
           "name": "userId",
@@ -327,7 +355,23 @@
           "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "title_search_index": {
+          "name": "title_search_index",
+          "columns": [
+            {
+              "expression": "to_tsvector('english', \"title\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "vocabularySets_userId_users_id_fk": {
           "name": "vocabularySets_userId_users_id_fk",

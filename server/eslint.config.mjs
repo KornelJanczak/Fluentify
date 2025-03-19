@@ -1,35 +1,49 @@
-// import globals from "globals";
-// import pluginJs from "@eslint/js";
-// import tseslint from "typescript-eslint";
+// @ts-check
+import eslint from '@eslint/js';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
+export default tseslint.config(
+  {
+    ignores: ['eslint.config.mjs'],
+  },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  eslintPluginPrettierRecommended,
+  {
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+      ecmaVersion: 5,
+      sourceType: 'module',
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/require-await': 'warn',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
 
-// /** @type {import('eslint').Linter.Config[]} */
-// export default [
-//   { files: ["**/*.{js,mjs,cjs,ts}"] },
-//   { languageOptions: { globals: globals.browser } },
-//   pluginJs.configs.recommended,
-//   ...tseslint.configs.recommended,
-//   {
-//     plugins: {
-//       import: eslintPluginImport,
-//     },
-//     rules: {
-//       // Reguły związane z importami
-//       "import/no-unresolved": "error", // Blokuje nieznalezione importy
-//       "import/named": "error", // Wymaga poprawnych nazw w importach
-//       "import/namespace": "error", // Wymaga poprawnego użycia przestrzeni nazw
-//       "import/default": "error", // Wymaga poprawnego domyślnego importu
-//       "import/export": "error", // Wymaga poprawnego eksportu
-//       "import/order": [
-//         "error",
-//         {
-//           groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
-//           "newlines-between": "always", // Dodaje nowe linie między grupami importów
-//         },
-//       ],
-
-//       // Reguły TypeScript
-//       "@typescript-eslint/consistent-type-imports": "error", // Wymaga użycia `import type` dla typów
-//     },
-//   },
-// ];
+      'prettier/prettier': [
+        'error',
+        {
+          endOfLine: 'auto',
+        },
+      ],
+    },
+  },
+);

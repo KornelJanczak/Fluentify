@@ -1,29 +1,22 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "baseUrl": ".",
     "module": "commonjs",
-    "esModuleInterop": true,
-    "strict": false,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
     "outDir": "./dist",
-    "typeRoots": ["./@types", "./node_modules/@types", "./src/global.d.ts"],
-    "plugins": [
-      { "transform": "typescript-transform-paths" },
-      { "transform": "typescript-transform-paths", "afterDeclarations": true }
-    ],
-    "paths": {
-      "@auth/*": ["src/features/auth/*"],
-      "@chat/*": ["src/features/chat/*"],
-      "@vocabularySets/*": ["src/features/vocabularySets/*"],
-      "@flashCards/*": ["src/features/flashCards/*"],
-      "@tutorProfile/*": ["src/features/tutorProfile/*"],
-      "@services/*": ["src/shared/services/*"],
-      "@shared/*": ["src/shared/*"],
-      "@root/*": ["src/*"]
-    }
-  },
-  // "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false,
+    "strict": false
+  }
 }
