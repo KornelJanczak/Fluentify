@@ -6,8 +6,6 @@ interface IVocabularySetService {
   getVocabularySetDetails(id: string): Promise<VocabularySetDetailsResponse>;
 }
 
-const vocabularySetKey = ["vocabularySet"];
-
 class VocabularySetService implements IVocabularySetService {
   public serverApi: ServerAPI;
   private BASIC_PATH = "/vocabulary-set";
@@ -27,11 +25,7 @@ class VocabularySetService implements IVocabularySetService {
     }`;
 
     try {
-      return (
-        await this.serverApi.get<VocabularySetResponse>(PATH, {
-          next: { tags: [vocabularySetKey.join()] },
-        })
-      ).data;
+      return (await this.serverApi.get<VocabularySetResponse>(PATH)).data;
     } catch (error) {
       if (!(error instanceof HttpError)) {
         throw error;
@@ -47,10 +41,7 @@ class VocabularySetService implements IVocabularySetService {
     try {
       return (
         await this.serverApi.get<VocabularySetDetailsResponse>(
-          `${this.BASIC_PATH}/details/${id}`,
-          {
-            next: { tags: [vocabularySetKey.join()] },
-          }
+          `${this.BASIC_PATH}/details/${id}`
         )
       ).data;
     } catch (error) {

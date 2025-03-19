@@ -1,19 +1,16 @@
 import { cookies } from "next/headers";
 import { RestHelper } from "./rest-helper";
+import type { InternalAxiosRequestConfig } from "axios";
 
 export class ServerAPI extends RestHelper {
   constructor() {
     super(process.env.NEXT_PUBLIC_API_URL);
   }
 
-  protected async interceptOptions(options: RequestInit): Promise<RequestInit> {
-    options.headers = {
-      ...options.headers,
-      credentials: "include",
-      Cookie: (await cookies()).toString(),
-    };
-
-    return options;
+  protected async interceptRequest(config: InternalAxiosRequestConfig) {
+    config.headers.set("Cookie", (await cookies()).toString());
+    config.withCredentials = true;
+    return config;
   }
 }
 

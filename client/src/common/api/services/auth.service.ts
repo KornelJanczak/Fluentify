@@ -2,8 +2,6 @@ import { HttpError } from "@/common/api/rest-helper";
 import { ServerAPI, serverApi } from "@/common/api/server-api";
 import { clientApi } from "@/common/api/client-api";
 
-export const getUserKey = ["users", "me"];
-
 class AuthService {
   serverApi: ServerAPI;
 
@@ -13,11 +11,7 @@ class AuthService {
 
   async getUser() {
     try {
-      return (
-        await this.serverApi.get<UserResponse>("/auth/session", {
-          next: { tags: [getUserKey.join()] },
-        })
-      ).data;
+      return (await this.serverApi.get<UserResponse>("/auth/session")).data;
     } catch (error) {
       if (!(error instanceof HttpError)) {
         throw error;

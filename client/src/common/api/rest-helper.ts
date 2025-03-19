@@ -1,119 +1,125 @@
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios";
+
 export class RestHelper {
-  protected readonly baseUrl: string;
+  protected readonly axiosInstance: AxiosInstance;
 
   constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-  }
-
-  protected async interceptOptions(options: RequestInit) {
-    return options;
-  }
-
-  protected async fetchJSON<T>(
-    url: string,
-    options?: RequestInit
-  ): Promise<RestResponse<T>> {
-    const adjustedUrl = `${this.baseUrl}${url}`;
-
-    let adjustedOptions: RequestInit = {
-      ...options,
-      credentials: "include",
+    this.axiosInstance = axios.create({
+      baseURL: baseUrl,
+      withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        ...options?.headers,
       },
-    };
+      responseType: "text",
+    });
 
-    adjustedOptions = await this.interceptOptions(adjustedOptions);
+    this.axiosInstance.interceptors.request.use(
+      (config) => this.interceptRequest(config),
+      (error) => Promise.reject(error)
+    );
 
-    const response = await fetch(adjustedUrl, adjustedOptions);
+    this.axiosInstance.interceptors.response.use(
+      (response) => this.parseResponse(response),
+      (error) => this.handleError(error)
+    );
+  }
 
-    if (!response.ok) {
-      console.log("nie ok", response);
-      throw new HttpError(response.status, await response.text());
+  private parseResponse(response: AxiosResponse): AxiosResponse {
+    try {
+      if (typeof response.data === "string") {
+        response.data = JSON.parse(response.data);
+      }
+    } catch (e) {
+      // Pozostawiamy dane jako tekst jeśli parsowanie się nie uda
     }
+    return response;
+  }
 
-    // console.log("response 3", response);
-    console.log("bodydas json",  response);
+  protected interceptRequest(
+    config: InternalAxiosRequestConfig
+  ): Promise<InternalAxiosRequestConfig> | InternalAxiosRequestConfig {
+    return config;
+  }
 
-    const data = await response.json();
-
-    // console.log("data", data);
-    // console.log("headers", response.headers);
-    // console.log("status", response.status);
-
-    return {
-      status: response.status,
-      headers: response.headers,
-      data,
-    };
+  protected handleError(error: AxiosError): Promise<never> {
+    if (error.response) {
+      const data = error.response.data;
+      const message = typeof data === "object" ? JSON.stringify(data) : data;
+      throw new HttpError(error.response.status, message as string);
+    } else if (error.request) {
+      throw new HttpError(0, "Network error");
+    } else {
+      throw new HttpError(0, error.message);
+    }
   }
 
   public async get<T>(
     url: string,
-    options?: RequestInit
+    config?: AxiosRequestConfig
   ): Promise<RestResponse<T>> {
-    return this.fetchJSON(url, {
-      method: "GET",
-      ...options,
-    });
+    const response = await this.axiosInstance.get<T>(url, config);
+    return this.createRestResponse(response);
   }
 
   public async post<T>(
     url: string,
     body: any,
-    options?: RequestInit
+    config?: AxiosRequestConfig
   ): Promise<RestResponse<T>> {
-    return this.fetchJSON(url, {
-      method: "POST",
-      body: JSON.stringify(body),
-      ...options,
-    });
+    const response = await this.axiosInstance.post<T>(url, body, config);
+    return this.createRestResponse(response);
   }
 
   public async put<T>(
     url: string,
     body: any,
-    options?: RequestInit
+    config?: AxiosRequestConfig
   ): Promise<RestResponse<T>> {
-    return this.fetchJSON(url, {
-      method: "PUT",
-      body: JSON.stringify(body),
-      ...options,
-    });
+    const response = await this.axiosInstance.put<T>(url, body, config);
+    return this.createRestResponse(response);
   }
 
   public async delete<T>(
     url: string,
-    options?: RequestInit
+    config?: AxiosRequestConfig
   ): Promise<RestResponse<T>> {
-    return this.fetchJSON(url, {
-      method: "DELETE",
-      ...options,
-    });
+    const response = await this.axiosInstance.delete<T>(url, config);
+    return this.createRestResponse(response);
   }
 
   public async patch<T>(
     url: string,
     body: any,
-    options?: RequestInit
+    config?: AxiosRequestConfig
   ): Promise<RestResponse<T>> {
-    return this.fetchJSON(url, {
-      method: "PATCH",
-      body: JSON.stringify(body),
-      ...options,
-    });
+    const response = await this.axiosInstance.patch<T>(url, body, config);
+    return this.createRestResponse(response);
+  }
+
+  private createRestResponse<T>(response: AxiosResponse<T>): RestResponse<T> {
+    return {
+      status: response.status,
+      headers: response.headers as Record<string, string>,
+      data: response.data,
+    };
   }
 }
 
 export interface RestResponse<T = any> {
   status: number;
-  headers: Headers;
+  headers: Record<string, string>;
   data: T;
 }
 
 export class HttpError extends Error {
   constructor(public status: number, message: string) {
     super(message);
+    Object.setPrototypeOf(this, HttpError.prototype);
   }
 }

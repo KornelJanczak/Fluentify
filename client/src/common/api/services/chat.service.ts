@@ -7,7 +7,6 @@ interface IChatService {
   getChatWithMessagesByChatId(chatId: string): Promise<ChatWithMessages | null>;
 }
 
-const chatKey = ["chat"];
 
 class ChatService implements IChatService {
   private BASIC_PATH = "/chats";
@@ -16,11 +15,7 @@ class ChatService implements IChatService {
 
   public async getChatsHistory() {
     try {
-      return (
-        await this.serverApi.get<ChatsResponse>(this.BASIC_PATH, {
-          next: { tags: [chatKey.join()] },
-        })
-      ).data;
+      return (await this.serverApi.get<ChatsResponse>(this.BASIC_PATH)).data;
     } catch (error) {
       if (!(error instanceof HttpError)) throw error;
 
@@ -34,10 +29,7 @@ class ChatService implements IChatService {
     try {
       return (
         await this.serverApi.get<ChatWithMessages | null>(
-          `/chat/${chatId}/messages`,
-          {
-            next: { tags: [chatKey.join()] },
-          }
+          `/chat/${chatId}/messages`
         )
       ).data;
     } catch (error) {
