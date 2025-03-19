@@ -1,4 +1,4 @@
-# Fluentify: Node.js, Express, TS, Postgre SQL, Redis, Next.js 15
+# Fluentify: Nest.js, TS, Postgre SQL, Redis, Next.js 15
 
 ## Application Description 📋
 This platform is a comprehensive solution for learning languages, powered by AI. It's also my most ambitious full-stack project to date, with my primary focus being on the backend so far.
@@ -30,16 +30,12 @@ The standout feature of the platform is the AI tutor, which offers low-latency a
 - Correction Mode for User Responses – Analyzes user responses via AI and offers corrections for better learning outcomes.
 
 ## Main tools (Backend) 🛠
-- Node.js
-- Typescript
-- Express
+- Nest.js
 - Vercel AI SDK
 - Google Text To Speech
 - PostgreSQL
 - Drizzle ORM
 - Redis
-- Awilix
-- Winston
 
 
 ## Main tools (Frontend) 🛠
