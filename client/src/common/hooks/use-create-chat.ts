@@ -9,12 +9,16 @@ export const useCreateChat = () => {
   const router = useRouter();
   const mutation = useMutation({
     mutationFn: async (chat: CreateChatRequest) =>
-      (await clientApi.post<CreateChatResponse>(`/chat/create-chat`, chat)).data,
+      (await clientApi.post<CreateChatResponse>(`/chat/create-chat`, chat))
+        .data,
     onSuccess: (chatId) => {
-      toast.success("Chat has been created successfully!");
       router.push(`/dashboard/chat/${chatId}`);
+      toast.success("Chat has been created successfully!");
     },
-    onError: () => {
+    onError: (error) => {
+      console.log("error", error);
+      console.log("error");
+
       toast.error("Failed to create chat!");
     },
   });
