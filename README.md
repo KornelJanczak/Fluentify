@@ -30,16 +30,12 @@ The standout feature of the platform is the AI tutor, which offers low-latency a
 - Correction Mode for User Responses – Analyzes user responses via AI and offers corrections for better learning outcomes.
 
 ## Main tools (Backend) 🛠
-- Node.js
-- Typescript
-- Express
+- Nest.js
 - Vercel AI SDK
 - Google Text To Speech
 - PostgreSQL
 - Drizzle ORM
 - Redis
-- Awilix
-- Winston
 
 
 ## Main tools (Frontend) 🛠
