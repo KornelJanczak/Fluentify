@@ -32,7 +32,7 @@ export class VocabularySetController {
   public async create(
     @Body() createVocabularySetDto: CreateVocabularySetDto,
     @UserId() userId: string,
-  ): Promise<{ createdVocabularySetId: string }> {
+  ): Promise<string> {
     const createdVocabularySetId = await this.vocabularySetService.create(
       createVocabularySetDto,
       userId,
@@ -42,7 +42,7 @@ export class VocabularySetController {
       `Created vocabulary set with ID: ${createdVocabularySetId} for user: ${userId}`,
     );
 
-    return { createdVocabularySetId };
+    return createdVocabularySetId;
   }
 
   @Get(':page')
@@ -77,7 +77,7 @@ export class VocabularySetController {
   public async update(
     @Param('id') id: string,
     @Body() updateVocabularySetDto: UpdateVocabularySetDto,
-  ): Promise<{ vocabularySetId: string }> {
+  ): Promise<string> {
     const vocabularySetId = await this.vocabularySetService.update(
       id,
       updateVocabularySetDto,
@@ -85,19 +85,17 @@ export class VocabularySetController {
 
     this.logger.log(`Updated vocabulary set with ID: ${vocabularySetId}`);
 
-    return { vocabularySetId };
+    return vocabularySetId;
   }
 
   @Delete(':id')
-  public async delete(
-    @Param('id') id: string,
-  ): Promise<{ deletedVocabularySetId: string }> {
+  public async delete(@Param('id') id: string): Promise<string> {
     const deletedVocabularySetId = await this.vocabularySetService.delete(id);
 
     this.logger.log(
       `Deleted vocabulary set with ID: ${deletedVocabularySetId}`,
     );
 
-    return { deletedVocabularySetId };
+    return deletedVocabularySetId;
   }
 }
