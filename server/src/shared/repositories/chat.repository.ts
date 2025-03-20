@@ -21,8 +21,6 @@ export class ChatRepository {
       userId,
     };
 
-    console.log('newChat', newChat);
-
     try {
       const [chat] = await this.db
         .insert(chats)
@@ -88,7 +86,9 @@ export class ChatRepository {
     }
   }
 
-  public async saveMessages(newMessages: Message[]): Promise<string> {
+  public async saveMessages(
+    newMessages: Omit<Message, 'id' | 'createdAt'>,
+  ): Promise<string> {
     try {
       const [{ id }] = await this.db
         .insert(messages)
