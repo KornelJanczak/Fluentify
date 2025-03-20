@@ -27,11 +27,13 @@ const initialState = {
 export const useFlashCardsStore = create<FlashCardsStore>()(
   (set) => ({
     ...initialState,
+
     addFlashCards: (flashCards: FlashCardStore[]) =>
       set(() => ({
         flashCardsNumber: flashCards.length,
         flashCards: flashCards,
       })),
+
     addFlashCard: () =>
       set((state) => ({
         flashCards: [
@@ -40,6 +42,7 @@ export const useFlashCardsStore = create<FlashCardsStore>()(
         ],
         flashCardsNumber: state.flashCardsNumber + 1,
       })),
+
     deleteFlashCard: (flashCardId: string) =>
       set((state) => ({
         flashCards: state.flashCards.filter(
@@ -47,6 +50,7 @@ export const useFlashCardsStore = create<FlashCardsStore>()(
         ),
         flashCardsNumber: state.flashCardsNumber - 1,
       })),
+
     updateDefinitionOnChange: (flashCardId: string, definition: string) =>
       set((state) => ({
         flashCards: state.flashCards.map((flashCard) =>
@@ -59,6 +63,7 @@ export const useFlashCardsStore = create<FlashCardsStore>()(
         ),
         flashCardsNumber: state.flashCardsNumber,
       })),
+
     updateTranslationOnChange: (flashCardId: string, translation: string) =>
       set((state) => ({
         flashCards: state.flashCards.map((flashCard) =>
@@ -71,6 +76,7 @@ export const useFlashCardsStore = create<FlashCardsStore>()(
         ),
         flashCardsNumber: state.flashCardsNumber,
       })),
+
     resetState: () => {
       set(initialState);
     },

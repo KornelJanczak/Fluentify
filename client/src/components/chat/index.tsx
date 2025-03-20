@@ -5,7 +5,8 @@ import { useChat } from "ai/react";
 import { MultimodalInput } from "./multimodal-input";
 import { Messages } from "./messages";
 import { useAudioPlayer } from "@/common/hooks/use-audio";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useAudioStore } from "@/common/hooks/use-audio-store";
 
 interface ChatProps {
   id: string;
@@ -13,20 +14,44 @@ interface ChatProps {
 }
 
 export function Chat({ initialMessages, id }: ChatProps) {
+  const hasExecuted = useRef(false);
+  const state = useAudioStore((state) => state);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const { messages, handleSubmit, input, setInput, isLoading, stop } = useChat({
-    id,
-    initialMessages,
-    api: `${process.env.NEXT_PUBLIC_API_URL}/chat/start-chat`,
-    credentials: "include",
-    body: {
-      chatId: id,
-    },
-    onFinish(message) {
-      useAudioPlayer({ message, audioRef });
-    },
-  });
+  const { messages, handleSubmit, input, setInput, isLoading, stop, append } =
+    useChat({
+      id,
+      initialMessages,
+
+      api: `${process.env.NEXT_PUBLIC_API_URL}/chat/start-chat`,
+      credentials: "include",
+      body: {
+        chatId: id,
+      },
+      onFinish(message) {
+        // useAudioPlayer({
+        //   message,
+        //   audioRef,
+        // });
+        state.playAudio(
+          message.id,
+          //@ts-ignore
+          message.annotations
+        );
+      },
+    });
+
+  useEffect(() => {
+    if (!hasExecuted.current && initialMessages.length === 0) {
+      append({
+        id: "system-init-message",
+        content: "Hi, you should start the conversation",
+        role: "user",
+      });
+
+      hasExecuted.current = true;
+    }
+  }, []);
 
   return (
     <section className="flex flex-col min-w-0 h-dvh bg-background">
@@ -41,6 +66,7 @@ export function Chat({ initialMessages, id }: ChatProps) {
           stop={stop}
         />
       </form>
+      <audio ref={audioRef} controls={true} hidden />
     </section>
   );
 }

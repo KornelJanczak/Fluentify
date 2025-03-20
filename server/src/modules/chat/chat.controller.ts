@@ -56,8 +56,6 @@ export class ChatController {
     @Body() createChatDto: CreateChatDto,
     @UserId() userId: string,
   ): Promise<string> {
-    console.log('createChatDto', createChatDto);
-
     const chatId = await this.chatService.create(createChatDto, userId);
 
     this.logger.log(`User ${userId} has created chat ${chatId}`);
@@ -106,11 +104,11 @@ export class ChatController {
   public async deleteById(
     @Param('id') id: string,
     @UserId() userId: string,
-  ): Promise<{ deletedChatId: string }> {
+  ): Promise<string> {
     const deletedChatId = await this.chatService.deleteById(id);
 
     this.logger.log(`Chat ${deletedChatId} has been deleted by user ${userId}`);
 
-    return { deletedChatId };
+    return deletedChatId;
   }
 }

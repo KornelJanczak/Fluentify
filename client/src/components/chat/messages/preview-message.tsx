@@ -2,12 +2,13 @@
 
 import type { Message } from "ai";
 import { AnimatePresence, motion } from "framer-motion";
-import { memo } from "react";
+import { memo, useRef } from "react";
 import { Markdown } from "../../markdown";
 import { MessageActions } from "./message-actions";
 import equal from "fast-deep-equal";
 import { cn } from "@/lib/utils";
 import AssistantImage from "./assistant-image";
+import { useAudioStore } from "@/common/hooks/use-audio-store";
 
 interface PreviewMessageProps {
   message: Message;
@@ -20,6 +21,9 @@ const PurePreviewMessage = ({
   isLoading,
   audioRef,
 }: PreviewMessageProps) => {
+  const audioRef1 = useRef<HTMLAudioElement | null>(null);
+  const state = useAudioStore((state) => state);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -54,10 +58,11 @@ const PurePreviewMessage = ({
               key={`action-${message.id}`}
               message={message}
               isLoading={isLoading}
+              audioRef={audioRef1}
             />
           </div>
         </div>
-        <audio ref={audioRef} hidden controls={true} />
+        <audio ref={audioRef1} hidden controls={true} />
       </motion.div>
     </AnimatePresence>
   );

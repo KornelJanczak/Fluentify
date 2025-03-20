@@ -9,7 +9,7 @@ interface IChatService {
 
 
 class ChatService implements IChatService {
-  private BASIC_PATH = "/chats";
+  private BASIC_PATH = "/chat";
 
   constructor(public serverApi: ServerAPI) {}
 
