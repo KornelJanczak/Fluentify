@@ -27,6 +27,7 @@ export interface OnFinishStreamArgs {
   content: string;
   usedTokens: number;
   streamWriter: DataStreamWriter;
+  aiResponse: string[];
 }
 
 export interface GetSystemPromptArgs {
