@@ -8,6 +8,13 @@
       "when": 1742336078715,
       "tag": "0000_fresh_big_bertha",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1742495762789,
+      "tag": "0001_silent_iceman",
+      "breakpoints": true
     }
   ]
 }
