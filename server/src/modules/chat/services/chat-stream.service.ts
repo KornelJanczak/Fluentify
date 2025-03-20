@@ -1,5 +1,5 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import { streamText, CoreMessage, pipeDataStreamToResponse } from 'ai';
+import { streamText, CoreMessage, pipeDataStreamToResponse, tool } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
 import { ServiceError } from 'src/common/service-error';
 import { ChatRepository } from 'src/shared/repositories/chat.repository';
@@ -34,7 +34,11 @@ export class ChatStreamService {
 
     const lastUserMessage = this.extractLastUserMessage(messages);
 
-    await this.saveMessage(chat.id, lastUserMessage, null);
+    await this.chatRepository.saveMessages({
+      chatId: chat.id,
+      ...lastUserMessage,
+      usedTokens: null,
+    });
 
     // Get system prompt to start the conversation
     const systemPrompt = await this.systemPromptService.getSystemPrompt({
@@ -68,6 +72,7 @@ export class ChatStreamService {
     systemPrompt: string,
   ): void {
     const { res, chatId, messages, tutorId } = startStreamRequest;
+    let aiResponse: string[];
 
     return pipeDataStreamToResponse(res, {
       execute: (streamWriter) => {
@@ -82,12 +87,15 @@ export class ChatStreamService {
               streamWriter,
               tutorId,
               usedTokens: usage.totalTokens,
+              aiResponse,
             });
           },
           onError: () => {
             throw ServiceError.ExternalServiceError('Stream to response error');
           },
         });
+
+        // result.consumeStream();
 
         return result.mergeIntoDataStream(streamWriter);
       },
@@ -99,6 +107,7 @@ export class ChatStreamService {
   ): Promise<void> {
     const { chatId, content, streamWriter, tutorId, usedTokens } =
       onFinishStreamArgs;
+    console.log('onFinishStreamArgs', onFinishStreamArgs.aiResponse);
 
     const { audioContent } = await this.audioGeneratorService.generateAudio(
       content,
@@ -110,28 +119,28 @@ export class ChatStreamService {
       data: JSON.stringify(audioContent),
     });
 
-    const messageId = await this.saveMessage(
+    const messageId = await this.chatRepository.saveMessages({
       chatId,
-      { content, role: 'assistant' },
+      content,
+      role: 'assistant',
       usedTokens,
-    );
+    });
 
     await this.audioUploaderService.uploadAudio(audioContent, messageId);
   }
-
-  private async saveMessage(
-    chatId: string,
-    message: CoreMessage,
-    usedTokens?: number,
-  ): Promise<string> {
-    return await this.chatRepository.saveMessages([
-      {
-        id: uuidv4(),
-        ...message,
-        createdAt: new Date(),
-        chatId,
-        usedTokens,
-      },
-    ]);
-  }
 }
+
+//   private async saveMessage(
+//     chatId: string,
+//     message: CoreMessage,
+//     usedTokens?: number,
+//   ): Promise<string> {
+//     return await this.chatRepository.saveMessages([
+//       {
+//         chatId,
+//         ...message,
+//         usedTokens,
+//       },
+//     ]);
+//   }
+// }
