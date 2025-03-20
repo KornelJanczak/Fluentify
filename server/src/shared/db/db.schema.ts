@@ -77,7 +77,7 @@ export const messages = pgTable('messages', {
   role: varchar({ length: 255 }).notNull(),
   content: json('content').notNull(),
   usedTokens: integer(),
-  createdAt: timestamp('createdAt').notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
   chatId: uuid('chatId')
     .notNull()
     .references(() => chats.id, { onDelete: 'cascade' }),
