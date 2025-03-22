@@ -3,17 +3,26 @@
 import type { ChatRequestOptions } from "ai";
 import cx from "classnames";
 import type React from "react";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { SendButton } from "./send-button";
 import { StopButton } from "./stop-button";
 import { Textarea } from "../../ui/textarea";
-import { useMultiModalInput } from "@/common/hooks/use-multimodal-input";
+import { useMultiModalInput } from "@/common/hooks/chat/use-multimodal-input";
+import { useSpeechRecognition } from "react-speech-recognition";
+import dynamic from "next/dynamic";
 
-interface PureMultiModalInputProps {
+const VoiceRecognationButton = dynamic(
+  () => import("./voice-recognition-button"),
+  {
+    ssr: false,
+  }
+);
+
+interface PureMultiModalInputProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   chatId: string;
   input: string;
   isLoading: boolean;
-  className?: string;
   setInput: (value: string) => void;
   stop: () => void;
   handleSubmit: (
@@ -42,6 +51,18 @@ function PureMultimodalInput({
       handleSubmit,
     });
 
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  useEffect(() => {
+    if (listening) setInput(transcript);
+    if (!listening) resetTranscript();
+  }, [transcript, listening, setInput]);
+
   return (
     <div className="relative w-full flex flex-col gap-4">
       <Textarea
@@ -58,7 +79,11 @@ function PureMultimodalInput({
         onKeyDown={onKeyDown}
       />
 
-      <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
+      <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-col gap-2 justify-between">
+        <VoiceRecognationButton
+          listening={listening}
+          browserSupportsSpeechRecognition={browserSupportsSpeechRecognition}
+        />
         {isLoading && <StopButton stop={stop} />}
         {!isLoading && <SendButton input={input} submitForm={submitForm} />}
       </div>
