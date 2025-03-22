@@ -87,13 +87,17 @@ export class ChatRepository {
   }
 
   public async saveMessages(
-    newMessages: Omit<Message, 'id' | 'createdAt'>,
+    newMessages: Omit<Message, 'id' | 'createdAt'> & { id?: string },
   ): Promise<string> {
+    console.log('newMessages', newMessages);
+
     try {
       const [{ id }] = await this.db
         .insert(messages)
         .values(newMessages)
         .returning({ id: messages.id });
+      console.log('id', id);
+
       return id;
     } catch (error) {
       throw ServiceError.DatabaseError(error.message, error.stack);

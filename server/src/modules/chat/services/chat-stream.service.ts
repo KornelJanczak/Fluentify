@@ -1,6 +1,12 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { streamText, CoreMessage, pipeDataStreamToResponse, tool } from 'ai';
-import { v4 as uuidv4 } from 'uuid';
+import { Inject, Injectable } from '@nestjs/common';
+import {
+  streamText,
+  CoreMessage,
+  pipeDataStreamToResponse,
+  IdGenerator,
+  IDGenerator,
+  generateId,
+} from 'ai';
 import { ServiceError } from 'src/common/service-error';
 import { ChatRepository } from 'src/shared/repositories/chat.repository';
 import { SystemPromptService } from './system-prompt.service';
@@ -13,8 +19,9 @@ import type {
 import { AiProvider } from 'src/shared/ai/ai.provider';
 import { OpenAIProvider } from '@ai-sdk/openai';
 import { AudioUploaderService } from './audio-uploader.service';
+import * as uuid from 'uuid';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class ChatStreamService {
   constructor(
     @Inject(AiProvider) private AI: OpenAIProvider,
@@ -72,30 +79,30 @@ export class ChatStreamService {
     systemPrompt: string,
   ): void {
     const { res, chatId, messages, tutorId } = startStreamRequest;
-    let aiResponse: string[];
 
     return pipeDataStreamToResponse(res, {
       execute: (streamWriter) => {
         const result = streamText({
           model: this.AI('gpt-3.5-turbo'),
+          experimental_generateMessageId: uuid.v4,
           system: systemPrompt,
           messages,
-          onFinish: async ({ text, usage }) => {
+          onFinish: async ({ text, response, usage }) => {
+            console.log('response', response);
+
             await this.onFinishStream({
               chatId,
+              tutorId,
+              messageId: response.messages[0].id,
               content: text,
               streamWriter,
-              tutorId,
               usedTokens: usage.totalTokens,
-              aiResponse,
             });
           },
           onError: () => {
             throw ServiceError.ExternalServiceError('Stream to response error');
           },
         });
-
-        // result.consumeStream();
 
         return result.mergeIntoDataStream(streamWriter);
       },
@@ -105,9 +112,8 @@ export class ChatStreamService {
   private async onFinishStream(
     onFinishStreamArgs: OnFinishStreamArgs,
   ): Promise<void> {
-    const { chatId, content, streamWriter, tutorId, usedTokens } =
+    const { chatId, content, streamWriter, tutorId, usedTokens, messageId } =
       onFinishStreamArgs;
-    console.log('onFinishStreamArgs', onFinishStreamArgs.aiResponse);
 
     const { audioContent } = await this.audioGeneratorService.generateAudio(
       content,
@@ -119,28 +125,14 @@ export class ChatStreamService {
       data: JSON.stringify(audioContent),
     });
 
-    const messageId = await this.chatRepository.saveMessages({
+    const savedMessageId = await this.chatRepository.saveMessages({
+      id: messageId,
       chatId,
       content,
       role: 'assistant',
       usedTokens,
     });
 
-    await this.audioUploaderService.uploadAudio(audioContent, messageId);
+    await this.audioUploaderService.uploadAudio(audioContent, savedMessageId);
   }
 }
-
-//   private async saveMessage(
-//     chatId: string,
-//     message: CoreMessage,
-//     usedTokens?: number,
-//   ): Promise<string> {
-//     return await this.chatRepository.saveMessages([
-//       {
-//         chatId,
-//         ...message,
-//         usedTokens,
-//       },
-//     ]);
-//   }
-// }
