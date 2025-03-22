@@ -1,21 +1,24 @@
 "use client";
 
-import { FlashCardsSetFormValues } from "@/common/hooks/use-flash-cards-set-form";
+import { type FlashCard } from "@/common/api/services/vocabulary-set.service";
+import { FlashCardsSetFormValues } from "@/common/hooks/vocabulary-set/use-flash-cards-set-form";
 import { VocabularySetForm } from "./form";
 import { Markdown } from "../markdown";
-import FlashCards, { FlashCardsProps } from "./flash-cards";
 import AddFlashCard from "./add-flash-card";
 import { Button } from "../ui/button";
 import SectionWrapper from "../section-wrapper";
+import FlashCards from "./flash-cards";
+
 import { Oval } from "react-loader-spinner";
 
-export interface VocabularySet extends FlashCardsProps {
+export interface VocabularySet {
   markdownContent: string;
   buttonContent: string;
   defaultFormValues?: FlashCardsSetFormValues;
   deleteButton?: React.ReactNode;
   isPending: boolean;
   onFormSubmit: (values: FlashCardsSetFormValues) => void;
+  flashCards: Omit<FlashCard, "vocabularySetId">[];
 }
 
 export default function VocabularySet({

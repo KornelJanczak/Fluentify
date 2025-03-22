@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateChat } from "@/common/hooks/use-create-chat";
+import { useCreateChat } from "@/common/hooks/chat/use-create-chat";
 import VocabularySetCard from "../vocabulary-sets/vocabulary-set-card";
 import type { VocabularySet } from "@/common/api/services/vocabulary-set.service";
 

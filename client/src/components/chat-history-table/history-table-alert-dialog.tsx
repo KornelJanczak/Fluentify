@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeleteChat } from "@/common/hooks/use-delete-chat";
+import { useDeleteChat } from "@/common/hooks/chat/use-delete-chat";
 import {
   AlertDialog,
   AlertDialogAction,

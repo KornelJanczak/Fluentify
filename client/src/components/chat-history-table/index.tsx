@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { HistoryTablePagination } from "./history-table-pagination";
 import { HistoryTableToolbar } from "./history-table-toolbar";
-import { useHistoryTable } from "@/common/hooks/use-history-table";
+import { useHistoryTable } from "@/common/hooks/chat/use-history-table";
 
 interface HistoryTableProps {
   chats: Chat[];

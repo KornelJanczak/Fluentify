@@ -1,8 +1,8 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { clientApi } from "../api/client-api";
-import { type ChatsResponse } from "../api/services/chat.service";
+import { clientApi } from "../../api/client-api";
+import { type ChatsResponse } from "../../api/services/chat.service";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 

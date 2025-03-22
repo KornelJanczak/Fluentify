@@ -1,9 +1,9 @@
 "use client";
 
-import { useFlashCardsStore } from "@/common/hooks/use-flash-cards-store";
+import { useFlashCardsStore } from "@/common/hooks/vocabulary-set/use-flash-cards-store";
 import VocabularySet from "./vocabulary-set";
-import { useCreateVocabularySet } from "@/common/hooks/use-create-vocabulary-set";
-import { FlashCardsSetFormValues } from "@/common/hooks/use-flash-cards-set-form";
+import { useCreateVocabularySet } from "@/common/hooks/vocabulary-set/use-create-vocabulary-set";
+import { FlashCardsSetFormValues } from "@/common/hooks/vocabulary-set/use-flash-cards-set-form";
 import { validateFlashCards } from "@/lib/helpers";
 
 export default function VocabularySetCreateNew() {

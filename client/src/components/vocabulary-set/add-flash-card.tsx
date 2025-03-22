@@ -4,7 +4,7 @@ import * as React from "react";
 import { Card, CardContent } from "../ui/card";
 import { Markdown } from "../markdown";
 import { Button } from "../ui/button";
-import { useFlashCardsStore } from "@/common/hooks/use-flash-cards-store";
+import { useFlashCardsStore } from "@/common/hooks/vocabulary-set/use-flash-cards-store";
 
 interface AddFlashCard extends React.HTMLAttributes<HTMLDivElement> {}
 

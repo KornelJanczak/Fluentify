@@ -5,7 +5,7 @@ import FlashCardComponent from "./flash-card";
 import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 import { scaleAndFadeAnimation } from "@/common/animations";
 
-export interface FlashCardsProps {
+interface FlashCardsProps {
   flashCards: Omit<FlashCard, "vocabularySetId">[];
 }
 

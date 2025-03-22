@@ -96,13 +96,11 @@ export const useMultiModalInput = ({
     {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
-        console.log("acab");
 
-        if (isLoading) {
+        if (isLoading)
           toast.error("Please wait for the model to finish its response!");
-        } else {
-          submitForm();
-        }
+
+        if (!isLoading) submitForm();
       }
     }
   };

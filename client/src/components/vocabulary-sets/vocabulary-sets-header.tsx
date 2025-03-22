@@ -2,7 +2,7 @@
 
 import { Input } from "../ui/input";
 import { Markdown } from "../markdown";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -11,9 +11,6 @@ import { useRef } from "react";
 export default function VocabularySetsHeader() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const searchParams = useSearchParams();
-
-  console.log("searchParams", searchParams.get("search"));
 
   return (
     <div className="flex-col items-center justify-center space-y-6">

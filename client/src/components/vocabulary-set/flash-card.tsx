@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Markdown } from "../markdown";
 import { Input } from "../ui/input";
 import DeleteButton from "../delete-button";
-import { useFlashCardsStore } from "@/common/hooks/use-flash-cards-store";
+import { useFlashCardsStore } from "@/common/hooks/vocabulary-set/use-flash-cards-store";
 
 interface FlashCardProps extends React.HTMLAttributes<HTMLDivElement> {
   flashCard: Omit<FlashCard, "vocabularySetId">;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeleteVocabularySet } from "@/common/hooks/use-delete-vocabulary-set";
+import { useDeleteVocabularySet } from "@/common/hooks/vocabulary-set/use-delete-vocabulary-set";
 import {
   AlertDialog,
   AlertDialogAction,

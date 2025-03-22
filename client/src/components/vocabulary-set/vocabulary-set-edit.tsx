@@ -2,10 +2,10 @@
 
 import { VocabularySetWithFlashCards } from "@/common/api/services/vocabulary-set.service";
 import VocabularySet from "./vocabulary-set";
-import { useFlashCardsStore } from "@/common/hooks/use-flash-cards-store";
+import { useFlashCardsStore } from "@/common/hooks/vocabulary-set/use-flash-cards-store";
 import { useEffect } from "react";
-import { useUpdateVocabularySet } from "@/common/hooks/use-update-vocabulary-set";
-import { FlashCardsSetFormValues } from "@/common/hooks/use-flash-cards-set-form";
+import { useUpdateVocabularySet } from "@/common/hooks/vocabulary-set/use-update-vocabulary-set";
+import { FlashCardsSetFormValues } from "@/common/hooks/vocabulary-set/use-flash-cards-set-form";
 import { validateFlashCards } from "@/lib/helpers";
 import { VocabularySetAlertDialog } from "./vocabulary-set-alert-dialog";
 

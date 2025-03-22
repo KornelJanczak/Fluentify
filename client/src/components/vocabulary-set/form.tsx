@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import {
   FlashCardsSetFormValues,
   useFlashCardsSetForm,
-} from "@/common/hooks/use-flash-cards-set-form";
+} from "@/common/hooks/vocabulary-set/use-flash-cards-set-form";
 
 interface FlashCardsSetFormProps {
   defaultValues?: FlashCardsSetFormValues;

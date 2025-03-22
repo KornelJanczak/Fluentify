@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { clientApi } from "../api/client-api";
+import { clientApi } from "../../api/client-api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { clientApi } from "../api/client-api";
-import { FlashCard } from "../api/services/vocabulary-set.service";
+import { clientApi } from "../../api/client-api";
+import { FlashCard } from "../../api/services/vocabulary-set.service";
 import { formatCreateVocabularySetData } from "@/lib/formaters";
 import { toast } from "sonner";
 

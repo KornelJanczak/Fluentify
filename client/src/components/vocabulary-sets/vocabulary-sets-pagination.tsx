@@ -3,7 +3,6 @@
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -22,7 +21,7 @@ export function VocabularySetsPagination({
   hasMore,
 }: VocabularySetsPaginationProps) {
   console.log(hasMore);
-  
+
   const [page, setPage] = useState(DEFAULT_PAGE);
   const param = useSearchParams();
   const currentPage = Number(param.get("page"));
