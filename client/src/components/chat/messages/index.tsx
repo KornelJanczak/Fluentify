@@ -3,15 +3,14 @@ import { ThinkingMessage } from "./thinking-message";
 import { PreviewMessage } from "./preview-message";
 import { memo } from "react";
 import equal from "fast-deep-equal";
-import { useScrollToBottom } from "@/common/hooks/use-scroll-to-bottom";
+import { useScrollToBottom } from "@/common/hooks/shared/use-scroll-to-bottom";
 
 export interface MessagesProps {
   isLoading: boolean;
   messages: Array<Message>;
-  audioRef: React.RefObject<HTMLAudioElement>;
 }
 
-function PureMessages({ isLoading, messages, audioRef }: MessagesProps) {
+function PureMessages({ isLoading, messages }: MessagesProps) {
   const messagesExist = messages.length > 0;
   const lastMessageFromUser =
     messagesExist && messages[messages.length - 1].role === "user";
@@ -28,7 +27,6 @@ function PureMessages({ isLoading, messages, audioRef }: MessagesProps) {
           key={message.id}
           message={message}
           isLoading={isLoading && messages.length - 1 === index}
-          audioRef={audioRef}
         />
       ))}
 
