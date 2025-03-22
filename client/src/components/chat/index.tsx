@@ -4,9 +4,13 @@ import type { Message } from "ai";
 import { useChat } from "ai/react";
 import { MultimodalInput } from "./multimodal-input";
 import { Messages } from "./messages";
-import { useAudioPlayer } from "@/common/hooks/use-audio";
 import { useEffect, useRef } from "react";
-import { useAudioStore } from "@/common/hooks/use-audio-store";
+import { useAudioStore } from "@/common/hooks/chat/use-audio-store";
+import dynamic from "next/dynamic";
+// import VoiceRecognationButton from "./multimodal-input/voice-recognition-button";
+// const MultimodalInput = dynamic(() => import("./multimodal-input/index"), {
+//   ssr: false,
+// });
 
 interface ChatProps {
   id: string;
@@ -15,29 +19,19 @@ interface ChatProps {
 
 export function Chat({ initialMessages, id }: ChatProps) {
   const hasExecuted = useRef(false);
-  const state = useAudioStore((state) => state);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const playAudio = useAudioStore((state) => state.playAudio);
 
   const { messages, handleSubmit, input, setInput, isLoading, stop, append } =
     useChat({
       id,
       initialMessages,
-
       api: `${process.env.NEXT_PUBLIC_API_URL}/chat/start-chat`,
       credentials: "include",
       body: {
         chatId: id,
       },
       onFinish(message) {
-        // useAudioPlayer({
-        //   message,
-        //   audioRef,
-        // });
-        state.playAudio(
-          message.id,
-          //@ts-ignore
-          message.annotations
-        );
+        playAudio(message.id, message.annotations);
       },
     });
 
@@ -55,7 +49,7 @@ export function Chat({ initialMessages, id }: ChatProps) {
 
   return (
     <section className="flex flex-col min-w-0 h-dvh bg-background">
-      <Messages isLoading={isLoading} messages={messages} audioRef={audioRef} />
+      <Messages isLoading={isLoading} messages={messages} />
       <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
         <MultimodalInput
           chatId={id}
@@ -66,7 +60,6 @@ export function Chat({ initialMessages, id }: ChatProps) {
           stop={stop}
         />
       </form>
-      <audio ref={audioRef} controls={true} hidden />
     </section>
   );
 }
