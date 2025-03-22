@@ -5,9 +5,7 @@ export function middleware(request: NextRequest) {
   const cookieStore = request.cookies;
   const sessionID = cookieStore.get("connect.sid");
 
-  if (!sessionID) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  if (!sessionID) return NextResponse.redirect(new URL("/", request.url));
 
   return NextResponse.next({
     headers: {
