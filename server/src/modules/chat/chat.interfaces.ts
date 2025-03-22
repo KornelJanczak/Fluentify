@@ -24,10 +24,10 @@ export interface StartStreamRequest {
 export interface OnFinishStreamArgs {
   chatId: string;
   tutorId: string;
+  messageId: string;
   content: string;
   usedTokens: number;
   streamWriter: DataStreamWriter;
-  aiResponse: string[];
 }
 
 export interface GetSystemPromptArgs {
