@@ -18,7 +18,7 @@ export class AudioGeneratorService {
     const tutorVoices: IVoice[] = await this.getTutorVoices();
     const tutorVoice: IVoice = this.formatTutorVoice(tutorVoices, tutorId);
     const request = this.createRequest(text, tutorVoice);
-    // this.streamAudio(request);
+
     return await this.syntheziseAudio(request);
   }
 
@@ -33,22 +33,6 @@ export class AudioGeneratorService {
     } catch (error) {
       throw ServiceError.ExternalServiceError(error.message);
     }
-  }
-
-  private streamAudio(text: string[]) {
-    const stream = this.textToSpeechClient.streamingSynthesize();
-    stream.on('data', (response) => {
-      console.log(response);
-    });
-    stream.on('error', (err) => {
-      throw err;
-    });
-    stream.on('end', () => {
-      /* API call completed */
-      console.log('end');
-    });
-    // stream.write(request);
-    stream.end();
   }
 
   private async getTutorVoices(): Promise<IVoice[]> {
