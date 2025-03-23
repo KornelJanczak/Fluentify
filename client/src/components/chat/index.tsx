@@ -6,11 +6,6 @@ import { MultimodalInput } from "./multimodal-input";
 import { Messages } from "./messages";
 import { useEffect, useRef } from "react";
 import { useAudioStore } from "@/common/hooks/chat/use-audio-store";
-import dynamic from "next/dynamic";
-// import VoiceRecognationButton from "./multimodal-input/voice-recognition-button";
-// const MultimodalInput = dynamic(() => import("./multimodal-input/index"), {
-//   ssr: false,
-// });
 
 interface ChatProps {
   id: string;
