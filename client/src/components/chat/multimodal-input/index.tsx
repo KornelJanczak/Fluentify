@@ -3,12 +3,11 @@
 import type { ChatRequestOptions } from "ai";
 import cx from "classnames";
 import type React from "react";
-import { memo, useEffect } from "react";
+import { memo } from "react";
 import { SendButton } from "./send-button";
 import { StopButton } from "./stop-button";
 import { Textarea } from "../../ui/textarea";
 import { useMultiModalInput } from "@/common/hooks/chat/use-multimodal-input";
-import { useSpeechRecognition } from "react-speech-recognition";
 import dynamic from "next/dynamic";
 
 const VoiceRecognationButton = dynamic(
@@ -33,35 +32,17 @@ interface PureMultiModalInputProps
   ) => void;
 }
 
-function PureMultimodalInput({
-  chatId,
-  input,
-  isLoading,
-  className,
-  setInput,
-  stop,
-  handleSubmit,
-}: PureMultiModalInputProps) {
-  const { textareaRef, handleInput, onKeyDown, submitForm } =
-    useMultiModalInput({
-      chatId,
-      input,
-      setInput,
-      isLoading,
-      handleSubmit,
-    });
+function PureMultimodalInput(props: PureMultiModalInputProps) {
+  const { className, stop, isLoading, input, ...multiModalInputProps } = props;
 
   const {
-    transcript,
-    listening,
-    resetTranscript,
+    textareaRef,
+    handleInput,
+    onKeyDown,
+    submitForm,
     browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
-
-  useEffect(() => {
-    if (listening) setInput(transcript);
-    if (!listening) resetTranscript();
-  }, [transcript, listening, setInput]);
+    listening,
+  } = useMultiModalInput({ isLoading, input, ...multiModalInputProps });
 
   return (
     <div className="relative w-full flex flex-col gap-4">
@@ -79,7 +60,7 @@ function PureMultimodalInput({
         onKeyDown={onKeyDown}
       />
 
-      <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-col gap-2 justify-between">
+      <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row gap-2 justify-between">
         <VoiceRecognationButton
           listening={listening}
           browserSupportsSpeechRecognition={browserSupportsSpeechRecognition}
