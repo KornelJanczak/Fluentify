@@ -28,7 +28,7 @@ export default function PublicPage() {
         const userData = await response.json();
 
         console.log(userData);
-        
+
         setUser(userData);
       } catch (error) {
         setError(error);
