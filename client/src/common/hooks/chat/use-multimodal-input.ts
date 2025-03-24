@@ -2,10 +2,12 @@
 
 import type { ChatRequestOptions } from "ai";
 import type React from "react";
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { toast } from "sonner";
-import { useSpeechRecognition } from "react-speech-recognition";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 interface UseMultiModalInputProps {
   chatId: string;
@@ -36,6 +38,7 @@ export const useMultiModalInput = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const textAreaElement = textareaRef.current;
   const { width } = useWindowSize();
+  const [previousTranscript, setPreviousTranscript] = useState("");
 
   useEffect(() => {
     if (textAreaElement) adjustHeight();
@@ -74,16 +77,28 @@ export const useMultiModalInput = ({
 
   // Function to handle transcript change and adjust height
   useEffect(() => {
-    if (!listening) return;
+    if (!listening) {
+      resetTranscript();
+      return;
+    }
 
-    // Append transcript to the current input
-    //@ts-ignore
-    console.log("input", textAreaElement.value);
+    if (transcript && transcript !== previousTranscript) {
+      // Combine existing input with new transcript content
+      console.log("transcript", transcript);
 
-    setInput(transcript);
+      const newInput = input + transcript.substring(previousTranscript.length);
+      setInput(newInput);
+      setPreviousTranscript(transcript);
+      adjustHeight();
+    }
+  }, [transcript, listening, input, setInput, previousTranscript]);
 
-    adjustHeight();
-  }, [transcript, listening, setInput, resetTranscript, adjustHeight]);
+  // Reset previous transcript when listening stops
+  useEffect(() => {
+    if (!listening) {
+      setPreviousTranscript("");
+    }
+  }, [listening]);
 
   // Function to handle input change and adjust height
   useEffect(() => {
@@ -93,8 +108,6 @@ export const useMultiModalInput = ({
   // Function to handle input change and adjust height
   const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = event.target.value;
-    console.log("value", value);
-
     setInput(value);
     adjustHeight();
   };
@@ -105,12 +118,14 @@ export const useMultiModalInput = ({
 
     handleSubmit(undefined);
 
+    SpeechRecognition.stopListening();
     resetTranscript();
+    setPreviousTranscript("");
     setLocalStorageInput("");
     resetHeight();
 
     if (width && width > 768) textAreaElement?.focus();
-  }, [handleSubmit, setLocalStorageInput, width, chatId]);
+  }, [handleSubmit, setLocalStorageInput, width, chatId, resetTranscript]);
 
   // Function to handle keydown event
   const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
