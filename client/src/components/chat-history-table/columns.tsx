@@ -1,14 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-
 import { Checkbox } from "@/components/ui/checkbox";
 import { HistoryTableColumnHeader } from "./history-table-column-header";
-import { HistoryTableRowActions } from "./history-table-row-actions";
 import { Chat } from "@/common/api/services/chat.service";
 import { format } from "date-fns";
 import ContinueButton from "./continue-button";
-import DeleteButton from "./delete-button";
+import { HistoryTableDeleteDialog } from "./history-table-delete-dialog";
 
 export const columns: ColumnDef<Chat>[] = [
   {
@@ -42,14 +40,16 @@ export const columns: ColumnDef<Chat>[] = [
       <HistoryTableColumnHeader column={column} title="Topic" />
     ),
     cell: ({ row }) => {
-      // const label = labels.find((label) => label.value === row.original.title);
+      const titles = {
+        vocabulary: "Practise vocab",
+        anything: "Free chat",
+      };
 
       return (
         <div className="flex space-x-2">
-          {/* {label && <Badge variant="outline">{label.label}</Badge>} */}
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("topic")}
-          </span>
+          <span className="max-w-[500px] truncate font-medium">{`${
+            titles[row.original.category]
+          } - ${row.original.topic}`}</span>
         </div>
       );
     },
@@ -81,7 +81,7 @@ export const columns: ColumnDef<Chat>[] = [
   },
   {
     id: "delete",
-    cell: ({ row }) => <DeleteButton row={row} />,
+    cell: ({ row }) => <HistoryTableDeleteDialog row={row} />,
   },
   // {
   //   id: "actions",
