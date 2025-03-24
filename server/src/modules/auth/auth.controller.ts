@@ -12,14 +12,11 @@ import { User } from 'src/common/decorators/user.decorator';
 import { User as UserType } from 'src/shared/db/db.schema';
 import { Request } from 'express';
 import { GoogleAuthGuard } from './strategies/google.guard';
-import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   abc = 123;
-
-  constructor(private readonly configService: ConfigService) {}
 
   @Get('logout')
   public logOut(@Req() req: Request) {
@@ -52,6 +49,7 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleAuthGuard)
+  @Redirect(`http://localhost:3000/dashboard`, 301)
   public handleLogin() {
     return { msg: 'Google Authentication' };
   }
@@ -59,7 +57,5 @@ export class AuthController {
   @Get('callback/google')
   @UseGuards(GoogleAuthGuard)
   @Redirect(`http://localhost:3000`, 301)
-  public googleCallback() {
-    return { msg: 'Google callback' };
-  }
+  public googleCallback() {}
 }
