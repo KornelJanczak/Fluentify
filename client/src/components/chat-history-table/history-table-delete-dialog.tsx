@@ -12,24 +12,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Trash2Icon } from "lucide-react";
+import DeleteButton from "../delete-button";
+import { Row } from "@tanstack/react-table";
+import { chatSchema } from "./utils/schema";
 
-interface HistoryTableAlertDialogProps {
-  chatId: string;
+interface HistoryTableDeleteDialogProps<TData> {
+  row: Row<TData>;
 }
 
-export function HistoryTableAlertDialog({
-  chatId,
-}: HistoryTableAlertDialogProps) {
-  const { mutate, isPending } = useDeleteChat(chatId);
+export function HistoryTableDeleteDialog({
+  row,
+}: HistoryTableDeleteDialogProps<any>) {
+  const chat = chatSchema.parse(row.original);
+  const { mutate } = useDeleteChat(chat.id);
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className="bg-none bg-inherit hover:bg-inherit">
-          <Trash2Icon size={21} color="#7F1D1D" />
-        </Button>
+        <DeleteButton />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
