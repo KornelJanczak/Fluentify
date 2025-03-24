@@ -1,14 +1,7 @@
-// client/src/app/page.tsx
+"use client";
 
-import Navbar from "@/components/navbar";
+import LandingPage from "@/components/landing-page";
 
-export default function Home() {
-  return (
-    <main>
-      <Navbar />
-      <h1 className="mt-10 text-4xl font-bold tracking-tight text-white sm:text-6xl">
-        Home Page
-      </h1>
-    </main>
-  );
+export default function HomePage() {
+  return <LandingPage />;
 }
