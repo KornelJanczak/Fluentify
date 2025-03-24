@@ -32,9 +32,8 @@ const navItems = {
 export default function Navbar() {
   let pathname = usePathname();
 
-  const singInHandler = () => {
-    window.open(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`);
-  };
+  const singInHandler = () =>
+    (window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`);
 
   return (
     <>

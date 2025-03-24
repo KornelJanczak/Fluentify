@@ -4,11 +4,10 @@ import type { ChatRequestOptions } from "ai";
 import cx from "classnames";
 import type React from "react";
 import { memo } from "react";
-import { SendButton } from "./send-button";
-import { StopButton } from "./stop-button";
 import { Textarea } from "../../ui/textarea";
 import { useMultiModalInput } from "@/common/hooks/chat/use-multimodal-input";
 import dynamic from "next/dynamic";
+import { ToggleButton } from "./toggle-button";
 
 const VoiceRecognationButton = dynamic(
   () => import("./voice-recognition-button"),
@@ -65,8 +64,12 @@ function PureMultimodalInput(props: PureMultiModalInputProps) {
           listening={listening}
           browserSupportsSpeechRecognition={browserSupportsSpeechRecognition}
         />
-        {isLoading && <StopButton stop={stop} />}
-        {!isLoading && <SendButton input={input} submitForm={submitForm} />}
+        <ToggleButton
+          submitForm={submitForm}
+          stop={stop}
+          input={input}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );
@@ -77,7 +80,6 @@ export const MultimodalInput = memo(
   (prevProps, nextProps) => {
     if (prevProps.input !== nextProps.input) return false;
     if (prevProps.isLoading !== nextProps.isLoading) return false;
-
     return true;
   }
 );

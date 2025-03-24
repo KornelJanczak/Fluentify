@@ -39,7 +39,7 @@ export function PureMessageActions({
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row gap-2" id="message-actions">
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex flex-row gap-2 items-center">
@@ -83,6 +83,9 @@ export const MessageActions = memo(
   PureMessageActions,
   (prevProps, nextProps) => {
     if (prevProps.isLoading !== nextProps.isLoading) return false;
+    if (prevProps.message.id !== nextProps.message.id) return false;
+    if (prevProps.message.content !== nextProps.message.content) return false;
+    if (prevProps.message.content !== nextProps.message.content) return false;
     return true;
   }
 );
