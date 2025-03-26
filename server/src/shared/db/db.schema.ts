@@ -9,30 +9,59 @@ export const users = pgTable('users', {
   imagePath: varchar({ length: 510 }).notNull(),
   role: varchar({ length: 255 }).notNull(),
   subscriptionExpiryDate: varchar({ length: 255 }).notNull(),
-  studyingLanguageLevel: varchar({ length: 255 }).notNull(),
-  nativeLanguage: varchar({ length: 255 }).notNull(),
-  tutorId: varchar({ length: 255 }).notNull(),
 });
 
 // USERS RELATIONS
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   chats: many(chats),
   vocabularySets: many(vocabularySets),
+  settings: one(settings, {
+    fields: [users.id],
+    references: [settings.userId],
+  }),
 }));
 
 export type User = InferSelectModel<typeof users>;
 
 // #################################################################### //
 
+// SETTINGS TABLE
+export const settings = pgTable('settings', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  learningLanguage: varchar({ length: 255 }).notNull(),
+  learningLanguageLevel: varchar({ length: 255 }).notNull(),
+  nativeLanguage: varchar({ length: 255 }).notNull(),
+  tutorId: varchar({ length: 255 }).notNull(),
+  autoCorrect: boolean(),
+  autoRecord: boolean(),
+  autoSend: boolean(),
+  userId: varchar('userId').references(() => users.id),
+});
+
+export type Settings = InferSelectModel<typeof settings>;
+
+// SETTINGS RELATIONS
+export const settingsRelations = relations(settings, ({ one }) => ({
+  user: one(users, {
+    fields: [settings.userId],
+    references: [users.id],
+  }),
+}));
+
+// #################################################################### //
+
 // CHAT TABLE
 export const chats = pgTable('chats', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
-  usedTokens: integer(),
   startedAt: timestamp().notNull().defaultNow(),
   category: varchar({ length: 255 }).notNull(),
   topic: varchar({ length: 255 }).notNull(),
-  userId: varchar('userId'),
-  vocabularySetId: uuid('vocabularySetId').references(() => vocabularySets.id),
+  userId: varchar('userId').references(() => users.id, {
+    onDelete: 'cascade',
+  }),
+  vocabularySetId: uuid('vocabularySetId').references(() => vocabularySets.id, {
+    onDelete: 'set null',
+  }),
 });
 
 // CHATS RELATIONS
@@ -41,33 +70,14 @@ export const chatsRelations = relations(chats, ({ one, many }) => ({
     fields: [chats.userId],
     references: [users.id],
   }),
-  chatSettings: one(chatSettings),
   messages: many(messages),
-  vocabularySets: one(vocabularySets),
-}));
-
-export type Chat = InferSelectModel<typeof chats>;
-
-// #################################################################### //
-
-// CHAT SETTINGS TABLE
-export const chatSettings = pgTable('chatSettings', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  autoCorrect: boolean().notNull(),
-  autoRecord: boolean().notNull(),
-  autoSend: boolean().notNull(),
-  chatId: uuid('chatId').references(() => chats.id),
-});
-
-// CHAT SETTINGS RELATIONS
-export const chatSettingsRelations = relations(chatSettings, ({ one }) => ({
-  chat: one(chats, {
-    fields: [chatSettings.chatId],
-    references: [chats.id],
+  vocabularySet: one(vocabularySets, {
+    fields: [chats.vocabularySetId],
+    references: [vocabularySets.id],
   }),
 }));
 
-export type ChatSettings = InferSelectModel<typeof chatSettings>;
+export type Chat = InferSelectModel<typeof chats>;
 
 // #################################################################### //
 
@@ -103,7 +113,9 @@ export const vocabularySets = pgTable(
     title: varchar({ length: 255 }).notNull(),
     description: varchar({ length: 255 }).notNull(),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
-    userId: varchar('userId').references(() => users.id),
+    userId: varchar('userId').references(() => users.id, {
+      onDelete: 'cascade',
+    }),
   },
   (table) => [
     index('title_search_index').using(
