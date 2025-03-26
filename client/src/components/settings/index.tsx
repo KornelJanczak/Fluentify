@@ -12,10 +12,18 @@ export default function Settings() {
           <TabsTrigger value="chat">Chat Settings</TabsTrigger>
         </TabsList>
         <TabsContent value="learning">
-          <LearningSettingsForm />
+          <LearningSettingsForm
+            learningLanguage="english"
+            nativeLanguage="polish"
+            learningLanguageLevel="B2"
+          />
         </TabsContent>
         <TabsContent value="chat">
-          <ChatSettingsForm learningLanguage="english" />
+          <ChatSettingsForm
+            tutorId="en-US-Casual-K"
+            learningLanguage="english"
+            autoCorrect={true}
+          />
         </TabsContent>
       </Tabs>
     </SectionWrapper>

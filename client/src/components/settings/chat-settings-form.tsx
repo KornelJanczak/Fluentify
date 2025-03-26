@@ -58,28 +58,58 @@ const chatSettings = [
 ];
 
 const FormSchema = z.object({
-  tutor: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one item.",
-  }),
+  tutor: z.enum(
+    [
+      "en-US-Casual-K",
+      "en-US-Journey-F",
+      "en-GB-Journey-D",
+      "en-GB-Journey-F",
+      "en-AU-Journey-D",
+      "en-AU-Neural2-C",
+    ],
+    {
+      message: "Please select a tutor.",
+    }
+  ),
   chatSettings: z
-    .array(z.string())
-    .refine((value) => value.some((item) => item), {
-      message: "You have to select at least one item.",
-    }),
+    .array(z.enum(["autoCorrect", "autoRecord", "autoSend"]))
+    .optional(),
 });
 
-type FormSchemaType = z.infer<typeof FormSchema>;
+type ChatSettingsFormType = z.infer<typeof FormSchema>;
 
 interface ChatSettingsFormProps {
+  tutorId: string;
   learningLanguage: string;
+  autoCorrect?: boolean;
+  autoRecord?: boolean;
+  autoSend?: boolean;
 }
 
-export function ChatSettingsForm({ learningLanguage }: ChatSettingsFormProps) {
-  const form = useForm<FormSchemaType>({
+export function ChatSettingsForm({
+  tutorId,
+  learningLanguage,
+  autoCorrect,
+  autoRecord,
+  autoSend,
+}: ChatSettingsFormProps) {
+  const currentTutor = tutors[learningLanguage].find(
+    ({ id }) => id === tutorId
+  ).id;
+
+  const form = useForm<ChatSettingsFormType>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      tutor: currentTutor,
+      chatSettings: [
+        autoCorrect ? "autoCorrect" : null,
+        autoRecord ? "autoRecord" : null,
+        autoSend ? "autoSend" : null,
+      ].filter(Boolean) as ("autoCorrect" | "autoRecord" | "autoSend")[],
+    },
   });
 
-  const onSubmit = (data: FormSchemaType) => {
+  const onSubmit = (data: ChatSettingsFormType) => {
     console.log(data);
   };
 
@@ -91,14 +121,17 @@ export function ChatSettingsForm({ learningLanguage }: ChatSettingsFormProps) {
           name="tutor"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Which language would you like to learn?</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={"english"}>
+              <FormLabel>Choose your tutor!</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={currentTutor}
+              >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a verified email to display" />
+                    <SelectValue />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent defaultValue={"english"}>
+                <SelectContent>
                   {tutors[learningLanguage].map((tutor) => (
                     <SelectItem key={tutor.id} value={tutor.id}>
                       {tutor.name} ({tutor.origin})
@@ -107,9 +140,8 @@ export function ChatSettingsForm({ learningLanguage }: ChatSettingsFormProps) {
                 </SelectContent>
               </Select>
               <FormDescription>
-                If you are learning more than one, please select the primary
-                one. You can change this option when you switch to another
-                language.
+                Each tutor is characterized by their age, gender, and
+                personality.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -139,20 +171,23 @@ export function ChatSettingsForm({ learningLanguage }: ChatSettingsFormProps) {
                         className="flex flex-row items-start space-x-3 space-y-0"
                       >
                         <FormControl>
-                          <div>
-                            <Checkbox
-                              checked={field.value?.includes(item.id)}
-                              onCheckedChange={(checked) => {
-                                return checked
-                                  ? field.onChange([...field.value, item.id])
-                                  : field.onChange(
-                                      field.value?.filter(
-                                        (value) => value !== item.id
-                                      )
-                                    );
-                              }}
-                            />
-                          </div>
+                          <Checkbox
+                            checked={field.value?.includes(
+                              item.id as
+                                | "autoCorrect"
+                                | "autoRecord"
+                                | "autoSend"
+                            )}
+                            onCheckedChange={(checked) => {
+                              return checked
+                                ? field.onChange([...field.value, item.id])
+                                : field.onChange(
+                                    field.value?.filter(
+                                      (value) => value !== item.id
+                                    )
+                                  );
+                            }}
+                          />
                         </FormControl>
                         <div className="flex flex-row items-center space-x-2">
                           <FormLabel className="text-sm font-normal">

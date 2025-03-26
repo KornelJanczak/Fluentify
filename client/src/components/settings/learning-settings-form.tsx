@@ -99,20 +99,33 @@ export const learningLanguageLevels = {
 };
 
 const FormSchema = z.object({
-  learningLanguage: z.string({
-    required_error: "Please select a language.",
+  learningLanguage: z.enum(["english", "german"], {
+    message: "Please select a language.",
   }),
-  nativeLanguage: z.string({
-    required_error: "Please select a language.",
-  }),
+  nativeLanguage: z.enum(
+    nativeLanguages.map((language) => language.value) as [string, ...string[]],
+    {
+      message: "Please select a language.",
+    }
+  ),
   learningLanguageLevel: z.string(),
 });
 
 type LearningSettingsFormType = z.infer<typeof FormSchema>;
 
-export default function LearningSettingsForm() {
+interface LearningSettingsFormProps {
+  learningLanguage: "english" | "german";
+  nativeLanguage: string;
+  learningLanguageLevel: string;
+  buttonContent?: string;
+}
+
+export default function LearningSettingsForm(props: LearningSettingsFormProps) {
   const form = useForm<LearningSettingsFormType>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      ...props,
+    },
   });
 
   const onSubmit = (data: LearningSettingsFormType) => {
@@ -121,7 +134,7 @@ export default function LearningSettingsForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pt-6">
         <FormField
           control={form.control}
           name="learningLanguage"
@@ -179,7 +192,7 @@ export default function LearningSettingsForm() {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-[300%] p-0" align={"start"}>
+                <PopoverContent className="w-full p-0" align={"start"}>
                   <Command>
                     <CommandInput
                       placeholder="Search language..."
@@ -238,7 +251,7 @@ export default function LearningSettingsForm() {
                         <FormControl>
                           <RadioGroupItem value={value} />
                         </FormControl>
-                        <FormLabel className="font-normal">{`(${value}) ${label} - ${description}`}</FormLabel>
+                        <FormLabel className="font-[350]">{`(${value}) ${label} - ${description}`}</FormLabel>
                       </FormItem>
                     )
                   )}
@@ -248,7 +261,9 @@ export default function LearningSettingsForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Save Settings</Button>
+        <Button type="submit">{`${
+          props.buttonContent ? props.buttonContent : "Save Settings"
+        }`}</Button>
       </form>
     </Form>
   );
