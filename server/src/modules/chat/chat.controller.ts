@@ -10,7 +10,6 @@ import {
   Res,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-// import { ChatStreamService } from './chat-stream.service';
 import { GoogleAuthGuard } from '../auth/strategies/google.guard';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import {
@@ -21,8 +20,6 @@ import {
   StartChatDto,
 } from './chat.dto';
 import { ChatStreamService } from './services/chat-stream.service';
-import { User } from 'src/common/decorators/user.decorator';
-import type { User as UserType } from 'src/shared/db/db.schema';
 import { Response } from 'express';
 
 @Controller('chat')
@@ -38,14 +35,12 @@ export class ChatController {
   @Post('start-chat')
   public async startChat(
     @Body() startChatDto: StartChatDto,
-    @User() user: UserType,
+    @UserId() userId: string,
     @Res() res: Response,
   ): Promise<void> {
-    this.logger.log(`User ${user.id} is starting chat stream`);
+    this.logger.log(`User ${userId} is starting chat stream`);
 
     return await this.chatStreamService.startStream({
-      tutorId: user.tutorId,
-      studyingLanguageLevel: user.studyingLanguageLevel,
       res,
       ...startChatDto,
     });

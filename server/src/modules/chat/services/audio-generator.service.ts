@@ -6,17 +6,23 @@ import type {
 } from '../chat.interfaces';
 import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import { ServiceError } from 'src/common/service-error';
+import { SettingsRepository } from 'src/shared/repositories/settings.repository';
 
 @Injectable()
 export class AudioGeneratorService {
   private textToSpeechClient: TextToSpeechClient = new TextToSpeechClient();
 
+  constructor(private settingsRepository: SettingsRepository) {}
+
   public async generateAudio(
     text: string,
-    tutorId: string,
+    userId: string,
   ): Promise<IAudioContent> {
-    const tutorVoices: IVoice[] = await this.getTutorVoices();
-    const tutorVoice: IVoice = this.formatTutorVoice(tutorVoices, tutorId);
+    const { tutorId, learningLanguage } =
+      await this.findSettingsByUserId(userId);
+
+    const tutorVoices = await this.getTutorVoices(learningLanguage);
+    const tutorVoice = this.formatTutorVoice(tutorVoices, tutorId);
     const request = this.createRequest(text, tutorVoice);
 
     return await this.syntheziseAudio(request);
@@ -35,10 +41,12 @@ export class AudioGeneratorService {
     }
   }
 
-  private async getTutorVoices(): Promise<IVoice[]> {
+  private async getTutorVoices(
+    learningLanguageCode: string,
+  ): Promise<IVoice[]> {
     try {
       const [{ voices }] = await this.textToSpeechClient.listVoices({
-        languageCode: 'en-US',
+        languageCode: learningLanguageCode,
       });
 
       return voices;
@@ -72,5 +80,13 @@ export class AudioGeneratorService {
     };
 
     return request;
+  }
+
+  private async findSettingsByUserId(userId: string) {
+    const settings = await this.settingsRepository.findByUserId(userId);
+
+    if (!settings) throw ServiceError.NotFoundError('Settings not found');
+
+    return settings;
   }
 }

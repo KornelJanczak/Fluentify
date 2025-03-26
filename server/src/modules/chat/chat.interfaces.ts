@@ -15,15 +15,13 @@ export interface IVoice
 
 export interface StartStreamRequest {
   chatId: string;
-  tutorId: string;
-  studyingLanguageLevel: string;
   messages: CoreMessage[];
   res: Response;
 }
 
 export interface OnFinishStreamArgs {
+  userId: string;
   chatId: string;
-  tutorId: string;
   messageId: string;
   content: string;
   usedTokens: number;
@@ -31,8 +29,7 @@ export interface OnFinishStreamArgs {
 }
 
 export interface GetSystemPromptArgs {
-  tutorId: string;
-  studyingLanguageLevel: string;
+  userId: string;
   chatCategory: string;
   chatTopic: string;
   vocabularySetId?: string;

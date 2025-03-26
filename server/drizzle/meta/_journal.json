@@ -15,6 +15,13 @@
       "when": 1742495762789,
       "tag": "0001_silent_iceman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1743027004906,
+      "tag": "0002_square_rocket_raccoon",
+      "breakpoints": true
     }
   ]
 }

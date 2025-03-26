@@ -22,9 +22,6 @@ export class AuthService {
         imagePath: picture,
         role: 'user',
         subscriptionExpiryDate: new Date().getDate().toLocaleString(),
-        studyingLanguageLevel: 'B1',
-        nativeLanguage: 'PL',
-        tutorId: 'en-US-Casual-K',
       };
 
       user = await this.userRepository.create(newUser);

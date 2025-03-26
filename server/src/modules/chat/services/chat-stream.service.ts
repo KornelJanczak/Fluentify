@@ -1,12 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  streamText,
-  CoreMessage,
-  pipeDataStreamToResponse,
-  IdGenerator,
-  IDGenerator,
-  generateId,
-} from 'ai';
+import { streamText, CoreMessage, pipeDataStreamToResponse } from 'ai';
 import { ServiceError } from 'src/common/service-error';
 import { ChatRepository } from 'src/shared/repositories/chat.repository';
 import { SystemPromptService } from './system-prompt.service';
@@ -27,15 +20,14 @@ export class ChatStreamService {
     @Inject(AiProvider) private AI: OpenAIProvider,
     private audioGeneratorService: AudioGeneratorService,
     private systemPromptService: SystemPromptService,
-    private chatRepository: ChatRepository,
     private audioUploaderService: AudioUploaderService,
+    private chatRepository: ChatRepository,
   ) {}
 
   public async startStream(
     startStreamRequest: StartStreamRequest,
   ): Promise<void> {
-    const { chatId, messages, tutorId, studyingLanguageLevel } =
-      startStreamRequest;
+    const { chatId, messages } = startStreamRequest;
 
     const chat = await this.findChatById(chatId);
 
@@ -49,15 +41,14 @@ export class ChatStreamService {
 
     // Get system prompt to start the conversation
     const systemPrompt = await this.systemPromptService.getSystemPrompt({
-      tutorId: tutorId,
-      studyingLanguageLevel: studyingLanguageLevel,
+      userId: chat.userId,
       chatCategory: chat.category,
       chatTopic: chat.topic,
       vocabularySetId: chat.vocabularySetId,
     });
 
     // Start chat with AI
-    return this.streamToResponse(startStreamRequest, systemPrompt);
+    return this.streamToResponse(chat.userId, startStreamRequest, systemPrompt);
   }
 
   private async findChatById(chatId: string): Promise<Chat> {
@@ -75,10 +66,11 @@ export class ChatStreamService {
   }
 
   private streamToResponse(
+    userId: string,
     startStreamRequest: StartStreamRequest,
     systemPrompt: string,
   ): void {
-    const { res, chatId, messages, tutorId } = startStreamRequest;
+    const { res, chatId, messages } = startStreamRequest;
 
     return pipeDataStreamToResponse(res, {
       execute: (streamWriter) => {
@@ -91,8 +83,8 @@ export class ChatStreamService {
             console.log('response', response);
 
             await this.onFinishStream({
+              userId,
               chatId,
-              tutorId,
               messageId: response.messages[0].id,
               content: text,
               streamWriter,
@@ -112,12 +104,12 @@ export class ChatStreamService {
   private async onFinishStream(
     onFinishStreamArgs: OnFinishStreamArgs,
   ): Promise<void> {
-    const { chatId, content, streamWriter, tutorId, usedTokens, messageId } =
+    const { chatId, content, streamWriter, usedTokens, messageId, userId } =
       onFinishStreamArgs;
 
     const { audioContent } = await this.audioGeneratorService.generateAudio(
       content,
-      tutorId,
+      userId,
     );
 
     streamWriter.writeMessageAnnotation({

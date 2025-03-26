@@ -19,7 +19,7 @@ export class TutorPromptService {
 
     return `
       ## YOUR CHARACTER 
-      -  Your name: ${name}
+      -  Your name: ${name} 
       -  Origin: ${origin}
 
       ## GENERAL RULES (EACH RULE IS MANDATORY)
