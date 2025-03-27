@@ -80,8 +80,6 @@ export class ChatStreamService {
           system: systemPrompt,
           messages,
           onFinish: async ({ text, response, usage }) => {
-            console.log('response', response);
-
             await this.onFinishStream({
               userId,
               chatId,
