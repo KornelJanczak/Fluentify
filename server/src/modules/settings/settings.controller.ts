@@ -12,8 +12,9 @@ import { SettingsService } from './settings.service';
 import { CreateSettingsDto, UpdateSettingsDto } from './settings.dto';
 import { Settings } from 'src/shared/db/db.schema';
 import { GoogleAuthGuard } from '../auth/strategies/google.guard';
+import { UserId } from 'src/common/decorators/user-id.decorator';
 
-// @UseGuards(GoogleAuthGuard)
+@UseGuards(GoogleAuthGuard)
 @Controller('settings')
 export class SettingsController {
   private readonly logger = new Logger(SettingsController.name);
@@ -29,6 +30,15 @@ export class SettingsController {
     this.logger.log(`Created new setting with ID: ${newSetting.id}`);
 
     return newSetting;
+  }
+
+  @Get('user')
+  public async findByUserId(@UserId() userId: string): Promise<Settings> {
+    const setting = await this.settingsService.findByUserId(userId);
+
+    this.logger.log(`Fetched settings for user ID: ${userId}`);
+
+    return setting;
   }
 
   @Get(':id')
