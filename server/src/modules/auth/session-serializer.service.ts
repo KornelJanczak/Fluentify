@@ -18,7 +18,7 @@ export class SessionSerializerService extends PassportSerializer {
   }
 
   public async deserializeUser(id: string, done: VerifyCallback) {
-    const currentUser = await this.authService.findUserById(id);
+    const currentUser = await this.authService.findById(id);
 
     this.logger.log(`User has been deserialized: ${currentUser.email}`);
 
