@@ -26,6 +26,14 @@ export class SettingsService {
     return setting;
   }
 
+  public async findByUserId(userId: string): Promise<Settings> {
+    const setting = await this.settingsRepository.findByUserId(userId);
+
+    if (!setting) throw ServiceError.NotFoundError(`User settings not found`);
+
+    return setting;
+  }
+
   public async update(
     id: string,
     updateSettingsDto: UpdateSettingsDto,
