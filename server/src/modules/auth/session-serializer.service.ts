@@ -18,8 +18,10 @@ export class SessionSerializerService extends PassportSerializer {
   }
 
   public async deserializeUser(id: string, done: VerifyCallback) {
-    const currentUser = await this.authService.getUserById(id);
+    const currentUser = await this.authService.findUserById(id);
+
     this.logger.log(`User has been deserialized: ${currentUser.email}`);
+
     return currentUser ? done(null, currentUser) : done(null, null);
   }
 }
