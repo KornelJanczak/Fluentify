@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Chat } from 'src/shared/db/db.schema';
 import { ServiceError } from 'src/common/service-error';
-import { ChatRepository } from 'src/shared/repositories/chat.repository';
+import {
+  ChatRepository,
+  ChatWithSettings,
+} from 'src/shared/repositories/chat.repository';
 import { CreateChatDto, FindWithMessagesByIdResponseDto } from './chat.dto';
 
 @Injectable()
@@ -33,8 +36,8 @@ export class ChatService {
     return chats;
   }
 
-  public async findById(chatId: string): Promise<Chat> {
-    const chat = await this.chatRepository.findById(chatId);
+  public async findWithSettingsById(chatId: string): Promise<ChatWithSettings> {
+    const chat = await this.chatRepository.findWithSettingsById(chatId);
 
     if (!chat) throw ServiceError.NotFoundError(`Chat ${chatId} not found`);
 
