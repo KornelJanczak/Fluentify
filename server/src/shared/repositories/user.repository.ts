@@ -34,7 +34,7 @@ class UserRepository {
     }
   }
 
-  public async getById(id: string): Promise<User> {
+  public async findById(id: string): Promise<User> {
     try {
       const [user] = await this.db.select().from(users).where(eq(users.id, id));
 
