@@ -1,26 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import type {
-  IAudioContent,
-  IGenerateAudioRequest,
-  IVoice,
+  AudioContent,
+  GenerateAudioRequest,
+  Voice,
 } from '../chat.interfaces';
 import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import { ServiceError } from 'src/common/service-error';
-import { SettingsRepository } from 'src/shared/repositories/settings.repository';
 
 @Injectable()
 export class AudioGeneratorService {
   private textToSpeechClient: TextToSpeechClient = new TextToSpeechClient();
 
-  constructor(private settingsRepository: SettingsRepository) {}
-
   public async generateAudio(
+    tutorId: string,
+    learningLanguage: string,
     text: string,
-    userId: string,
-  ): Promise<IAudioContent> {
-    const { tutorId, learningLanguage } =
-      await this.findSettingsByUserId(userId);
-
+  ): Promise<AudioContent> {
     const tutorVoices = await this.getTutorVoices(learningLanguage);
     const tutorVoice = this.formatTutorVoice(tutorVoices, tutorId);
     const request = this.createRequest(text, tutorVoice);
@@ -29,8 +24,8 @@ export class AudioGeneratorService {
   }
 
   private async syntheziseAudio(
-    request: IGenerateAudioRequest,
-  ): Promise<IAudioContent> {
+    request: GenerateAudioRequest,
+  ): Promise<AudioContent> {
     try {
       const [response] =
         await this.textToSpeechClient.synthesizeSpeech(request);
@@ -41,9 +36,7 @@ export class AudioGeneratorService {
     }
   }
 
-  private async getTutorVoices(
-    learningLanguageCode: string,
-  ): Promise<IVoice[]> {
+  private async getTutorVoices(learningLanguageCode: string): Promise<Voice[]> {
     try {
       const [{ voices }] = await this.textToSpeechClient.listVoices({
         languageCode: learningLanguageCode,
@@ -55,10 +48,8 @@ export class AudioGeneratorService {
     }
   }
 
-  private formatTutorVoice(tutorVoices: IVoice[], tutorId: string): IVoice {
-    const tutorVoice: IVoice = tutorVoices.find(
-      (voice) => voice.name === tutorId,
-    );
+  private formatTutorVoice(tutorVoices: Voice[], tutorId: string): Voice {
+    const tutorVoice = tutorVoices.find((voice) => voice.name === tutorId);
 
     if (!tutorVoice)
       throw ServiceError.NotFoundError(`Tutor voice ${tutorId} not found`);
@@ -72,21 +63,13 @@ export class AudioGeneratorService {
     return formatedVoice;
   }
 
-  private createRequest(text: string, voice: IVoice): IGenerateAudioRequest {
-    const request: IGenerateAudioRequest = {
+  private createRequest(text: string, voice: Voice): GenerateAudioRequest {
+    const request: GenerateAudioRequest = {
       input: { text: text },
       voice,
       audioConfig: { audioEncoding: 'MP3' },
     };
 
     return request;
-  }
-
-  private async findSettingsByUserId(userId: string) {
-    const settings = await this.settingsRepository.findByUserId(userId);
-
-    if (!settings) throw ServiceError.NotFoundError('Settings not found');
-
-    return settings;
   }
 }
