@@ -22,13 +22,16 @@ export class ServiceErrorFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     const errResponse = {
-      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      name: 'Internal Server Error',
+      error: 'Internal Server Error',
       message: 'Server Error',
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     };
 
-    if (exception instanceof ServiceError.NotFoundError)
+    if (exception.name === 'NotFoundError') {
       errResponse.statusCode = HttpStatus.NOT_FOUND;
+      errResponse.error = exception.name;
+      errResponse.message = exception.message;
+    }
 
     response.status(errResponse.statusCode).json(errResponse);
   }
