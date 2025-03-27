@@ -5,26 +5,22 @@ import { TutorPromptService } from './tutor-prompt.service';
 import { GetSystemPromptArgs } from '../chat.interfaces';
 import { VocabPractisePrompt } from '../prompts/vocab-practise.prompt';
 import { TopicPromptFactoryService } from './topic-prompt-factory.service';
-import { SettingsRepository } from 'src/shared/repositories/settings.repository';
 
 @Injectable()
 export class SystemPromptService {
   constructor(
     private vocabularySetRepository: VocabularySetRepository,
-    private settingsRepository: SettingsRepository,
     private tutorPromptService: TutorPromptService,
     private topicPromptFactoryService: TopicPromptFactoryService,
   ) {}
 
   public async getSystemPrompt({
-    userId,
+    tutorId,
+    learningLanguageLevel,
     chatCategory,
     chatTopic,
     vocabularySetId,
   }: GetSystemPromptArgs): Promise<string> {
-    const { tutorId, learningLanguageLevel } =
-      await this.findSettingsByUserId(userId);
-
     const tutorPrompt = this.tutorPromptService.getTutorPrompt(
       tutorId,
       learningLanguageLevel,
@@ -66,13 +62,5 @@ export class SystemPromptService {
     if (!flashCards) throw ServiceError.NotFoundError('Flash cards not found');
 
     return flashCards;
-  }
-
-  private async findSettingsByUserId(userId: string) {
-    const settings = await this.settingsRepository.findByUserId(userId);
-
-    if (!settings) throw ServiceError.NotFoundError('Settings not found');
-
-    return settings;
   }
 }
