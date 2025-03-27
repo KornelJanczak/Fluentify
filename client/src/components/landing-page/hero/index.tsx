@@ -213,7 +213,7 @@ export default function HeroSection() {
                 <ChevronRight className="ml-1 inline-block size-3" />
               </Link>
             </div>
-            <div className="group-hover:blur-xs mx-auto mt-12 grid max-w-2xl grid-cols-4 gap-x-12 gap-y-8 transition-all duration-500 group-hover:opacity-50 sm:gap-x-16 sm:gap-y-14">
+            {/* <div className="group-hover:blur-xs mx-auto mt-12 grid max-w-2xl grid-cols-4 gap-x-12 gap-y-8 transition-all duration-500 group-hover:opacity-50 sm:gap-x-16 sm:gap-y-14">
               <div className="flex">
                 <img
                   className="mx-auto h-5 w-fit dark:invert"
@@ -288,7 +288,7 @@ export default function HeroSection() {
                   width="auto"
                 />
               </div>
-            </div>
+            </div> */}
           </div>
         </section>
       </main>
