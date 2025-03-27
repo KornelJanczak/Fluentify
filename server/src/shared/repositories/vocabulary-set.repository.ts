@@ -54,8 +54,6 @@ export class VocabularySetRepository {
     const itemsPerPage = 5;
     const offset = (parseInt(page) - 1) * itemsPerPage;
 
-    console.log('offset', offset);
-
     try {
       return await this.db
         .select({
