@@ -36,6 +36,7 @@ export const settings = pgTable('settings', {
   autoRecord: boolean(),
   autoSend: boolean(),
   userId: varchar('userId').references(() => users.id),
+  // chatId: uuid('chatId').references(() => chats.id),
 });
 
 export type Settings = InferSelectModel<typeof settings>;
@@ -45,6 +46,10 @@ export const settingsRelations = relations(settings, ({ one }) => ({
   user: one(users, {
     fields: [settings.userId],
     references: [users.id],
+  }),
+  chat: one(chats, {
+    fields: [settings.id],
+    references: [chats.settingsId],
   }),
 }));
 
@@ -59,6 +64,7 @@ export const chats = pgTable('chats', {
   userId: varchar('userId').references(() => users.id, {
     onDelete: 'cascade',
   }),
+  settingsId: uuid('settingsId').references(() => settings.id),
   vocabularySetId: uuid('vocabularySetId').references(() => vocabularySets.id, {
     onDelete: 'set null',
   }),
@@ -69,6 +75,10 @@ export const chatsRelations = relations(chats, ({ one, many }) => ({
   user: one(users, {
     fields: [chats.userId],
     references: [users.id],
+  }),
+  settings: one(settings, {
+    fields: [chats.settingsId],
+    references: [settings.id],
   }),
   messages: many(messages),
   vocabularySet: one(vocabularySets, {
