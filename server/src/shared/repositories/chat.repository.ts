@@ -41,10 +41,21 @@ export class ChatRepository {
     }
   }
 
-  public async findById(id: string): Promise<Chat> {
+  public async findWithSettingsById(id: string): Promise<ChatWithSettings> {
     try {
-      const [item] = await this.db.select().from(chats).where(eq(chats.id, id));
-      return item;
+      return await this.db.query.chats.findFirst({
+        where: eq(chats.id, id),
+        with: {
+          settings: {
+            columns: {
+              tutorId: true,
+              learningLanguage: true,
+              learningLanguageLevel: true,
+              nativeLanguage: true,
+            },
+          },
+        },
+      });
     } catch (error) {
       throw ServiceError.DatabaseError(error.message, error.stack);
     }
@@ -107,4 +118,13 @@ export class ChatRepository {
 
 export type ChatWithMessages = Chat & {
   messages: Omit<Message, 'chatId'>[];
+};
+
+export type ChatWithSettings = Chat & {
+  settings: {
+    tutorId: string;
+    learningLanguage: string;
+    learningLanguageLevel: string;
+    nativeLanguage: string;
+  };
 };
