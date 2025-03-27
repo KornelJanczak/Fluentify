@@ -4,15 +4,16 @@ import { ServiceError } from 'src/common/service-error';
 import { ChatRepository } from 'src/shared/repositories/chat.repository';
 import { SystemPromptService } from './system-prompt.service';
 import { AudioGeneratorService } from './audio-generator.service';
-import type { Chat } from 'src/shared/db/db.schema';
 import type {
   OnFinishStreamArgs,
   StartStreamRequest,
+  StreamToResponseArgs,
 } from '../chat.interfaces';
 import { AiProvider } from 'src/shared/ai/ai.provider';
 import { OpenAIProvider } from '@ai-sdk/openai';
 import { AudioUploaderService } from './audio-uploader.service';
 import * as uuid from 'uuid';
+import { ChatService } from '../chat.service';
 
 @Injectable()
 export class ChatStreamService {
@@ -22,6 +23,7 @@ export class ChatStreamService {
     private systemPromptService: SystemPromptService,
     private audioUploaderService: AudioUploaderService,
     private chatRepository: ChatRepository,
+    private chatService: ChatService,
   ) {}
 
   public async startStream(
@@ -29,7 +31,8 @@ export class ChatStreamService {
   ): Promise<void> {
     const { chatId, messages } = startStreamRequest;
 
-    const chat = await this.findChatById(chatId);
+    const { settings, ...chat } =
+      await this.chatService.findWithSettingsById(chatId);
 
     const lastUserMessage = this.extractLastUserMessage(messages);
 
@@ -41,22 +44,21 @@ export class ChatStreamService {
 
     // Get system prompt to start the conversation
     const systemPrompt = await this.systemPromptService.getSystemPrompt({
-      userId: chat.userId,
+      tutorId: settings.tutorId,
+      learningLanguageLevel: settings.learningLanguageLevel,
+      learningLanguage: settings.learningLanguage,
       chatCategory: chat.category,
       chatTopic: chat.topic,
       vocabularySetId: chat.vocabularySetId,
     });
 
     // Start chat with AI
-    return this.streamToResponse(chat.userId, startStreamRequest, systemPrompt);
-  }
-
-  private async findChatById(chatId: string): Promise<Chat> {
-    const chat = await this.chatRepository.findById(chatId);
-
-    if (!chat) throw ServiceError.NotFoundError(`Chat ${chatId} not found`);
-
-    return chat;
+    return this.streamToResponse({
+      systemPrompt,
+      startStreamRequest,
+      tutorId: settings.tutorId,
+      learningLanguage: settings.learningLanguage,
+    });
   }
 
   private extractLastUserMessage(messages: CoreMessage[]): CoreMessage {
@@ -65,13 +67,12 @@ export class ChatStreamService {
       .at(-1);
   }
 
-  private streamToResponse(
-    userId: string,
-    startStreamRequest: StartStreamRequest,
-    systemPrompt: string,
-  ): void {
-    const { res, chatId, messages } = startStreamRequest;
-
+  private streamToResponse({
+    systemPrompt,
+    tutorId,
+    learningLanguage,
+    startStreamRequest: { chatId, messages, res },
+  }: StreamToResponseArgs): void {
     return pipeDataStreamToResponse(res, {
       execute: (streamWriter) => {
         const result = streamText({
@@ -81,8 +82,9 @@ export class ChatStreamService {
           messages,
           onFinish: async ({ text, response, usage }) => {
             await this.onFinishStream({
-              userId,
               chatId,
+              tutorId,
+              learningLanguage: learningLanguage,
               messageId: response.messages[0].id,
               content: text,
               streamWriter,
@@ -99,15 +101,19 @@ export class ChatStreamService {
     });
   }
 
-  private async onFinishStream(
-    onFinishStreamArgs: OnFinishStreamArgs,
-  ): Promise<void> {
-    const { chatId, content, streamWriter, usedTokens, messageId, userId } =
-      onFinishStreamArgs;
-
+  private async onFinishStream({
+    chatId,
+    content,
+    streamWriter,
+    usedTokens,
+    messageId,
+    tutorId,
+    learningLanguage,
+  }: OnFinishStreamArgs): Promise<void> {
     const { audioContent } = await this.audioGeneratorService.generateAudio(
+      tutorId,
+      learningLanguage,
       content,
-      userId,
     );
 
     streamWriter.writeMessageAnnotation({
