@@ -72,10 +72,10 @@ export class ChatController {
   }
 
   @Get(':id')
-  public async findById(
+  public async findWithSettingsById(
     @Param('id') id: string,
   ): Promise<FindOneByIdResponseDto> {
-    const chat = await this.chatService.findById(id);
+    const chat = await this.chatService.findWithSettingsById(id);
 
     this.logger.log(`Chat ${chat.id} has been found`);
 
