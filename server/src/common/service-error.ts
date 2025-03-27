@@ -8,6 +8,11 @@ export class ServiceError extends Error {
     public stack?: any,
   ) {
     super(message);
+
+    this.name = name;
+
+    if (Error.captureStackTrace)
+      Error.captureStackTrace(this, this.constructor);
   }
 
   static NotFoundError(message: string, stack?: any) {
