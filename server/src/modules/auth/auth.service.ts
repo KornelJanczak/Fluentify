@@ -30,8 +30,8 @@ export class AuthService {
     return user;
   }
 
-  public async getUserById(id: string) {
-    const currentUser = await this.userRepository.getById(id);
+  public async findById(id: string) {
+    const currentUser = await this.userRepository.findById(id);
 
     if (!currentUser)
       throw new UnauthorizedException('User is not authorized to this action');
