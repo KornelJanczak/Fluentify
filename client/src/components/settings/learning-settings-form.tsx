@@ -36,42 +36,43 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useCreateSettings } from "@/common/hooks/settings/use-create-settings";
 
-const learningLanguagues = [
-  { value: "english", label: "English" },
-  { value: "german", label: "German" },
+const languages = [
+  { value: "en-US", label: "English (US)" },
+  { value: "en-GB", label: "English (UK)" },
+  { value: "en-AU", label: "English (AU)" },
+  { value: "de-DE", label: "German" },
+  { value: "fr-FR", label: "French" },
+  { value: "es-ES", label: "Spanish" },
+  { value: "it-IT", label: "Italian" },
+  { value: "pt-PT", label: "Portuguese" },
+  { value: "nl-NL", label: "Dutch" },
+  { value: "sv-SE", label: "Swedish" },
+  { value: "da-DK", label: "Danish" },
+  { value: "no-NO", label: "Norwegian" },
+  { value: "fi-FI", label: "Finnish" },
+  { value: "pl-PL", label: "Polish" },
+  { value: "cs-CZ", label: "Czech" },
+  { value: "sk-SK", label: "Slovak" },
+  { value: "hu-HU", label: "Hungarian" },
+  { value: "el-GR", label: "Greek" },
+  { value: "bg-BG", label: "Bulgarian" },
+  { value: "ro-RO", label: "Romanian" },
+  { value: "hr-HR", label: "Croatian" },
+  { value: "sr-RS", label: "Serbian" },
+  { value: "bs-BA", label: "Bosnian" },
+  { value: "sl-SI", label: "Slovenian" },
+  { value: "sq-AL", label: "Albanian" },
+  { value: "et-EE", label: "Estonian" },
+  { value: "lv-LV", label: "Latvian" },
+  { value: "lt-LT", label: "Lithuanian" },
+  { value: "is-IS", label: "Icelandic" },
+  { value: "mt-MT", label: "Maltese" },
 ];
 
-const nativeLanguages = [
-  { value: "english", label: "English" },
-  { value: "german", label: "German" },
-  { value: "french", label: "French" },
-  { value: "spanish", label: "Spanish" },
-  { value: "italian", label: "Italian" },
-  { value: "portuguese", label: "Portuguese" },
-  { value: "dutch", label: "Dutch" },
-  { value: "swedish", label: "Swedish" },
-  { value: "danish", label: "Danish" },
-  { value: "norwegian", label: "Norwegian" },
-  { value: "finnish", label: "Finnish" },
-  { value: "polish", label: "Polish" },
-  { value: "czech", label: "Czech" },
-  { value: "slovak", label: "Slovak" },
-  { value: "hungarian", label: "Hungarian" },
-  { value: "greek", label: "Greek" },
-  { value: "bulgarian", label: "Bulgarian" },
-  { value: "romanian", label: "Romanian" },
-  { value: "croatian", label: "Croatian" },
-  { value: "serbian", label: "Serbian" },
-  { value: "bosnian", label: "Bosnian" },
-  { value: "slovenian", label: "Slovenian" },
-  { value: "albanian", label: "Albanian" },
-  { value: "estonian", label: "Estonian" },
-  { value: "latvian", label: "Latvian" },
-  { value: "lithuanian", label: "Lithuanian" },
-  { value: "icelandic", label: "Icelandic" },
-  { value: "maltese", label: "Maltese" },
-];
+const learningLanguagues = [...languages];
+const nativeLanguages = [...languages];
 
 export const learningLanguageLevels = {
   A1: {
@@ -98,29 +99,41 @@ export const learningLanguageLevels = {
   },
 };
 
-const FormSchema = z.object({
-  learningLanguage: z.enum(["english", "german"], {
+const languageSchema = z
+  .string({ message: "Language should be a string" })
+  .nonempty({
     message: "Please select a language.",
+  })
+  .min(2, {
+    message: "Please select a language.",
+  })
+  .max(5, {
+    message: "Please select a language.",
+  });
+
+const FormSchema = z.object({
+  learningLanguage: languageSchema,
+  nativeLanguage: languageSchema,
+  learningLanguageLevel: z.string().nonempty({
+    message: "Please select a language level.",
   }),
-  nativeLanguage: z.enum(
-    nativeLanguages.map((language) => language.value) as [string, ...string[]],
-    {
-      message: "Please select a language.",
-    }
-  ),
-  learningLanguageLevel: z.string(),
 });
 
-type LearningSettingsFormType = z.infer<typeof FormSchema>;
+export type LearningSettingsFormType = {
+  learningLanguage: string;
+  nativeLanguage: string;
+  learningLanguageLevel: string;
+};
 
 interface LearningSettingsFormProps {
-  learningLanguage: "english" | "german";
+  learningLanguage: string;
   nativeLanguage: string;
   learningLanguageLevel: string;
   buttonContent?: string;
 }
 
 export default function LearningSettingsForm(props: LearningSettingsFormProps) {
+  const { mutate } = useCreateSettings();
   const form = useForm<LearningSettingsFormType>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -128,9 +141,7 @@ export default function LearningSettingsForm(props: LearningSettingsFormProps) {
     },
   });
 
-  const onSubmit = (data: LearningSettingsFormType) => {
-    console.log("data", data);
-  };
+  const onSubmit = (data: LearningSettingsFormType) => mutate(data);
 
   return (
     <Form {...form}>
@@ -141,13 +152,16 @@ export default function LearningSettingsForm(props: LearningSettingsFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Which language would you like to learn?</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={"english"}>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={props.learningLanguage}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a verified email to display" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent defaultValue={"english"}>
+                <SelectContent>
                   {learningLanguagues.map((language) => (
                     <SelectItem key={language.value} value={language.value}>
                       {language.label}
@@ -193,7 +207,10 @@ export default function LearningSettingsForm(props: LearningSettingsFormProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent className="w-full p-0" align={"start"}>
-                  <Command>
+                  <Command
+                    defaultValue={field.value}
+                    className="overflow-hidden"
+                  >
                     <CommandInput
                       placeholder="Search language..."
                       className="h-9"
