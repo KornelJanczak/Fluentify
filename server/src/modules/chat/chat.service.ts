@@ -6,16 +6,26 @@ import {
   ChatWithSettings,
 } from 'src/shared/repositories/chat.repository';
 import { CreateChatDto, FindWithMessagesByIdResponseDto } from './chat.dto';
+import { SettingsRepository } from 'src/shared/repositories/settings.repository';
 
 @Injectable()
 export class ChatService {
-  constructor(private chatRepository: ChatRepository) {}
+  constructor(
+    private chatRepository: ChatRepository,
+    private settingsReposiotry: SettingsRepository,
+  ) {}
 
   public async create(
     createChatDto: CreateChatDto,
     userId: string,
   ): Promise<string> {
-    const newChatId = await this.chatRepository.create(createChatDto, userId);
+    const settings = await this.settingsReposiotry.findByUserId(userId);
+
+    const newChatId = await this.chatRepository.create(
+      createChatDto,
+      userId,
+      settings.id,
+    );
 
     if (!newChatId)
       throw ServiceError.NotFoundError('Chat has not been created');

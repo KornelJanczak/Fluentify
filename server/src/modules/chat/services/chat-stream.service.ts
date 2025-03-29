@@ -33,6 +33,7 @@ export class ChatStreamService {
 
     const { settings, ...chat } =
       await this.chatService.findWithSettingsById(chatId);
+    console.log('settings', settings);
 
     const lastUserMessage = this.extractLastUserMessage(messages);
 

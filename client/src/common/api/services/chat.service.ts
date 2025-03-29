@@ -37,14 +37,6 @@ class ChatService implements IChatService {
       throw error;
     }
   }
-
-  public async getChatSettingsByUserId() {
-    try {
-      return (await this.serverApi.get<SettingsResponse>("settings/user")).data;
-    } catch (error) {
-      return null;
-    }
-  }
 }
 
 export const chatService = new ChatService(serverApi);
@@ -59,20 +51,8 @@ export type Chat = {
   userId: string;
 };
 
-export type Settings = {
-  learningLanguage: string;
-  learningLanguageLevel: string;
-  nativeLanguage: string;
-  tutorId: string;
-  autoCorrect: boolean;
-  autoRecord: boolean;
-  autoSend: boolean;
-};
-
 export type ChatWithMessages = Chat & {
   messages: Message[];
 };
 
 export type ChatsResponse = Chat[] | null;
-
-export type SettingsResponse = Settings | null;
