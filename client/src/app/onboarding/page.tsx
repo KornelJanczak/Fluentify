@@ -11,8 +11,8 @@ export default function OnboardingPage() {
           (It's necessary to contine)
         </Markdown>
         <LearningSettingsForm
-          learningLanguage="english"
-          nativeLanguage="polish"
+          learningLanguage="en-US"
+          nativeLanguage="pl-PL"
           learningLanguageLevel="B2"
           buttonContent="Continue"
         />
