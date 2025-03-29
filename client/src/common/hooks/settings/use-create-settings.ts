@@ -8,13 +8,13 @@ import { LearningSettingsFormType } from "@/components/settings/learning-setting
 
 export const useCreateSettings = () => {
   const router = useRouter();
-  const toastId = toast("create-settings");
+  const toastId = "create-settings";
 
   const mutation = useMutation({
     mutationFn: async (settings: LearningSettingsFormType) =>
       (await clientApi.post<CreateSettingsResponse>(`settings`, settings)).data,
     onSuccess: () => {
-      toast.success("Chat has been created successfully!", {
+      toast.success("We save your settings successfully!", {
         id: toastId,
       });
       router.push(`/dashboard/chat/settings`);
