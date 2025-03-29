@@ -1,67 +1,9 @@
 {
-  "id": "9f584714-c0d8-4625-a4fb-23f51651a66a",
+  "id": "75f4427f-4d1f-493a-8455-46fff3b49121",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.chatSettings": {
-      "name": "chatSettings",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "autoCorrect": {
-          "name": "autoCorrect",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "autoRecord": {
-          "name": "autoRecord",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "autoSend": {
-          "name": "autoSend",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "chatId": {
-          "name": "chatId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "chatSettings_chatId_chats_id_fk": {
-          "name": "chatSettings_chatId_chats_id_fk",
-          "tableFrom": "chatSettings",
-          "tableTo": "chats",
-          "columnsFrom": [
-            "chatId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.chats": {
       "name": "chats",
       "schema": "",
@@ -72,12 +14,6 @@
           "primaryKey": true,
           "notNull": true,
           "default": "gen_random_uuid()"
-        },
-        "usedTokens": {
-          "name": "usedTokens",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
         },
         "startedAt": {
           "name": "startedAt",
@@ -104,6 +40,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "settingsId": {
+          "name": "settingsId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "vocabularySetId": {
           "name": "vocabularySetId",
           "type": "uuid",
@@ -113,6 +55,32 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "chats_userId_users_id_fk": {
+          "name": "chats_userId_users_id_fk",
+          "tableFrom": "chats",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "chats_settingsId_settings_id_fk": {
+          "name": "chats_settingsId_settings_id_fk",
+          "tableFrom": "chats",
+          "tableTo": "settings",
+          "columnsFrom": [
+            "settingsId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "chats_vocabularySetId_vocabularySets_id_fk": {
           "name": "chats_vocabularySetId_vocabularySets_id_fk",
           "tableFrom": "chats",
@@ -123,7 +91,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -218,7 +186,8 @@
           "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "chatId": {
           "name": "chatId",
@@ -240,6 +209,88 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.settings": {
+      "name": "settings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "learningLanguage": {
+          "name": "learningLanguage",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "learningLanguageLevel": {
+          "name": "learningLanguageLevel",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nativeLanguage": {
+          "name": "nativeLanguage",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tutorId": {
+          "name": "tutorId",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "autoCorrect": {
+          "name": "autoCorrect",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "autoRecord": {
+          "name": "autoRecord",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "autoSend": {
+          "name": "autoSend",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "settings_userId_users_id_fk": {
+          "name": "settings_userId_users_id_fk",
+          "tableFrom": "settings",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -279,24 +330,6 @@
         },
         "subscriptionExpiryDate": {
           "name": "subscriptionExpiryDate",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "studyingLanguageLevel": {
-          "name": "studyingLanguageLevel",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "nativeLanguage": {
-          "name": "nativeLanguage",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tutorId": {
-          "name": "tutorId",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
@@ -383,7 +416,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
