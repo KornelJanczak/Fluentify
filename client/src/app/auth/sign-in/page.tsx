@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const singInHandler = () =>
-    (window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`);
+  const singInHandler = () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+    console.log("Redirecting to:", url);
+    window.location.href = url;
+  };
 
   return (
     <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
