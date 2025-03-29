@@ -7,19 +7,25 @@ import { useRouter } from "next/navigation";
 
 export const useCreateChat = () => {
   const router = useRouter();
+  const toastId = "create-chat";
+
   const mutation = useMutation({
     mutationFn: async (chat: CreateChatRequest) =>
       (await clientApi.post<CreateChatResponse>(`/chat/create-chat`, chat))
         .data,
-    onSuccess: (chatId) => {
-      router.push(`/dashboard/chat/${chatId}`);
-      toast.success("Chat has been created successfully!");
+    onError: () => {
+      toast.error("Failed to create chat!", {
+        id: toastId,
+      });
     },
-    onError: (error) => {
-      console.log("error", error);
-      console.log("error");
-
-      toast.error("Failed to create chat!");
+    onSuccess: (chatId) => {
+      toast.success("We created your chat successfuly!", { id: toastId });
+      router.push(`/dashboard/chat/${chatId}`);
+    },
+    onMutate: () => {
+      toast.loading("Creating chat...", {
+        id: toastId,
+      });
     },
   });
 
