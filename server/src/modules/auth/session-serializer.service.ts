@@ -3,6 +3,7 @@ import { PassportSerializer } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { type User } from 'src/shared/db/db.schema';
 import { type VerifyCallback } from 'passport-google-oauth20';
+import { Redirect } from '@nestjs/common';
 
 @Injectable()
 export class SessionSerializerService extends PassportSerializer {
@@ -14,7 +15,8 @@ export class SessionSerializerService extends PassportSerializer {
 
   public serializeUser({ id }: User, done: VerifyCallback) {
     this.logger.log(`User has been serialized: ${id}`);
-    done(null, id);
+
+    return done(null, id);
   }
 
   public async deserializeUser(id: string, done: VerifyCallback) {

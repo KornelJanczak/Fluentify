@@ -12,6 +12,8 @@ import { User } from 'src/common/decorators/user.decorator';
 import { User as UserType } from 'src/shared/db/db.schema';
 import { Request } from 'express';
 import { GoogleAuthGuard } from './strategies/google.guard';
+import { UserId } from 'src/common/decorators/user-id.decorator';
+import { identity } from 'rxjs';
 
 @Controller('auth')
 export class AuthController {
@@ -56,6 +58,9 @@ export class AuthController {
 
   @Get('callback/google')
   @UseGuards(GoogleAuthGuard)
-  @Redirect(`http://localhost:3000`, 301)
-  public googleCallback() {}
+  @Redirect(`http://localhost:3000/dashboard`, 301)
+  public googleCallback(@UserId() id: string) {
+    this.logger.log(`Handled Google callback`, id);
+    return { msg: 'Google Authentication callback' };
+  }
 }
