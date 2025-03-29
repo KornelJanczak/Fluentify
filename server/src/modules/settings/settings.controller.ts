@@ -26,7 +26,7 @@ export class SettingsController {
     @Body() createSettingsDto: CreateSettingsDto,
     @UserId() userId: string,
   ): Promise<Settings> {
-    console.log('createSettingsDto', createSettingsDto);
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     const newSetting = await this.settingsService.create(
       createSettingsDto,
