@@ -24,8 +24,14 @@ export class SettingsController {
   @Post()
   public async create(
     @Body() createSettingsDto: CreateSettingsDto,
+    @UserId() userId: string,
   ): Promise<Settings> {
-    const newSetting = await this.settingsService.create(createSettingsDto);
+    console.log('createSettingsDto', createSettingsDto);
+
+    const newSetting = await this.settingsService.create(
+      createSettingsDto,
+      userId,
+    );
 
     this.logger.log(`Created new setting with ID: ${newSetting.id}`);
 
