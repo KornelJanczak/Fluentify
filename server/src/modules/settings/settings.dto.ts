@@ -24,9 +24,7 @@ export class CreateSettingsDto {
   })
   learningLanguageLevel: string;
 
-  @IsNotEmpty({ message: 'Tutor ID is required!' })
-  @IsString({ message: 'Tutor ID must be a string!' })
-  tutorId: string;
+  tutorId?: string;
 
   autoCorrect?: boolean;
 

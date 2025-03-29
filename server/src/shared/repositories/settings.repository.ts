@@ -9,12 +9,27 @@ import { CreateSettingsDto } from 'src/modules/settings/settings.dto';
 export class SettingsRepository {
   constructor(@Inject(DrizzleAsyncProvider) private db: Drizzle) {}
 
-  public async create(newSetting: CreateSettingsDto): Promise<Settings> {
+  public async create(
+    createSettingsDto: CreateSettingsDto,
+    userId: string,
+  ): Promise<Settings> {
     try {
+      console.log('createSettingsDto', createSettingsDto);
+
+      const newSettings = {
+        userId: userId,
+        tutorId: createSettingsDto.tutorId
+          ? createSettingsDto.tutorId
+          : 'en-US-Casual-K',
+        ...createSettingsDto,
+      };
+
       const [createdSetting] = await this.db
         .insert(settings)
-        .values(newSetting)
+        .values(newSettings)
         .returning();
+
+      console.log('createdSetting', createdSetting);
 
       return createdSetting;
     } catch (error) {
@@ -30,6 +45,21 @@ export class SettingsRepository {
         .where(eq(settings.id, id));
 
       return setting;
+    } catch (error) {
+      throw ServiceError.DatabaseError(error.message, error.stack);
+    }
+  }
+
+  public async findTutorIdByUserId(userId: string): Promise<string> {
+    try {
+      const { tutorId } = await this.db.query.settings.findFirst({
+        where: eq(settings.userId, userId),
+        columns: {
+          tutorId: true,
+        },
+      });
+
+      return tutorId;
     } catch (error) {
       throw ServiceError.DatabaseError(error.message, error.stack);
     }

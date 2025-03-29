@@ -15,10 +15,12 @@ export class ChatRepository {
   public async create(
     createChatDto: CreateChatDto,
     userId: string,
+    settingsId: string,
   ): Promise<string> {
     const newChat = {
       ...createChatDto,
       userId,
+      settingsId,
     };
 
     try {

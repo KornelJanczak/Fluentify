@@ -8,8 +8,16 @@ import { CreateSettingsDto, UpdateSettingsDto } from './settings.dto';
 export class SettingsService {
   constructor(private settingsRepository: SettingsRepository) {}
 
-  public async create(createSettingsDto: CreateSettingsDto): Promise<Settings> {
-    const newSetting = await this.settingsRepository.create(createSettingsDto);
+  public async create(
+    createSettingsDto: CreateSettingsDto,
+    userId: string,
+  ): Promise<Settings> {
+    const newSetting = await this.settingsRepository.create(
+      createSettingsDto,
+      userId,
+    );
+
+    console.log('newSetting', newSetting);
 
     if (!newSetting)
       throw ServiceError.NotFoundError('Failed to create settings');
