@@ -4,7 +4,7 @@ import VocabularySetsList from "./vocabulary-sets-list";
 import { Separator } from "../ui/separator";
 import { Suspense } from "react";
 import { SkeletonVocabularyList } from "./skeleton-vocabulary-list";
-import { VocabularySetsPagination } from "./vocabulary-sets-pagination";
+import VocabularySetsPagination from "./vocabulary-sets-pagination";
 import VocabularySetsHeader from "./vocabulary-sets-header";
 import VocabularySetsNotFound from "./vocabulary-sets-not-found";
 
@@ -17,7 +17,7 @@ export default async function VocabularySets({
   vocabularySets,
   hasMore,
 }: VocabularySetsProps) {
-  const vocabularySetsExist = vocabularySets.length > 0;
+  const vocabularySetsExist = vocabularySets.length > 0
 
   return (
     <SectionWrapper>
@@ -32,7 +32,11 @@ export default async function VocabularySets({
           </Suspense>
         )}
         {!vocabularySetsExist && <VocabularySetsNotFound />}
-        {vocabularySetsExist && <VocabularySetsPagination hasMore={hasMore} />}
+        {vocabularySetsExist && (
+          <Suspense fallback={<div>Loading...</div>}>
+            <VocabularySetsPagination hasMore={hasMore} />
+          </Suspense>
+        )}
       </div>
     </SectionWrapper>
   );
