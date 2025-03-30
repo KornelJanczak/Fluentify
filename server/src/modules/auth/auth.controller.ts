@@ -50,6 +50,7 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleAuthGuard)
+  // @Redirect(`http://localhost:3000/dashboard`, 301)
   public handleLogin() {}
 
   @Get('callback/google')
