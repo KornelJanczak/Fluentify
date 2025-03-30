@@ -17,7 +17,7 @@ interface VocabularySetsPaginationProps {
   hasMore: boolean;
 }
 
-export function VocabularySetsPagination({
+export default function VocabularySetsPagination({
   hasMore,
 }: VocabularySetsPaginationProps) {
   console.log(hasMore);
