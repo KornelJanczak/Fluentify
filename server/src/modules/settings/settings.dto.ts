@@ -1,6 +1,6 @@
 import { IsString, MinLength, IsNotEmpty } from 'class-validator';
-import { PartialType } from '@nestjs/mapped-types';
 import { ValidateIf } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateSettingsDto {
   @IsNotEmpty({ message: 'Learning language is required!' })
@@ -33,22 +33,27 @@ export class CreateSettingsDto {
   autoSend?: boolean;
 }
 
-export class UpdateSettingsDto extends PartialType(CreateSettingsDto) {
-  @ValidateIf((o) => !o.learningLanguage || o.nativeLanguage)
-  learningLanguage?: string;
-
-  @ValidateIf((o) => !o.nativeLanguage || o.learningLanguage)
-  nativeLanguage?: string;
-
-  @ValidateIf((o) => !o.learningLanguageLevel || o.tutorId)
-  learningLanguageLevel?: string;
-
-  @ValidateIf((o) => !o.tutorId || o.learningLanguageLevel)
+export class UpdateSettingsDto {
+  @ValidateIf((object) => object.tutorId !== undefined)
+  @IsString({ message: 'Tutor ID must be a string!' })
   tutorId?: string;
 
-  autoCorrect?: boolean;
+  @Transform(({ value }: { value: string[] | [] }) => {
+    console.log('value', value);
 
-  autoRecord?: boolean;
+    const newObj = {
+      autoCorrect: value.find((value) => value === 'autoCorrect') || null,
+      autoRecord: value.find((value) => value === 'autoRecord') || null,
+      autoSend: value.find((value) => value === 'autoSend') || null,
+    };
 
-  autoSend?: boolean;
+    console.log('newObj', newObj);
+
+    return newObj;
+  })
+  chatSettings: {
+    autoCorrect: boolean | null;
+    autoRecord: boolean | null;
+    autoSend: boolean | null;
+  };
 }
