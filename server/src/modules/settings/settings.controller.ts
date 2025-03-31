@@ -56,13 +56,15 @@ export class SettingsController {
     return setting;
   }
 
-  @Put(':id')
+  @Put('update')
   public async update(
-    @Param('id') id: string,
+    @UserId() userId: string,
     @Body() updateSettingsDto: UpdateSettingsDto,
   ): Promise<string> {
+    console.log('updateSettingsDto', updateSettingsDto);
+
     const updatedSettingId = await this.settingsService.update(
-      id,
+      userId,
       updateSettingsDto,
     );
 
