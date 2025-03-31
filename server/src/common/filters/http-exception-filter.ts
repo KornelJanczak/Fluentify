@@ -3,8 +3,11 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
+  HttpStatus,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { Logger } from '@nestjs/common';
 
 @Catch(HttpException)
@@ -14,18 +17,25 @@ export class HttpExceptionFilter implements ExceptionFilter {
     this.logger.error(exception);
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
-    const status = exception.getStatus();
 
     const errResponse = {
-      statusCode: status,
-      name: exception.name,
-      message: exception.message,
-      stack: exception.stack,
-      path: request.url,
+      error: 'Internal Server Error',
+      message: 'Server Error',
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     };
 
-    // this.logger.error(errResponse);
-    response.status(status).json(errResponse);
+    if (exception instanceof NotFoundException) {
+      errResponse.statusCode = HttpStatus.NOT_FOUND;
+      errResponse.error = exception.name;
+      errResponse.message = exception.message;
+    }
+
+    if (exception instanceof BadRequestException) {
+      errResponse.statusCode = HttpStatus.BAD_REQUEST;
+      errResponse.error = exception.name;
+      errResponse.message = exception.message;
+    }
+
+    response.status(errResponse.statusCode).json(errResponse);
   }
 }
