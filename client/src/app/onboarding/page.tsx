@@ -1,4 +1,4 @@
-import LearningSettingsForm from "@/components/settings/learning-settings-form";
+import { LearningSettingsForm } from "@/components/settings/learning-settings-form";
 import { Card } from "@/components/ui/card";
 import Markdown from "react-markdown";
 
