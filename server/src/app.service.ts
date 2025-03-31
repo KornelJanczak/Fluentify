@@ -15,6 +15,7 @@ import * as passport from 'passport';
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { RedisService } from './shared/redis/redis.service';
+import { join } from 'path';
 
 @Injectable()
 export class AppService {
@@ -27,6 +28,7 @@ export class AppService {
     this.standardMiddleware(app);
     this.securityMiddleware(app);
     this.passportMiddleware(app);
+    this.useStaticAssets(app);
 
     // this.globalErrorHandler(this.app);
     // this.startServer(this.app);
@@ -79,6 +81,12 @@ export class AppService {
   private passportMiddleware(app: NestExpressApplication): void {
     app.use(passport.initialize());
     app.use(passport.session());
+  }
+
+  private useStaticAssets(app: NestExpressApplication): void {
+    console.log(join(__dirname, '..', 'public'));
+
+    // app.useStaticAssets(join(__dirname, '..', 'public'));
   }
 
   // private globalErrorHandler(app: NestExpressApplication): void {
