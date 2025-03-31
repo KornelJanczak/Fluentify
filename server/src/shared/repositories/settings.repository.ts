@@ -78,15 +78,15 @@ export class SettingsRepository {
     }
   }
 
-  public async update(
-    id: string,
+  public async updateByUserId(
+    userId: string,
     updatedSetting: Partial<Settings>,
   ): Promise<string> {
     try {
       const [{ id: settingId }] = await this.db
         .update(settings)
         .set(updatedSetting)
-        .where(eq(settings.id, id))
+        .where(eq(settings.id, userId))
         .returning({ id: settings.id });
 
       return settingId;
