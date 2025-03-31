@@ -25,8 +25,13 @@ class VocabularySetService implements IVocabularySetService {
     }`;
 
     try {
+      const data = (await this.serverApi.get<VocabularySetResponse>(PATH)).data;
+      console.log(data);
+
       return (await this.serverApi.get<VocabularySetResponse>(PATH)).data;
     } catch (error) {
+      console.log("", error);
+
       if (!(error instanceof HttpError)) {
         throw error;
       }

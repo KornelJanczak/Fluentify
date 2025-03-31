@@ -11,7 +11,7 @@ interface VocabularySetCardProps extends React.HTMLAttributes<HTMLDivElement> {
   vocabularySet: VocabularySet;
 }
 
-export default function VocabularySetCard({
+export  function VocabularySetCard({
   vocabularySet,
   ...props
 }: VocabularySetCardProps) {

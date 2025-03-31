@@ -10,17 +10,18 @@ import {
 } from "@/components/ui/pagination";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { use } from "react";
 
 const DEFAULT_PAGE = 1;
 
 interface VocabularySetsPaginationProps {
-  hasMore: boolean;
+  hasMorePromise: Promise<{ hasMore: boolean }>;
 }
 
-export default function VocabularySetsPagination({
-  hasMore,
+export function VocabularySetsPagination({
+  hasMorePromise,
 }: VocabularySetsPaginationProps) {
-  console.log(hasMore);
+  const { hasMore } = use(hasMorePromise);
 
   const [page, setPage] = useState(DEFAULT_PAGE);
   const param = useSearchParams();

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "../ui/button";
 
-export default function VocabularySetsNotFound() {
+export  function VocabularySetsNotFound() {
   return (
     <div className="flex flex-col justify-center items-center h-[55vh] text-center text-lg">
       <p>You don't have any vocabulary sets yet.</p>

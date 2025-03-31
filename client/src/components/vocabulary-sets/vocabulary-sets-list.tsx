@@ -1,14 +1,17 @@
+"use client";
+
 import { type VocabularySet } from "@/common/api/services/vocabulary-set.service";
-import VocabularySetCard from "./vocabulary-set-card";
+import { VocabularySetCard } from "./vocabulary-set-card";
 import Link from "next/link";
+import { use } from "react";
 
 interface VocabularySetsListProps {
-  vocabularySets: VocabularySet[];
+  data: Promise<{ vocabularySets: VocabularySet[] }>;
 }
 
-export default async function VocabularySetsList({
-  vocabularySets,
-}: VocabularySetsListProps) {
+export function VocabularySetsList({ data }: VocabularySetsListProps) {
+  const { vocabularySets } = use(data);
+
   return (
     <div className="flex flex-col items-stretch space-y-4 w-full">
       {vocabularySets.map((vocabularySet) => (

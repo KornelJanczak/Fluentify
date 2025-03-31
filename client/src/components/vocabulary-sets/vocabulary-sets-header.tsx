@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useRef } from "react";
 
-export default function VocabularySetsHeader() {
+export  function VocabularySetsHeader() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
