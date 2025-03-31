@@ -16,7 +16,7 @@ class SettingsService implements ISettingsService {
         await this.serverApi.get<SettingsResponse>(`${this.BASIC_PATH}/user`)
       ).data;
     } catch (error) {
-      return null;
+      throw new HttpError(error.statusCode, "Failed to fetch settings");
     }
   }
 }
