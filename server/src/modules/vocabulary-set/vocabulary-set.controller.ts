@@ -21,8 +21,8 @@ import {
 import { GoogleAuthGuard } from '../auth/strategies/google.guard';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 
-@Controller('vocabulary-set')
 @UseGuards(GoogleAuthGuard)
+@Controller('vocabulary-set')
 export class VocabularySetController {
   public readonly logger: Logger = new Logger(VocabularySetController.name);
 
@@ -51,6 +51,8 @@ export class VocabularySetController {
     @Param('page') page: string,
     @Query('searchInput') searchInput?: string,
   ): Promise<FindAllByUserIdResponseDto> {
+    console.log('userId', userId);
+
     const vocabularySets = await this.vocabularySetService.findAllByUserId(
       userId,
       page,
