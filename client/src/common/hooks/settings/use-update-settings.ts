@@ -3,23 +3,23 @@
 import { useMutation } from "@tanstack/react-query";
 import { clientApi } from "../../api/client-api";
 import { toast } from "sonner";
-import { usePathname, useRouter } from "next/navigation";
-import { LearningSettingsFormType } from "@/components/settings/learning-settings-form";
 import { ChatSettingsFormType } from "@/components/settings/chat-settings-form";
 
-export const useCreateSettings = () => {
-  const router = useRouter();
-  const pathName = usePathname();
-  const toastId = "settings";
+export const useUpdateSettings = () => {
+  const toastId = "update-settings";
 
   const mutation = useMutation({
-    mutationFn: async (settings: LearningSettingsFormType) =>
-      (await clientApi.post<CreateSettingsResponse>(`settings`, settings)).data,
+    mutationFn: async (settings: ChatSettingsFormType) =>
+      (
+        await clientApi.put<CreateSettingsResponse>(
+          `settings/update`,
+          settings
+        )
+      ).data,
     onSuccess: () => {
       toast.success("We save your settings successfully!", {
         id: toastId,
       });
-      if (pathName === "/onboarding") router.push(`/dashboard/chat/settings`);
     },
     onError: (error) => {
       console.log(error);

@@ -17,8 +17,6 @@ export class SettingsService {
       userId,
     );
 
-    console.log('newSetting', newSetting);
-
     if (!newSetting)
       throw ServiceError.NotFoundError('Failed to create settings');
 
@@ -43,11 +41,13 @@ export class SettingsService {
   }
 
   public async update(
-    id: string,
+    userId: string,
     updateSettingsDto: UpdateSettingsDto,
   ): Promise<string> {
-    const updatedSettingId = await this.settingsRepository.update(
-      id,
+    console.log('updateSettingsDto', updateSettingsDto);
+
+    const updatedSettingId = await this.settingsRepository.updateByUserId(
+      userId,
       updateSettingsDto,
     );
 

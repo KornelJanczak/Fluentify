@@ -26,13 +26,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useUpdateSettings } from "@/common/hooks/settings/use-update-settings";
 
 const tutors = {
-  english: [
+  "en-US": [
     { id: "en-US-Casual-K", name: "John", origin: "USA" },
     { id: "en-US-Journey-F", name: "Emily", origin: "USA" },
+  ],
+  "en-GB": [
     { id: "en-GB-Journey-D", name: "Oliver", origin: "UK" },
     { id: "en-GB-Journey-F", name: "Victoria", origin: "UK" },
+  ],
+  "en-AU": [
     { id: "en-AU-Journey-D", name: "Jack", origin: "Australia" },
     { id: "en-AU-Neural2-C", name: "Charlotte", origin: "Australia" },
   ],
@@ -58,25 +63,15 @@ const chatSettings = [
 ];
 
 const FormSchema = z.object({
-  tutor: z.enum(
-    [
-      "en-US-Casual-K",
-      "en-US-Journey-F",
-      "en-GB-Journey-D",
-      "en-GB-Journey-F",
-      "en-AU-Journey-D",
-      "en-AU-Neural2-C",
-    ],
-    {
-      message: "Please select a tutor.",
-    }
-  ),
+  tutorId: z.string({ message: "Tutor should be a string!" }).nonempty({
+    message: "Please select a tutor.",
+  }),
   chatSettings: z
     .array(z.enum(["autoCorrect", "autoRecord", "autoSend"]))
     .optional(),
 });
 
-type ChatSettingsFormType = z.infer<typeof FormSchema>;
+export type ChatSettingsFormType = z.infer<typeof FormSchema>;
 
 interface ChatSettingsFormProps {
   tutorId: string;
@@ -93,6 +88,7 @@ export function ChatSettingsForm({
   autoRecord,
   autoSend,
 }: ChatSettingsFormProps) {
+  const { mutate } = useUpdateSettings();
   const currentTutor = tutors[learningLanguage].find(
     ({ id }) => id === tutorId
   ).id;
@@ -100,7 +96,7 @@ export function ChatSettingsForm({
   const form = useForm<ChatSettingsFormType>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      tutor: currentTutor,
+      tutorId: currentTutor,
       chatSettings: [
         autoCorrect ? "autoCorrect" : null,
         autoRecord ? "autoRecord" : null,
@@ -110,7 +106,8 @@ export function ChatSettingsForm({
   });
 
   const onSubmit = (data: ChatSettingsFormType) => {
-    console.log(data);
+    console.log("data", data);
+    mutate(data);
   };
 
   return (
@@ -118,7 +115,7 @@ export function ChatSettingsForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pt-8">
         <FormField
           control={form.control}
-          name="tutor"
+          name="tutorId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Choose your tutor!</FormLabel>

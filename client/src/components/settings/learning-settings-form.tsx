@@ -132,7 +132,7 @@ interface LearningSettingsFormProps {
   buttonContent?: string;
 }
 
-export default function LearningSettingsForm(props: LearningSettingsFormProps) {
+export function LearningSettingsForm(props: LearningSettingsFormProps) {
   const { mutate } = useCreateSettings();
   const form = useForm<LearningSettingsFormType>({
     resolver: zodResolver(FormSchema),
