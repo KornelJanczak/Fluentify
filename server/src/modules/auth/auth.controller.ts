@@ -7,6 +7,7 @@ import {
   Req,
   UseGuards,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { User } from 'src/common/decorators/user.decorator';
 import { User as UserType } from 'src/shared/db/db.schema';
@@ -25,9 +26,8 @@ export class AuthController {
   public logOut(@Req() req: Request) {
     req.logout((error) => {
       if (error) {
-        throw new HttpException(
+        throw new UnauthorizedException(
           'User is not authorized to this action',
-          HttpStatus.UNAUTHORIZED,
         );
       } else {
         this.logger.log(`User has been logged out`);
@@ -40,10 +40,7 @@ export class AuthController {
   @Get('session')
   public authSession(@User() user: UserType) {
     if (!user)
-      throw new HttpException(
-        'User is not authorized to this action',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException('User is not authorized to this action');
 
     this.logger.log(`User is authenticated ${user.id}`);
 
