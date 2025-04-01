@@ -51,6 +51,8 @@ export class RestHelper {
     if (error.response) {
       const data = error.response.data;
       const message = typeof data === "object" ? JSON.stringify(data) : data;
+      console.log("error", error);
+
       throw new HttpError(error.response.status, message as string);
     } else if (error.request) {
       throw new HttpError(0, "Network error");

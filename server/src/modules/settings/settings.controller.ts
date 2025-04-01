@@ -61,14 +61,14 @@ export class SettingsController {
     @UserId() userId: string,
     @Body() updateSettingsDto: UpdateSettingsDto,
   ): Promise<string> {
-    console.log('updateSettingsDto', updateSettingsDto);
-
+    console.log('updateSettingsDto', updateSettingsDto.chatSettings);
+    console.log('userId', updateSettingsDto.tutorId);
     const updatedSettingId = await this.settingsService.update(
       userId,
       updateSettingsDto,
     );
 
-    this.logger.log(`Updated setting with ID: ${updatedSettingId}`);
+    this.logger.log(`Updated settings for user: ${userId}`);
 
     return updatedSettingId;
   }

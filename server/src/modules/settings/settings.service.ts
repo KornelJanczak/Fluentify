@@ -44,8 +44,6 @@ export class SettingsService {
     userId: string,
     updateSettingsDto: UpdateSettingsDto,
   ): Promise<string> {
-    console.log('updateSettingsDto', updateSettingsDto);
-
     const updatedSettingId = await this.settingsRepository.updateByUserId(
       userId,
       updateSettingsDto,

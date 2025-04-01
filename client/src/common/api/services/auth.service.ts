@@ -1,6 +1,7 @@
 import { HttpError } from "@/common/api/rest-helper";
 import { ServerAPI, serverApi } from "@/common/api/server-api";
 import { clientApi } from "@/common/api/client-api";
+import { redirect, unauthorized } from "next/navigation";
 
 class AuthService {
   serverApi: ServerAPI;
@@ -9,33 +10,25 @@ class AuthService {
     this.serverApi = serverApi;
   }
 
-  async getUser() {
+  public async getUser() {
     try {
       return (await this.serverApi.get<UserResponse>("/auth/session")).data;
     } catch (error) {
-      if (!(error instanceof HttpError)) {
-        throw error;
-      }
+      if (error.status === 401) return redirect("/auth/sign-in");
 
-      if (error.status === 401) {
-        return null;
-      }
+      if (!(error instanceof HttpError)) throw error;
 
       throw error;
     }
   }
 
-  async logOut() {
+  public async logOut() {
     try {
       return (await clientApi.get<UserResponse>("/auth/logout")).data;
     } catch (error) {
-      if (!(error instanceof HttpError)) {
-        throw error;
-      }
+      if (error.status === 401) return redirect("/auth/sign-in");
 
-      if (error.status === 401) {
-        return null;
-      }
+      if (!(error instanceof HttpError)) throw error;
 
       throw error;
     }

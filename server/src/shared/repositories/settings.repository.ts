@@ -86,7 +86,7 @@ export class SettingsRepository {
       const [{ id: settingId }] = await this.db
         .update(settings)
         .set(updatedSetting)
-        .where(eq(settings.id, userId))
+        .where(eq(settings.userId, userId))
         .returning({ id: settings.id });
 
       return settingId;

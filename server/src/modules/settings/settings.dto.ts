@@ -1,6 +1,28 @@
-import { IsString, MinLength, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  MinLength,
+  IsNotEmpty,
+  IsArray,
+  IsOptional,
+  ValidateNested,
+  IsBoolean,
+} from 'class-validator';
 import { ValidateIf } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
+
+class ChatSettingsDto {
+  @IsOptional()
+  @IsBoolean({ message: 'autoCorrect must be a boolean!' })
+  autoCorrect: boolean;
+
+  @IsOptional()
+  @IsBoolean({ message: 'autoRecord must be a boolean!' })
+  autoRecord: boolean;
+
+  @IsOptional()
+  @IsBoolean({ message: 'autoSend must be a boolean!' })
+  autoSend: boolean;
+}
 
 export class CreateSettingsDto {
   @IsNotEmpty({ message: 'Learning language is required!' })
@@ -32,28 +54,24 @@ export class CreateSettingsDto {
 
   autoSend?: boolean;
 }
-
 export class UpdateSettingsDto {
   @ValidateIf((object) => object.tutorId !== undefined)
   @IsString({ message: 'Tutor ID must be a string!' })
+  @IsOptional()
   tutorId?: string;
 
-  @Transform(({ value }: { value: string[] | [] }) => {
-    console.log('value', value);
-
-    const newObj = {
-      autoCorrect: value.find((value) => value === 'autoCorrect') || null,
-      autoRecord: value.find((value) => value === 'autoRecord') || null,
-      autoSend: value.find((value) => value === 'autoSend') || null,
-    };
-
-    console.log('newObj', newObj);
-
-    return newObj;
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return {
+        autoCorrect: value.find((value) => value === 'autoCorrect') || null,
+        autoRecord: value.find((value) => value === 'autoRecord') || null,
+        autoSend: value.find((value) => value === 'autoSend') || null,
+      };
+    }
+    return value; // return original value if not an array
   })
-  chatSettings: {
-    autoCorrect: boolean | null;
-    autoRecord: boolean | null;
-    autoSend: boolean | null;
-  };
+  @ValidateNested()
+  @Type(() => ChatSettingsDto)
+  chatSettings?: ChatSettingsDto;
 }
