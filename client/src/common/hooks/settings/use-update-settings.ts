@@ -9,13 +9,12 @@ export const useUpdateSettings = () => {
   const toastId = "update-settings";
 
   const mutation = useMutation({
-    mutationFn: async (settings: ChatSettingsFormType) =>
-      (
-        await clientApi.put<CreateSettingsResponse>(
-          `settings/update`,
-          settings
-        )
-      ).data,
+    mutationFn: async (settings: ChatSettingsFormType) => {
+      console.log("settings", settings);
+
+      (await clientApi.put<CreateSettingsResponse>(`settings/update`, settings))
+        .data;
+    },
     onSuccess: () => {
       toast.success("We save your settings successfully!", {
         id: toastId,
