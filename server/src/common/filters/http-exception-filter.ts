@@ -6,6 +6,7 @@ import {
   HttpStatus,
   NotFoundException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { Logger } from '@nestjs/common';
@@ -32,6 +33,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof BadRequestException) {
       errResponse.statusCode = HttpStatus.BAD_REQUEST;
+      errResponse.error = exception.name;
+      errResponse.message = exception.message;
+    }
+
+    if (exception instanceof UnauthorizedException) {
+      errResponse.statusCode = HttpStatus.UNAUTHORIZED;
       errResponse.error = exception.name;
       errResponse.message = exception.message;
     }
