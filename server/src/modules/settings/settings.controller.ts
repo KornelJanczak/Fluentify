@@ -61,8 +61,8 @@ export class SettingsController {
     @UserId() userId: string,
     @Body() updateSettingsDto: UpdateSettingsDto,
   ): Promise<string> {
-    console.log('updateSettingsDto', updateSettingsDto.chatSettings);
-    console.log('userId', updateSettingsDto.tutorId);
+    console.log('updateSettingsDto', updateSettingsDto);
+
     const updatedSettingId = await this.settingsService.update(
       userId,
       updateSettingsDto,

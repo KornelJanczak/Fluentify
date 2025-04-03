@@ -3,16 +3,15 @@
 import { useMutation } from "@tanstack/react-query";
 import { clientApi } from "../../api/client-api";
 import { toast } from "sonner";
-import { ChatSettingsFormType } from "@/components/settings/chat-settings-form";
 
 export const useUpdateSettings = () => {
   const toastId = "update-settings";
 
   const mutation = useMutation({
-    mutationFn: async (settings: ChatSettingsFormType) => {
+    mutationFn: async (settings: UpdateSettingsRequest) => {
       console.log("settings", settings);
 
-      (await clientApi.put<CreateSettingsResponse>(`settings/update`, settings))
+      (await clientApi.put<UpdateSettingsResponse>(`settings/update`, settings))
         .data;
     },
     onSuccess: () => {
@@ -37,6 +36,13 @@ export const useUpdateSettings = () => {
   return mutation;
 };
 
-export type CreateSettingsResponse = {
+type UpdateSettingsRequest = {
+  tutorId: string;
+  autoCorrect?: boolean;
+  autoRecord?: boolean;
+  autoSend?: boolean;
+};
+
+export type UpdateSettingsResponse = {
   settingsId: string;
 };
