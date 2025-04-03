@@ -2,27 +2,10 @@ import {
   IsString,
   MinLength,
   IsNotEmpty,
-  IsArray,
   IsOptional,
-  ValidateNested,
   IsBoolean,
 } from 'class-validator';
 import { ValidateIf } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
-
-class ChatSettingsDto {
-  @IsOptional()
-  @IsBoolean({ message: 'autoCorrect must be a boolean!' })
-  autoCorrect: boolean;
-
-  @IsOptional()
-  @IsBoolean({ message: 'autoRecord must be a boolean!' })
-  autoRecord: boolean;
-
-  @IsOptional()
-  @IsBoolean({ message: 'autoSend must be a boolean!' })
-  autoSend: boolean;
-}
 
 export class CreateSettingsDto {
   @IsNotEmpty({ message: 'Learning language is required!' })
@@ -61,17 +44,14 @@ export class UpdateSettingsDto {
   tutorId?: string;
 
   @IsOptional()
-  @Transform(({ value }) => {
-    if (Array.isArray(value)) {
-      return {
-        autoCorrect: value.find((value) => value === 'autoCorrect') || null,
-        autoRecord: value.find((value) => value === 'autoRecord') || null,
-        autoSend: value.find((value) => value === 'autoSend') || null,
-      };
-    }
-    return value; // return original value if not an array
-  })
-  @ValidateNested()
-  @Type(() => ChatSettingsDto)
-  chatSettings?: ChatSettingsDto;
+  @IsBoolean({ message: 'autoCorrect must be a boolean!' })
+  autoCorrect?: boolean;
+
+  @IsOptional()
+  @IsBoolean({ message: 'autoRecord must be a boolean!' })
+  autoRecord?: boolean;
+
+  @IsOptional()
+  @IsBoolean({ message: 'autoSend must be a boolean!' })
+  autoSend?: boolean;
 }

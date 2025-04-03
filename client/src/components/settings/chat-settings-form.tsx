@@ -42,7 +42,7 @@ const tutors = {
     { id: "en-AU-Neural2-C", name: "Charlotte", origin: "Australia" },
   ],
   german: [],
-};
+} as const;
 
 const chatSettings = [
   {
@@ -88,6 +88,14 @@ export function ChatSettingsForm({
   autoRecord,
   autoSend,
 }: ChatSettingsFormProps) {
+  console.log("Props:", {
+    tutorId,
+    learningLanguage,
+    autoCorrect,
+    autoRecord,
+    autoSend,
+  });
+
   const { mutate } = useUpdateSettings();
   const currentTutor = tutors[learningLanguage].find(
     ({ id }) => id === tutorId
@@ -105,9 +113,13 @@ export function ChatSettingsForm({
     },
   });
 
-  const onSubmit = (data: ChatSettingsFormType) => {
-    console.log("data", data);
-    mutate(data);
+  const onSubmit = ({ tutorId, chatSettings }: ChatSettingsFormType) => {
+    mutate({
+      tutorId,
+      autoCorrect: chatSettings.some((item) => item === "autoCorrect") || null,
+      autoRecord: chatSettings.some((item) => item === "autoRecord") || null,
+      autoSend: chatSettings.some((item) => item === "autoSend") || null,
+    });
   };
 
   return (
