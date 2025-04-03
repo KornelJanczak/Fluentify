@@ -1,8 +1,6 @@
 import {
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Logger,
   Req,
   UseGuards,
@@ -16,6 +14,7 @@ import { GoogleAuthGuard } from './strategies/google.guard';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { ConfigService } from '@nestjs/config';
 
+@UseGuards(GoogleAuthGuard)
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
@@ -48,18 +47,14 @@ export class AuthController {
   }
 
   @Get('google')
-  @UseGuards(GoogleAuthGuard)
-  public handleLogin() {
-    console.log('cuj');
+  public handleLogin(@Req() req: Request) {
+    this.logger.log('Handle login with Google');
   }
 
   @Get('/callback/google')
-  @UseGuards(GoogleAuthGuard)
   public googleCallback(@UserId() id: string, @Res() res: Response) {
     this.logger.log(`User[${id}] handle Google callback`);
 
-    return res.redirect(
-      this.configService.get<string>(`CLIENT_URL`) + '/dashboard',
-    );
+    res.redirect(this.configService.get<string>(`CLIENT_URL`) + '/dashboard');
   }
 }

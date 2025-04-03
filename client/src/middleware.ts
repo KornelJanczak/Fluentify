@@ -21,10 +21,8 @@ export async function middleware(request: NextRequest) {
 
     console.log("settings", settings);
 
-    if (!settings) {
-      console.log("no settings found, redirecting to onboarding");
+    if (!settings)
       return NextResponse.redirect(new URL("/onboarding", request.url));
-    }
 
     return response;
   }
@@ -34,6 +32,13 @@ export async function middleware(request: NextRequest) {
 
     if (!sessionID)
       return NextResponse.redirect(new URL("/auth/sign-in", request.url));
+
+    const settings = await settingsService.getChatSettingsByUserId();
+
+    console.log("settings", settings);
+
+    if (settings)
+      return NextResponse.redirect(new URL("/dashboard", request.url));
 
     return response;
   }
