@@ -44,7 +44,7 @@ const VoiceRecognationButton = ({
             e.preventDefault();
             SpeechRecognition.startListening({
               continuous: true,
-              language: "en-US",
+              language: "en",
             });
           }}
         >

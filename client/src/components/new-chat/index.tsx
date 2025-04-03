@@ -9,6 +9,7 @@ import ChooseVocabularySetDialog from "./choose-vocabulary-set-dialog";
 import type { VocabularySet } from "@/common/api/services/vocabulary-set.service";
 import { Separator } from "../ui/separator";
 import { useRouter } from "next/navigation";
+import { CreateChatButton } from "./create-chat-button";
 
 interface NewChatProps {
   vocabularySets: VocabularySet[];
@@ -44,9 +45,12 @@ export default function NewChat({ vocabularySets }: NewChatProps) {
                   vocabularySets={vocabularySets}
                 />
               ) : (
-                <Button key={topic.title} size="lg">
-                  {topic.title}
-                </Button>
+                <CreateChatButton
+                  key={topic.title}
+                  title={topic.title}
+                  topic={topic.topic}
+                  category={topic.category}
+                />
               )
             )}
         </div>
