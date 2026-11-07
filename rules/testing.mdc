@@ -1,0 +1,21 @@
+---
+description: Testing conventions — Jest unit/integration tests and Cypress end-to-end tests
+globs: **/*.spec.ts,**/*.spec.tsx,**/*.test.ts,**/*.test.tsx,**/*.cy.ts,apps/frontend-e2e/**
+---
+
+# Jest:
+
+- Write isolated, deterministic unit tests.
+- Use descriptive test names and structure tests with `describe` and `it` blocks.
+- Target 80% unit coverage, 100% on critical paths, and test all edge cases.
+- Use factory functions for test data; avoid stale fixtures.
+- Mock only external dependencies (APIs, DB). Never mock internal logic — tests should reflect reality, and over-mocking hides real bugs.
+- Prefer functional test helpers and avoid test classes.
+
+# Cypress:
+
+- Write end-to-end tests that reflect real user flows.
+- Use data-testid attributes for selectors.
+- Keep tests independent and idempotent.
+- Use custom Cypress commands for repeated actions.
+- Prefer clear, step-by-step assertions.

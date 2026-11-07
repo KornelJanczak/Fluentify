@@ -1,0 +1,43 @@
+---
+description: General project conventions — stack overview, language, code style, and TypeScript rules that apply everywhere
+alwaysApply: true
+---
+
+You are an expert in TypeScript, JavaScript, React, Nest.js, Node.js, Prisma, Postgres, AntD, TinyMCE, Cypress and other related web technologies.
+You are also an expert in writing unit tests, integration tests, and end-to-end tests.
+You are familiar with best practices in software development, including code quality, performance optimization, and security.
+
+Sibling rules in `.cursor/rules/` each own a distinct topic (single source of truth — don't restate their specifics here or in each other):
+- Always-applied, cross-cutting: `ai-agent-specialist.mdc` (architecture, error handling, security), `clean-code.mdc` (code style), `clean-function-and-method.mdc` (function/method-level rules), `anti-overengineering.mdc` (scope discipline), `domain.mdc` (domain vocabulary router), `git.mdc` (git/PR/secrets conventions).
+- Path-scoped, auto-attached by glob: `frontend.mdc`, `backend.mdc`, `testing.mdc`, `infra.mdc`.
+
+# Global Rules:
+
+- All code comments, commit messages, documentation, and generated text for Markdown files must always be in English, regardless of prompt language or Copilot settings.
+- Follow security best practices (e.g., avoid XSS, SQL injection).
+- Optimize for readability, maintainability, and performance.
+- Modularize code and avoid duplication.
+- Write tests for all new features and bug fixes.
+
+# Code Style and Structure:
+
+- Write concise, technical TypeScript code.
+- Use functional and declarative programming patterns in frontend code; avoid React class components.
+- Use NestJS classes for backend services, controllers, modules, resolvers, and providers.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoaded, hasError).
+- Naming casing: camelCase for variables/functions, PascalCase for classes/interfaces, UPPER_SNAKE for constants.
+- Structure files: exported page/component, GraphQL queries, helpers, static content, types.
+
+# TypeScript:
+
+- Always use strict typing; avoid using `any` and implicit `any` types.
+- Prefer interfaces for object shapes, but use types for unions/intersections.
+- Use enums or union types for limited sets of values.
+- Enable and respect all strict compiler options in `tsconfig.json`.
+- Use type guards and assertion functions for runtime type safety.
+- Prefer readonly and const assertions where possible.
+- Use generics for reusable logic and components.
+- Avoid type casting unless absolutely necessary; prefer type-safe solutions.
+- Co-locate types with their usage, but extract to shared files for cross-module types.
+- Document complex types and interfaces with comments.

@@ -1,0 +1,27 @@
+[project]
+name = "english-ai-tutor"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.20.0",
+    "asyncpg>=0.30.0",
+    "fastapi[standard]>=0.143.0",
+    "langchain>=1.4.4",
+    "langchain-openai>=1.7.2",
+    "langgraph>=1.2.14",
+    "pydantic-settings>=2.15.0",
+    "pyjwt>=2.10.1",
+    "pwdlib[argon2]>=0.2.1",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "langgraph-checkpoint-postgres>=3.2.0",
+    "psycopg[binary,pool]>=3.3.6",
+]
+
+[dependency-groups]
+dev = [
+    "httpx==0.28.1",
+    "pytest==9.1.1",
+    "pytest-asyncio>=1.2.0",
+]

@@ -1,0 +1,13 @@
+---
+description: Git, commit, PR, and secret-handling conventions
+alwaysApply: true
+---
+
+# Git Workflow
+
+- Keep pull requests small and focused; target roughly 400 changed lines or less when practical.
+- Split unrelated work into separate commits or PRs.
+- Write commit messages in English, imperative mood, and focus on why the change exists.
+- Use branch prefixes that describe intent: `feature/`, `fix/`, `chore/`, `docs/`, or `test/`.
+- Never commit secrets, credentials, `.env` files, `.npmrc`, or files under `tools/env/*`.
+- Before committing, review staged changes and ensure unrelated user changes are not included.

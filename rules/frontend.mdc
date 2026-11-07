@@ -1,0 +1,35 @@
+---
+description: Frontend conventions — React, Ant Design, styled-components, and TinyMCE
+globs: apps/frontend/**,libs/components/**,libs/hooks/**,**/*.tsx
+---
+
+# React:
+
+- Use functional components and React hooks; avoid class components.
+- Prefer composition over inheritance.
+- Use prop types and TypeScript interfaces for component props.
+- Keep components pure and stateless when possible.
+- Co-locate component logic, styles, and tests.
+- Use memoization (React.memo, useMemo, useCallback) for performance.
+- Use context and custom hooks for shared state.
+- Use Ant Design components and theming consistently for UI and forms.
+- Use ThemeProvider and custom theme objects for consistent styling.
+- Use data-testid attributes for test selectors in components.
+- Avoid inline styles; use styled-components for all custom CSS.
+
+## Styled Components:
+
+- Use `styled-components` for all custom styles in React code.
+- Co-locate styled components with their related components.
+- Use descriptive, PascalCase names for styled components.
+- Prefer functional props (e.g., `$isActive`, `$hasError`) for dynamic styles.
+- Use theme values via `theme` prop for colors, spacing, and fonts.
+- Avoid global styles; scope styles to components.
+- Extend Ant Design and other library components with styled-components for custom UI.
+- Use TypeScript generics for styled-components when needed (e.g., styled(Table<T>)).
+- Use `ThemeProvider` at the app root and in tests for consistent theming.
+- Prefer CSS-in-JS patterns for conditional logic and reusability.
+- Use Ant Design's className conventions for extending or overriding styles.
+- Use utility styled-components for layout (e.g., FlexRow, FlexColumn) and reuse them across the app.
+- Use custom props for conditional styling, and avoid using plain className for dynamic styles.
+- Prefer destructuring theme and props in styled blocks for clarity.

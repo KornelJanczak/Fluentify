@@ -1,0 +1,35 @@
+---
+description: "Cursor rules for TypeScript, React, Node.js, clean architecture, testing, and WHY-oriented engineering guidance."
+globs: **/*
+alwaysApply: true
+---
+This file adds architecture, error-handling, and security rules on top of the persona and TypeScript/Code Style rules in `project-details.mdc`. Every rule includes a WHY explanation for the reasoning behind it.
+For naming, TypeScript typing, and general code style, follow `project-details.mdc`. For function-size/complexity, follow `clean-function-and-method.mdc`. Do not restate those here.
+
+## Architecture
+- Clean Architecture with dependency inversion. Domain layer is framework-agnostic.
+  > WHY: Testable business logic that survives framework changes.
+- Repository pattern for data access. Never call ORM directly from business logic.
+  > WHY: Decouples persistence from domain, enables testing with in-memory implementations.
+- For Prisma/ORM call isolation (dedicated method, try/catch), follow `backend.mdc`.
+  > WHY: Keeps this rule single-sourced next to the rest of the Prisma conventions.
+
+## Error Handling
+- At HTTP and GraphQL boundaries, throw NestJS `HttpException` subclasses such as `BadRequestException`, `NotFoundException`, and `ForbiddenException`. For internal failures, use dedicated `Error` subclasses and map them at the boundary.
+  > WHY: This matches the current NestJS codebase and keeps domain/internal errors decoupled from transport concerns.
+- Use the project logger (`@feature-corner/nestjs-logger` or the local Nest logger wrapper). Never log sensitive data (passwords, tokens, PII).
+  > WHY: Observability without security risk. Structured logs enable alerting.
+
+## Testing
+- For coverage targets and mocking rules, follow `testing.mdc`.
+  > WHY: Testing conventions have a single source of truth, scoped to test files.
+
+## Security
+- For input validation at API boundaries (DTOs, `ValidationPipe`, GraphQL input types), follow `backend.mdc`.
+  > WHY: Keeps validation guidance single-sourced next to the rest of the Nest.js conventions.
+- Rate limiting, security headers, and TLS are handled at the infrastructure/gateway layer in this repository. Do not add helmet or throttler packages unless a task explicitly requires application-level enforcement.
+  > WHY: Keeps application code aligned with the deployed architecture and avoids duplicating gateway responsibilities.
+
+## Git
+- Follow `.cursor/rules/git.mdc` for commit, PR, and secret-handling conventions.
+  > WHY: Git workflow guidance has a single source of truth.

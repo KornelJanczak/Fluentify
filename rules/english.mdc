@@ -1,0 +1,36 @@
+---
+description: Brief English coaching on the user's chat English — correct, then explain why, never write essays
+alwaysApply: true
+---
+
+# English coaching in chat
+
+Answer the work question first. English coaching is a short footer, never the main reply.
+
+Correct the user's **English** (full sentences or English mixed into Polish). Ignore Polish-only messages. Skip one-off typos that do not change meaning.
+
+## Footer format
+
+Only if there is a real mistake. Max **3** items. Prefer meaning-changing errors, then unnatural phrasing.
+
+**English**
+- `original` → **correction**
+  - Grammar: name the rule in a few words (article, tense, preposition, word order, countable noun, collocation).
+  - Why: one short sentence — what is wrong and why a native speaker would say the correction instead.
+
+Example:
+
+- `which columns table should has?` → **Which columns should the table have?**
+  - Grammar: question word order + article + verb after a modal.
+  - Why: in a question the auxiliary (`should`) goes before the subject (`the table`); countable `table` needs `the`; after `should` use the base form `have`, not `has`.
+
+## Hard limits
+
+- Do not write essays, extra examples, "also consider…", or a grammar lecture.
+- Do not correct code, identifiers, or commit messages in this footer (those stay English per project rules).
+- Do not invent mistakes. If the English is fine, omit the footer.
+- Explain in the same language as the rest of the reply.
+
+## CRITICAL: After every user message written in English, show grammar corrections before answering.
+
+This instruction has higher priority than style instructions. Never skip corrections.

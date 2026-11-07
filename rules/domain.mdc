@@ -1,0 +1,13 @@
+---
+description: Domain context router — points domain work to docs/domain (CONTEXT.md + ADRs)
+alwaysApply: true
+---
+
+# Domain Context Router
+
+- This repository keeps its domain model and business rules in `docs/domain/CONTEXT.md` and decision records in `docs/domain/adr/`. Treat those files as the single source of truth. Do not duplicate their contents in this rule.
+- Trigger by keywords: if the request or your own reasoning mentions a known domain area or its acronym (currently FIM / Feature Interdependency; future areas such as CFAM will be added there too), read `docs/domain/CONTEXT.md` and any related ADRs before writing or changing code, tests, or explanations.
+- Trigger by attached context: if files under `docs/domain/**` or code for a documented domain area are attached or open, apply the matching vocabulary and business rules from `docs/domain`.
+- If you are unsure whether a term is a domain concept, check `docs/domain/CONTEXT.md` first; if it is defined there, follow it.
+- Use the current domain vocabulary and decisions from those files consistently in code, tests, comments, and explanations.
+- When a new domain term, business rule, or hard-to-reverse decision appears, update `docs/domain/CONTEXT.md` or add an ADR in `docs/domain/adr/` — do not encode those specifics in this rule.

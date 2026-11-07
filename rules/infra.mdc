@@ -1,0 +1,30 @@
+---
+description: Infrastructure conventions — Docker and Kubernetes
+globs: docker/**,deployment/**,**/Dockerfile,**/Dockerfile.*,**/*.dockerfile
+---
+
+# Docker:
+
+- Use multi-stage builds to optimize image size and security.
+- Always specify explicit base images and tag versions (avoid `latest`).
+- Copy only necessary files into Docker images; use `.dockerignore` to exclude unnecessary files.
+- Run containers as non-root users where possible.
+- Use environment variables for configuration, not hardcoded values.
+- Minimize the number of layers in Dockerfiles.
+- Clean up build artifacts and caches in the same layer where they are created.
+- Expose only required ports.
+- Use health checks for critical services.
+- Avoid secrets in Dockerfiles; use secrets management tools or environment variables.
+
+# Kubernetes (K8S):
+
+- Use declarative YAML manifests for all resources.
+- Prefer ConfigMaps and Secrets for configuration and sensitive data.
+- Use resource requests and limits for all pods.
+- Use readiness and liveness probes for all services.
+- Use labels and annotations for resource organization and automation.
+- Avoid running containers as root; set securityContext where possible.
+- Use namespaces to separate environments and workloads.
+- Prefer rolling updates and zero-downtime deployments.
+- Store manifests in version control and document all changes.
+- Avoid hardcoding values; use Helm charts or Kustomize for templating and reuse.
