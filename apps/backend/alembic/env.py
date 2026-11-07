@@ -26,7 +26,7 @@ config = context.config
 class AlembicSettings(BaseSettings):
     database_url: str
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", "apps/backend/.env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )

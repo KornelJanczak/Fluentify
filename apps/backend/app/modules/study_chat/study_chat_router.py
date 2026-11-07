@@ -19,6 +19,9 @@ from app.modules.study_chat.chat_schema import (
     StudyChatHistoryMessageSchema,
 )
 from app.modules.study_chat.study_chat_service import StudyChatService
+from app.modules.study_chat.study_chat_thread import (
+    get_study_chat_thread_id,
+)
 from app.modules.study_chat.study_chat_history_service import (
     StudyChatHistoryService,
 )
@@ -48,7 +51,7 @@ async def study_chat_history(
         flashcard_set_id,
     )
 
-    thread_id = f"study_chat:{current_user.id}:{flashcard_set_id}"
+    thread_id = get_study_chat_thread_id(current_user.id, flashcard_set_id)
     config = {
         "configurable": {
             "thread_id": thread_id,
@@ -79,9 +82,10 @@ async def study_chat_message(
 ) -> StudyChatResponseSchema:
     context = StudyChatWorkflowContext(service=service)
 
+    thread_id = get_study_chat_thread_id(current_user.id, flashcard_set_id)
     config = {
         "configurable": {
-            "thread_id": f"study_chat:{current_user.id}:{flashcard_set_id}",
+            "thread_id": thread_id,
         }
     }
     logger.info(
@@ -159,7 +163,7 @@ async def study_chat(
 
     # Langgraph related code
     context = StudyChatWorkflowContext(service=service)
-    thread_id = f"study_chat:{user_id}:{flashcard_set_id}"
+    thread_id = get_study_chat_thread_id(user_id, flashcard_set_id)
 
     try:
         while True:

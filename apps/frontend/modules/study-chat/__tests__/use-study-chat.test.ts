@@ -3,6 +3,8 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getStudyChatThreadId } from "../utils/thread";
+
 const { streamState, getHistoryMock, getAccessTokenMock } = vi.hoisted(() => ({
   streamState: {
     messages: [],
@@ -69,7 +71,7 @@ describe("useStudyChat", () => {
       expect.objectContaining({
         flashcard_set_id: "set-123",
         user_id: "user-123",
-        thread_id: "study_chat:user-123:set-123",
+        thread_id: getStudyChatThreadId("set-123", "user-123"),
         language_level: "B2",
         inspection_request_id: expect.any(String),
       }),

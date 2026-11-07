@@ -5,6 +5,7 @@ import { useStream } from "@langchain/react";
 
 import { getAccessToken } from "@/modules/auth/api";
 import { getStudyChatHistory, type Inspector } from "../api";
+import { getStudyChatThreadId } from "../utils/thread";
 
 export type StudyChatInspector = {
   original_message: string;
@@ -71,11 +72,14 @@ function getUserIdFromAccessToken(accessToken: string): string {
   }
 }
 
-function getStudyChatThreadId(
+function resolveThreadId(
   flashcardSetId: string,
   accessToken: string,
 ): string {
-  return `study_chat:${getUserIdFromAccessToken(accessToken)}:${flashcardSetId}`;
+  return getStudyChatThreadId(
+    flashcardSetId,
+    getUserIdFromAccessToken(accessToken),
+  );
 }
 
 function getContent(message: { content?: unknown }): string {
@@ -104,7 +108,7 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
     () => null,
   );
   const threadId = accessToken
-    ? getStudyChatThreadId(flashcardSetId, accessToken)
+    ? resolveThreadId(flashcardSetId, accessToken)
     : null;
   const stream = useStream<StudyChatState>({
     assistantId: "study_chat",

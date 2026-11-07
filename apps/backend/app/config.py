@@ -8,7 +8,10 @@ class Settings(BaseSettings):
     jwt_expiration_minutes: int = 60
     log_level: str = "INFO"
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore")
+        env_file=(".env", "apps/backend/.env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     openai_api_key: str
     openai_model: str = "gpt-4o-mini"
