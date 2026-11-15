@@ -58,14 +58,13 @@ async def test_tts_service_returns_access_token():
     dataclass with the token string and expiry timestamp.
     """
     mock_token_response = MagicMock()
-    mock_token_response.access_token = "tok_abc123"
-    mock_token_response.expires_at = 1234567890
+    mock_token_response.token = "tok_abc123"
 
-    mock_access_tokens = MagicMock()
-    mock_access_tokens.create = AsyncMock(return_value=mock_token_response)
+    mock_access_token = MagicMock()
+    mock_access_token.create = AsyncMock(return_value=mock_token_response)
 
     mock_client = MagicMock()
-    mock_client.access_tokens = mock_access_tokens
+    mock_client.access_token = mock_access_token
     mock_client.close = AsyncMock()
 
     with patch(
@@ -77,7 +76,7 @@ async def test_tts_service_returns_access_token():
 
     assert isinstance(token, CartesiaAccessToken)
     assert token.access_token == "tok_abc123"
-    assert token.expires_at == 1234567890
+    assert isinstance(token.expires_at, int)
 
 
 @pytest.mark.asyncio
@@ -86,14 +85,13 @@ async def test_tts_service_requests_tts_only_grant():
     Service requests a token scoped only to TTS (grants={'tts': True}).
     """
     mock_token_response = MagicMock()
-    mock_token_response.access_token = "tok_xyz"
-    mock_token_response.expires_at = 1111111111
+    mock_token_response.token = "tok_xyz"
 
-    mock_access_tokens = MagicMock()
-    mock_access_tokens.create = AsyncMock(return_value=mock_token_response)
+    mock_access_token = MagicMock()
+    mock_access_token.create = AsyncMock(return_value=mock_token_response)
 
     mock_client = MagicMock()
-    mock_client.access_tokens = mock_access_tokens
+    mock_client.access_token = mock_access_token
     mock_client.close = AsyncMock()
 
     with patch(
@@ -103,7 +101,7 @@ async def test_tts_service_requests_tts_only_grant():
         service = StudyChatTTSService(cartesia_api_key="sk_car_test")
         await service.create_access_token()
 
-    mock_access_tokens.create.assert_awaited_once_with(
+    mock_access_token.create.assert_awaited_once_with(
         grants={"tts": True},
     )
 
@@ -115,14 +113,13 @@ async def test_tts_service_closes_client_after_token():
     connection leaks.
     """
     mock_token_response = MagicMock()
-    mock_token_response.access_token = "tok"
-    mock_token_response.expires_at = 123
+    mock_token_response.token = "tok"
 
-    mock_access_tokens = MagicMock()
-    mock_access_tokens.create = AsyncMock(return_value=mock_token_response)
+    mock_access_token = MagicMock()
+    mock_access_token.create = AsyncMock(return_value=mock_token_response)
 
     mock_client = MagicMock()
-    mock_client.access_tokens = mock_access_tokens
+    mock_client.access_token = mock_access_token
     mock_client.close = AsyncMock()
 
     with patch(
@@ -140,11 +137,11 @@ async def test_tts_service_closes_client_on_error():
     """
     Service closes the AsyncCartesia client even when Cartesia raises an error.
     """
-    mock_access_tokens = MagicMock()
-    mock_access_tokens.create = AsyncMock(side_effect=RuntimeError("API down"))
+    mock_access_token = MagicMock()
+    mock_access_token.create = AsyncMock(side_effect=RuntimeError("API down"))
 
     mock_client = MagicMock()
-    mock_client.access_tokens = mock_access_tokens
+    mock_client.access_token = mock_access_token
     mock_client.close = AsyncMock()
 
     with patch(
