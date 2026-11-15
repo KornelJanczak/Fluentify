@@ -1,36 +1,122 @@
 import logging
 
-import jwt
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
-from langchain_core.messages import HumanMessage
-from langgraph.graph.state import CompiledStateGraph
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from langgraph_sdk.client import LangGraphClient
+from pydantic import BaseModel
 
-from app.workflows.study_chat.dependencies import StudyChatWorkflowContext
-from app.modules.study_chat.study_chat_dependencies import (
-    get_study_chat_graph,
-    get_study_chat_history_service,
-    get_study_chat_service,
-    get_study_chat_websocket_graph,
-    get_study_chat_websocket_service,
-)
 from app.modules.study_chat.chat_schema import (
-    StudyChatMessageSchema,
-    StudyChatResponseSchema,
     StudyChatHistoryMessageSchema,
+    StudyChatTranscriptionResponseSchema,
 )
-from app.modules.study_chat.study_chat_service import StudyChatService
-from app.modules.study_chat.study_chat_thread import (
-    get_study_chat_thread_id,
+from app.modules.study_chat.study_chat_dependencies import (
+    get_langgraph_client,
+    get_study_chat_history_service,
+    get_study_chat_transcription_service,
+    get_study_chat_tts_service,
 )
 from app.modules.study_chat.study_chat_history_service import (
     StudyChatHistoryService,
 )
+from app.modules.study_chat.study_chat_transcription_service import (
+    StudyChatTranscriptionService,
+)
+from app.modules.study_chat.study_chat_tts_service import StudyChatTTSService
+from app.modules.study_chat.study_chat_thread import (
+    get_study_chat_thread_id,
+)
 from app.modules.users.user_model import User
-from app.modules.users.user_security import get_user_id_from_token
 from app.modules.users.users_dependencies import get_current_user
 
 router = APIRouter(prefix="/study-chat", tags=["study-chat"])
 logger = logging.getLogger(__name__)
+
+MAX_AUDIO_SIZE_BYTES = 25 * 1024 * 1024  # 25 MB limit for Whisper
+SUPPORTED_EXTENSIONS = {".webm", ".mp4", ".mp3", ".wav", ".ogg", ".m4a"}
+
+
+class CartesiaTokenResponseSchema(BaseModel):
+    access_token: str
+    expires_at: int
+
+
+@router.get(
+    "/tts/token",
+    response_model=CartesiaTokenResponseSchema,
+)
+async def study_chat_tts_token(
+    current_user: User = Depends(get_current_user),
+    tts_service: StudyChatTTSService = Depends(get_study_chat_tts_service),
+) -> CartesiaTokenResponseSchema:
+    """Generate a short-lived Cartesia TTS access token for browser-side WebSocket use."""
+    token_data = await tts_service.create_access_token()
+    return CartesiaTokenResponseSchema(
+        access_token=token_data.access_token,
+        expires_at=token_data.expires_at,
+    )
+
+
+@router.post(
+    "/transcribe",
+    response_model=StudyChatTranscriptionResponseSchema,
+)
+async def study_chat_transcribe(
+    file: UploadFile = File(...),
+    language_level: str = Form("B2"),
+    current_user: User = Depends(get_current_user),
+    transcription_service: StudyChatTranscriptionService = Depends(
+        get_study_chat_transcription_service
+    ),
+) -> StudyChatTranscriptionResponseSchema:
+    filename = file.filename or "recording.webm"
+    extension = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+
+    if extension not in SUPPORTED_EXTENSIONS:
+        logger.warning(
+            "Unsupported audio file uploaded: filename=%s content_type=%s user_id=%s",
+            filename,
+            file.content_type,
+            current_user.id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported audio format. Supported extensions: {', '.join(sorted(SUPPORTED_EXTENSIONS))}",
+        )
+
+    audio_bytes = await file.read()
+    if not audio_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The provided audio file is empty.",
+        )
+
+    if len(audio_bytes) > MAX_AUDIO_SIZE_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="The audio file exceeds the maximum allowed size of 25 MB.",
+        )
+
+    try:
+        text = await transcription_service.transcribe(
+            audio_bytes=audio_bytes,
+            filename=filename,
+            language_level=language_level,
+        )
+        return StudyChatTranscriptionResponseSchema(text=text)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+    except Exception as exc:
+        logger.error(
+            "Transcription endpoint failed for user_id=%s: %s",
+            current_user.id,
+            exc,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Speech-to-text service is temporarily unavailable.",
+        ) from exc
 
 
 @router.get(
@@ -40,7 +126,7 @@ logger = logging.getLogger(__name__)
 async def study_chat_history(
     flashcard_set_id: str,
     current_user: User = Depends(get_current_user),
-    graph: CompiledStateGraph = Depends(get_study_chat_graph),
+    langgraph_client: LangGraphClient = Depends(get_langgraph_client),
     history_service: StudyChatHistoryService = Depends(
         get_study_chat_history_service
     ),
@@ -51,15 +137,19 @@ async def study_chat_history(
         flashcard_set_id,
     )
 
-    thread_id = get_study_chat_thread_id(current_user.id, flashcard_set_id)
-    config = {
-        "configurable": {
-            "thread_id": thread_id,
-        }
-    }
+    thread_id = get_study_chat_thread_id(flashcard_set_id)
+    messages: list[object] = []
 
-    snapshot = await graph.aget_state(config)
-    messages = snapshot.values.get("messages", [])
+    try:
+        state = await langgraph_client.threads.get_state(thread_id)
+        if state and isinstance(state.get("values"), dict):
+            messages = state["values"].get("messages", [])
+    except Exception as exc:
+        logger.warning(
+            "Could not fetch LangGraph state for thread_id=%s: %s",
+            thread_id,
+            exc,
+        )
 
     return await history_service.get_history(
         flashcard_set_id=flashcard_set_id,
@@ -67,168 +157,3 @@ async def study_chat_history(
         thread_id=thread_id,
         messages=messages,
     )
-
-
-@router.post(
-    "/{flashcard_set_id}/message",
-    response_model=StudyChatResponseSchema,
-)
-async def study_chat_message(
-    flashcard_set_id: str,
-    data: StudyChatMessageSchema,
-    service: StudyChatService = Depends(get_study_chat_service),
-    graph: CompiledStateGraph = Depends(get_study_chat_graph),
-    current_user: User = Depends(get_current_user),
-) -> StudyChatResponseSchema:
-    context = StudyChatWorkflowContext(service=service)
-
-    thread_id = get_study_chat_thread_id(current_user.id, flashcard_set_id)
-    config = {
-        "configurable": {
-            "thread_id": thread_id,
-        }
-    }
-    logger.info(
-        "Study chat request started: user_id=%s flashcard_set_id=%s",
-        current_user.id,
-        flashcard_set_id,
-    )
-
-    try:
-        result = await graph.ainvoke({
-            "messages": [HumanMessage(content=data.message)],
-            "flashcard_set_id": flashcard_set_id,
-            "user_id": current_user.id,
-            "thread_id": config["configurable"]["thread_id"],
-            "language_level": data.language_level,
-        }, config=config, context=context)
-    except Exception:
-        logger.exception(
-            "Study chat request failed: user_id=%s flashcard_set_id=%s",
-            current_user.id,
-            flashcard_set_id,
-        )
-        raise
-
-    logger.info(
-        "Study chat request completed: user_id=%s flashcard_set_id=%s",
-        current_user.id,
-        flashcard_set_id,
-    )
-
-    return StudyChatResponseSchema(
-        response=result["reply"],
-        inline_inspector=result["inline_inspector"],
-    )
-
-
-@router.websocket("/{flashcard_set_id}")
-async def study_chat(
-    websocket: WebSocket,
-    flashcard_set_id: str,
-    service: StudyChatService = Depends(get_study_chat_websocket_service),
-    graph: CompiledStateGraph = Depends(get_study_chat_websocket_graph),
-) -> None:
-    # Authorization realted code
-    authorization = websocket.headers.get("authorization", "")
-    if not authorization:
-        token = websocket.query_params.get("token", "")
-        authorization = f"Bearer {token}" if token else ""
-    if not authorization.lower().startswith("bearer "):
-        logger.warning(
-            "Study chat WebSocket rejected: reason=missing_authorization "
-            "flashcard_set_id=%s",
-            flashcard_set_id,
-        )
-        await websocket.close(code=4401)
-        return
-
-    try:
-        user_id = get_user_id_from_token(authorization[7:].strip())
-    except (jwt.InvalidTokenError, ValueError):
-        logger.warning(
-            "Study chat WebSocket rejected: reason=invalid_authorization "
-            "flashcard_set_id=%s",
-            flashcard_set_id,
-        )
-        await websocket.close(code=4401)
-        return
-
-    await websocket.accept()
-    logger.info(
-        "Study chat WebSocket connected: user_id=%s flashcard_set_id=%s",
-        user_id,
-        flashcard_set_id,
-    )
-
-    # Langgraph related code
-    context = StudyChatWorkflowContext(service=service)
-    thread_id = get_study_chat_thread_id(user_id, flashcard_set_id)
-
-    try:
-        while True:
-            data = StudyChatMessageSchema.model_validate(await websocket.receive_json())
-
-            config = {
-                "configurable": {
-                    "thread_id": thread_id,
-                }
-            }
-
-            input_state = {
-                "messages": [HumanMessage(content=data.message)],
-                "flashcard_set_id": flashcard_set_id,
-                "user_id": user_id,
-                "thread_id": thread_id,
-                "language_level": data.language_level,
-            }
-
-            async for chunk in graph.astream(
-                input_state,
-                config=config,
-                context=context,
-                stream_mode=["messages", "updates"],
-                version="v2",
-            ):
-                if chunk["type"] == "messages":
-                    message_chunk, metadata = chunk["data"]
-
-                    if (
-                        metadata.get("langgraph_node") == "generate_reply"
-                        and message_chunk.content
-                    ):
-                        await websocket.send_json({
-                            "type": "token",
-                            "content": message_chunk.content,
-                        })
-
-                elif chunk["type"] == "updates":
-                    updates = chunk["data"]
-
-                    if "inspect_message" in updates:
-                        inspection = updates["inspect_message"].get(
-                            "inline_inspector"
-                        )
-
-                        await websocket.send_json({
-                            "type": "done",
-                            "inline_inspector": inspection.model_dump(),
-                        })
-
-    except LookupError as error:
-        logger.warning(
-            "Study chat WebSocket failed: user_id=%s flashcard_set_id=%s "
-            "reason=%s",
-            user_id,
-            flashcard_set_id,
-            type(error).__name__,
-        )
-        await websocket.send_json({"type": "error", "detail": str(error)})
-        await websocket.close(code=4404)
-    except WebSocketDisconnect:
-        logger.info(
-            "Study chat WebSocket disconnected: user_id=%s flashcard_set_id=%s",
-            user_id,
-            flashcard_set_id,
-        )
-        return

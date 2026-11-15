@@ -10,13 +10,12 @@ dependencies = [
     "fastapi[standard]>=0.143.0",
     "langchain>=1.4.4",
     "langchain-openai>=1.7.2",
-    "langgraph>=1.2.14",
+    "langgraph-sdk>=0.1.0",
     "pydantic-settings>=2.15.0",
     "pyjwt>=2.10.1",
     "pwdlib[argon2]>=0.2.1",
     "sqlalchemy[asyncio]>=2.0.0",
-    "langgraph-checkpoint-postgres>=3.2.0",
-    "psycopg[binary,pool]>=3.3.6",
+    "cartesia>=4.2.0",
 ]
 
 [dependency-groups]

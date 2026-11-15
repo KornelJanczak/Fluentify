@@ -1,4 +1,8 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ROOT_DIR = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
@@ -7,8 +11,9 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expiration_minutes: int = 60
     log_level: str = "INFO"
+    langgraph_api_url: str = "http://127.0.0.1:8123"
     model_config = SettingsConfigDict(
-        env_file=(".env", "apps/backend/.env"),
+        env_file=(ROOT_DIR / ".env", ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -17,6 +22,9 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     openai_temperature: float = 0.0
     openai_timeout: int = 30
+
+    # Cartesia TTS
+    cartesia_api_key: str
 
 
 settings = Settings()
