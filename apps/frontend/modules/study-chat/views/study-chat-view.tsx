@@ -1,8 +1,18 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, MessageCircle, Send, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  MessageCircle,
+  Mic,
+  Send,
+  Sparkles,
+  Square,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,13 +23,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { getAccessToken } from "@/modules/auth/api";
+import { transcribeStudyChatAudio } from "../api";
+import { useAudioRecorder } from "../hooks/use-audio-recorder";
 import { useStudyChat } from "../hooks/use-study-chat";
+import { useTTSPlayback } from "../hooks/use-tts-playback";
 
 type StudyChatViewProps = { flashcardSetId: string };
+
+function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
 
 export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
   const [languageLevel, setLanguageLevel] = useState("B2");
   const [message, setMessage] = useState("");
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [transcriptionError, setTranscriptionError] = useState<string | null>(
+    null,
+  );
+  const [ttsEnabled, setTtsEnabled] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastPushedIndexRef = useRef(0);
+
   const {
     messages,
     isLoading,
@@ -27,19 +56,121 @@ export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
     isReady,
     error,
     sendMessage: sendChatMessage,
+    streamedReplyText,
+    isStreaming,
   } = useStudyChat(flashcardSetId);
+
+  const {
+    pushText: pushTTSText,
+    finish: finishTTS,
+    cancel: cancelTTS,
+    state: ttsState,
+    error: ttsError,
+  } = useTTSPlayback({
+    enabled: ttsEnabled,
+  });
+
+  const {
+    isRecording,
+    recordingDuration,
+    error: recordingError,
+    startRecording,
+    stopRecording,
+    cancelRecording,
+    clearError: clearRecordingError,
+  } = useAudioRecorder();
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading]);
+
+  // Feed incremental streamed tokens to TTS
+  useEffect(() => {
+    if (!isStreaming || !ttsEnabled) {
+      return;
+    }
+    const currentText = streamedReplyText ?? "";
+    const newChunk = currentText.slice(lastPushedIndexRef.current);
+    if (newChunk) {
+      pushTTSText(newChunk);
+      lastPushedIndexRef.current = currentText.length;
+    }
+  }, [isStreaming, streamedReplyText, ttsEnabled, pushTTSText]);
+
+  // Flush TTS audio when streaming turn ends
+  useEffect(() => {
+    if (!isStreaming) {
+      if (lastPushedIndexRef.current > 0) {
+        finishTTS();
+      }
+      lastPushedIndexRef.current = 0;
+    }
+  }, [isStreaming, finishTTS]);
+
+  const handleVoiceToggle = async () => {
+    setTranscriptionError(null);
+    clearRecordingError();
+
+    if (isRecording) {
+      setIsTranscribing(true);
+      try {
+        const audioBlob = await stopRecording();
+        if (!audioBlob || audioBlob.size === 0) {
+          return;
+        }
+
+        const token = getAccessToken();
+        if (!token) {
+          setTranscriptionError("You must be logged in to transcribe audio.");
+          return;
+        }
+
+        const result = await transcribeStudyChatAudio(
+          audioBlob,
+          languageLevel,
+          token,
+        );
+
+        if (result.text?.trim()) {
+          setMessage((prev) => {
+            const trimmedPrev = prev.trim();
+            return trimmedPrev
+              ? `${trimmedPrev} ${result.text.trim()}`
+              : result.text.trim();
+          });
+        }
+      } catch (err) {
+        setTranscriptionError(
+          err instanceof Error
+            ? err.message
+            : "Failed to transcribe audio. Please try again.",
+        );
+      } finally {
+        setIsTranscribing(false);
+      }
+    } else {
+      await startRecording();
+    }
+  };
 
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isRecording) {
+      cancelRecording();
+    }
+    cancelTTS();
     const trimmed = message.trim();
-    if (!trimmed || isLoading || isHistoryLoading || !isReady) return;
+    if (!trimmed || isLoading || isHistoryLoading || !isReady || isTranscribing)
+      return;
 
     setMessage("");
     await sendChatMessage(trimmed, languageLevel);
   };
 
+  const activeError = error || recordingError || transcriptionError || ttsError;
+
   return (
-    <div className="flex min-h-[calc(100svh-var(--header-height))] flex-1 flex-col bg-white">
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white">
       <header className="flex shrink-0 items-center justify-between gap-4 border-b border-[var(--fluent-line)] px-4 py-3 sm:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Link
@@ -80,6 +211,32 @@ export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
               ))}
             </SelectContent>
           </Select>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={() => {
+              if (ttsEnabled) {
+                cancelTTS();
+                setTtsEnabled(false);
+              } else {
+                setTtsEnabled(true);
+              }
+            }}
+            className={cn(
+              "size-8 text-[var(--fluent-muted)] transition-colors hover:bg-[var(--fluent-paper)] hover:text-[var(--fluent-ink)]",
+              ttsEnabled &&
+                ttsState === "playing" &&
+                "text-[var(--fluent-coral)] animate-pulse",
+            )}
+            aria-label={ttsEnabled ? "Mute tutor voice" : "Enable tutor voice"}
+          >
+            {ttsEnabled ? (
+              <Volume2 className="size-4" />
+            ) : (
+              <VolumeX className="size-4 text-[var(--fluent-muted)]" />
+            )}
+          </Button>
           <span className="hidden items-center gap-2 text-xs text-[var(--fluent-muted)] md:flex">
             <span
               className={`size-1.5 rounded-full ${isReady ? "bg-[var(--fluent-green)]" : "bg-[var(--fluent-coral)]"}`}
@@ -89,12 +246,16 @@ export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <div
           className="min-h-0 flex-1 overflow-y-auto px-4 sm:px-8"
           aria-live="polite"
         >
-          <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center py-8 sm:py-12">
+          <div
+            className={`mx-auto flex min-h-full w-full max-w-3xl flex-col ${
+              messages.length === 0 ? "justify-center" : "justify-start"
+            } py-8 sm:py-12`}
+          >
             {isHistoryLoading ? (
               <div className="mx-auto max-w-2xl text-center text-sm text-[var(--fluent-muted)]">
                 Loading your conversation...
@@ -123,12 +284,21 @@ export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
                       </span>
                     )}
                     <div
-                      className={`max-w-[min(82%,680px)] rounded-2xl px-4 py-3 text-sm leading-6 ${item.type === "human" ? "rounded-br-sm bg-[var(--fluent-ink)] text-white" : "rounded-bl-sm bg-[var(--fluent-paper)] text-[var(--fluent-ink)]"}`}
+                      className={`max-w-[min(82%,680px)] break-words rounded-2xl px-4 py-3 text-sm leading-6 ${item.type === "human" ? "rounded-br-sm bg-[var(--fluent-ink)] text-white" : "rounded-bl-sm bg-[var(--fluent-paper)] text-[var(--fluent-ink)]"}`}
                     >
                       <p className="mb-1 text-xs font-semibold opacity-60">
                         {item.type === "human" ? "You" : "Tutor"}
                       </p>
-                      <p>{item.content}</p>
+                      {item.type === "ai" && !item.content ? (
+                        <div className="flex items-center gap-2 py-1 text-xs text-[var(--fluent-muted)]">
+                          <span className="inline-block size-1.5 animate-pulse rounded-full bg-current" />
+                          <span className="inline-block size-1.5 animate-pulse rounded-full bg-current [animation-delay:200ms]" />
+                          <span className="inline-block size-1.5 animate-pulse rounded-full bg-current [animation-delay:400ms]" />
+                          <span className="ml-1">Tutor is composing...</span>
+                        </div>
+                      ) : (
+                        <p className="whitespace-pre-wrap">{item.content}</p>
+                      )}
                       {item.type === "human" && item.inlineInspector && (
                         <div className="mt-3 border-t border-current/15 pt-3 text-xs opacity-80">
                           {item.inlineInspector.corrected_message && (
@@ -147,14 +317,7 @@ export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
                     </div>
                   </div>
                 ))}
-                {isLoading && (
-                  <div className="flex items-center gap-3 text-sm text-[var(--fluent-muted)]">
-                    <span className="flex size-7 items-center justify-center rounded-lg bg-[var(--fluent-mint)] text-[var(--fluent-ink)]">
-                      <Sparkles className="size-4" />
-                    </span>
-                    Tutor is composing...
-                  </div>
-                )}
+                <div ref={messagesEndRef} />
               </div>
             )}
           </div>
@@ -179,11 +342,43 @@ export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
                 className="min-h-16 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
               />
               <Button
+                type="button"
+                size="icon"
+                variant={isRecording ? "destructive" : "ghost"}
+                onClick={handleVoiceToggle}
+                disabled={
+                  isLoading || isHistoryLoading || !isReady || isTranscribing
+                }
+                className={cn(
+                  "shrink-0 transition-colors",
+                  isRecording && "bg-red-600 text-white hover:bg-red-700",
+                )}
+                aria-label={
+                  isRecording
+                    ? "Stop recording"
+                    : isTranscribing
+                      ? "Transcribing audio"
+                      : "Record voice message"
+                }
+              >
+                {isTranscribing ? (
+                  <Loader2 className="size-4 animate-spin text-[var(--fluent-coral)]" />
+                ) : isRecording ? (
+                  <Square className="size-4 fill-current" />
+                ) : (
+                  <Mic className="size-4" />
+                )}
+              </Button>
+              <Button
                 type="submit"
                 size="icon"
                 className="shrink-0 bg-[var(--fluent-coral)] text-white hover:bg-[var(--fluent-coral)]/90"
                 disabled={
-                  !message.trim() || isLoading || isHistoryLoading || !isReady
+                  !message.trim() ||
+                  isLoading ||
+                  isHistoryLoading ||
+                  !isReady ||
+                  isTranscribing
                 }
                 aria-label="Send message"
               >
@@ -191,15 +386,30 @@ export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
               </Button>
             </div>
             <div className="mt-2 flex items-center justify-between gap-3 px-1 text-xs text-[var(--fluent-muted)]">
-              <span>Press Enter to send</span>
+              <div className="flex items-center gap-2">
+                {isRecording ? (
+                  <span className="flex items-center gap-1.5 font-medium text-red-600 animate-pulse">
+                    <span className="size-2 rounded-full bg-red-600" />
+                    Recording {formatDuration(recordingDuration)} (click stop to
+                    finish)
+                  </span>
+                ) : isTranscribing ? (
+                  <span className="flex items-center gap-1.5 font-medium text-[var(--fluent-coral)]">
+                    <Loader2 className="size-3 animate-spin" />
+                    Transcribing speech with Whisper...
+                  </span>
+                ) : (
+                  <span>Press Enter to send</span>
+                )}
+              </div>
               <span>{message.length}/4000</span>
             </div>
-            {error && (
+            {activeError && (
               <p
                 className="mt-2 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive"
                 role="alert"
               >
-                {error}
+                {activeError}
               </p>
             )}
           </form>

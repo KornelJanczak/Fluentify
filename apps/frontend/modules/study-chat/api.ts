@@ -75,3 +75,90 @@ export async function sendStudyChatMessage(
 
   return response.json() as Promise<StudyChatResponse>;
 }
+
+export type TranscriptionResponse = {
+  text: string;
+};
+
+export async function transcribeStudyChatAudio(
+  audioBlob: Blob,
+  languageLevel: string,
+  accessToken: string,
+): Promise<TranscriptionResponse> {
+  const formData = new FormData();
+  const filename = audioBlob.type.includes("mp4")
+    ? "recording.mp4"
+    : "recording.webm";
+  formData.append("file", audioBlob, filename);
+  formData.append("language_level", languageLevel);
+
+  const response = await fetch(`${apiUrl}/study-chat/transcribe`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as {
+      detail?: string;
+    } | null;
+    throw new Error(
+      payload?.detail ?? "Failed to transcribe audio. Please try again.",
+    );
+  }
+
+  return response.json() as Promise<TranscriptionResponse>;
+}
+
+export async function ensureLangGraphThread(
+  apiUrl: string,
+  threadId: string,
+  accessToken: string,
+): Promise<void> {
+  const response = await fetch(`${apiUrl}/threads`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      thread_id: threadId,
+      if_exists: "do_nothing",
+    }),
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as {
+      detail?: string;
+    } | null;
+    throw new Error(
+      payload?.detail ?? `Failed to initialize chat thread: ${response.status}`,
+    );
+  }
+}
+
+export type CartesiaTokenResponse = {
+  access_token: string;
+  expires_at: number;
+};
+
+export async function getCartesiaTTSToken(
+  accessToken: string,
+): Promise<CartesiaTokenResponse> {
+  const response = await fetch(`${apiUrl}/study-chat/tts/token`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as {
+      detail?: string;
+    } | null;
+    throw new Error(payload?.detail ?? "Could not obtain a TTS access token.");
+  }
+
+  return response.json() as Promise<CartesiaTokenResponse>;
+}

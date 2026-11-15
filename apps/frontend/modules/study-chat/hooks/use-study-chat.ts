@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useStream } from "@langchain/react";
 
 import { getAccessToken } from "@/modules/auth/api";
 import { getStudyChatHistory, type Inspector } from "../api";
-import { getStudyChatThreadId } from "../utils/thread";
 
 export type StudyChatInspector = {
   original_message: string;
@@ -47,39 +52,12 @@ type UseStudyChatResult = {
   isReady: boolean;
   error: string;
   sendMessage: (message: string, languageLevel: string) => Promise<void>;
+  streamedReplyText: string;
+  isStreaming: boolean;
 };
 
 function createMessageId(): string {
   return crypto.randomUUID();
-}
-
-function getUserIdFromAccessToken(accessToken: string): string {
-  const payload = accessToken.split(".")[1];
-  if (!payload) throw new Error("The access token is malformed.");
-
-  try {
-    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padding = (4 - (normalized.length % 4)) % 4;
-    const decoded = JSON.parse(
-      atob(normalized.padEnd(normalized.length + padding, "=")),
-    ) as { sub?: unknown };
-    if (typeof decoded.sub !== "string" || !decoded.sub) {
-      throw new Error("The access token does not contain a user id.");
-    }
-    return decoded.sub;
-  } catch {
-    throw new Error("The access token is malformed.");
-  }
-}
-
-function resolveThreadId(
-  flashcardSetId: string,
-  accessToken: string,
-): string {
-  return getStudyChatThreadId(
-    flashcardSetId,
-    getUserIdFromAccessToken(accessToken),
-  );
 }
 
 function getContent(message: { content?: unknown }): string {
@@ -95,6 +73,22 @@ function getContent(message: { content?: unknown }): string {
     .join("");
 }
 
+function isInspectorPayload(content: string): boolean {
+  const trimmed = content.trim();
+  if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return false;
+  try {
+    const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+    return Boolean(
+      parsed &&
+        typeof parsed === "object" &&
+        "original_message" in parsed &&
+        "errors" in parsed,
+    );
+  } catch {
+    return false;
+  }
+}
+
 function getStreamError(error: unknown): string {
   return error instanceof Error
     ? error.message
@@ -107,22 +101,28 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
     getAccessToken,
     () => null,
   );
-  const threadId = accessToken
-    ? resolveThreadId(flashcardSetId, accessToken)
-    : null;
+
+  const defaultHeaders = useMemo(
+    () =>
+      accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    [accessToken],
+  );
+
+  const langGraphApiUrl =
+    process.env.NEXT_PUBLIC_LANGGRAPH_API_URL ?? "http://127.0.0.1:8123";
+
   const stream = useStream<StudyChatState>({
     assistantId: "study_chat",
-    apiUrl:
-      process.env.NEXT_PUBLIC_LANGGRAPH_API_URL ?? "http://127.0.0.1:8123",
-    threadId,
-    defaultHeaders: accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : undefined,
+    apiUrl: langGraphApiUrl,
+    threadId: accessToken ? flashcardSetId : null,
+    defaultHeaders,
     optimistic: false,
     streamIdleReconnect: "auto",
   });
 
   const [messages, setMessages] = useState<StudyChatMessage[]>([]);
+  const [streamedReplyText, setStreamedReplyText] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
   const [historyState, setHistoryState] = useState<{
     flashcardSetId: string;
     messages: StudyChatMessage[];
@@ -132,6 +132,9 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
   const activeHumanIdRef = useRef<string | null>(null);
   const activeAssistantIdRef = useRef<string | null>(null);
   const activeInspectionRequestIdRef = useRef<string | null>(null);
+  const baselineAiIdsRef = useRef<Set<string> | null>(null);
+  const baselineAiCountRef = useRef<number>(0);
+  const baselineReplyRef = useRef<string | null>(null);
   const stopStreamRef = useRef(stream.stop);
 
   useEffect(() => {
@@ -143,6 +146,9 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
     activeHumanIdRef.current = null;
     activeAssistantIdRef.current = null;
     activeInspectionRequestIdRef.current = null;
+    baselineAiIdsRef.current = null;
+    baselineAiCountRef.current = 0;
+    baselineReplyRef.current = null;
 
     if (!accessToken) {
       return;
@@ -185,46 +191,102 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
     const assistantId = activeAssistantIdRef.current;
     if (!assistantId) return;
 
-    const latestAssistant = [...stream.messages]
-      .reverse()
-      .find((message) => message.type === "ai");
-    if (!latestAssistant) return;
-
-    setMessages((current) =>
-      current.map((message) =>
-        message.id === assistantId
-          ? { ...message, content: getContent(latestAssistant) }
-          : message,
-      ),
+    const baselineAiIds = baselineAiIdsRef.current;
+    const baselineCount = baselineAiCountRef.current;
+    const aiMessages = stream.messages.filter(
+      (message) => message.type === "ai",
     );
-  }, [stream.messages]);
+
+    const isNewTurn =
+      aiMessages.length > baselineCount ||
+      aiMessages.some(
+        (message) => Boolean(message.id && !baselineAiIds?.has(message.id)),
+      );
+
+    const candidateAiMessages = aiMessages.filter(
+      (message) =>
+        (aiMessages.length > baselineCount ||
+          Boolean(message.id && !baselineAiIds?.has(message.id))) &&
+        !isInspectorPayload(getContent(message)),
+    );
+    const currentAiMessage = isNewTurn ? (candidateAiMessages.at(-1) ?? null) : null;
+
+    const streamedContent = currentAiMessage
+      ? getContent(currentAiMessage)
+      : "";
+    const isNewReply =
+      Boolean(stream.values.reply) &&
+      stream.values.reply !== baselineReplyRef.current;
+
+    if (isNewReply) {
+      setStreamedReplyText(stream.values.reply ?? "");
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === assistantId
+            ? { ...message, content: stream.values.reply ?? "" }
+            : message,
+        ),
+      );
+    } else if (streamedContent) {
+      setStreamedReplyText(streamedContent);
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === assistantId
+            ? { ...message, content: streamedContent }
+            : message,
+        ),
+      );
+    }
+  }, [stream.messages, stream.values.reply]);
 
   useEffect(() => {
+    if (stream.isLoading) return;
+
+    setIsStreaming(false);
+
+    if (stream.error) {
+      const assistantId = activeAssistantIdRef.current;
+      if (assistantId) {
+        setMessages((current) =>
+          current.filter(
+            (message) => message.id !== assistantId || message.content !== "",
+          ),
+        );
+      }
+      activeHumanIdRef.current = null;
+      activeAssistantIdRef.current = null;
+      activeInspectionRequestIdRef.current = null;
+      baselineAiIdsRef.current = null;
+      baselineReplyRef.current = null;
+      return;
+    }
+
     const humanId = activeHumanIdRef.current;
     const inspection = stream.values.inline_inspector;
     const inspectionRequestId = activeInspectionRequestIdRef.current;
     if (
-      !humanId ||
-      !inspectionRequestId ||
-      stream.isLoading ||
-      !inspection ||
-      stream.values.inspection_request_id !== inspectionRequestId
+      humanId &&
+      inspectionRequestId &&
+      inspection &&
+      stream.values.inspection_request_id === inspectionRequestId
     ) {
-      return;
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === humanId
+            ? { ...message, inlineInspector: inspection }
+            : message,
+        ),
+      );
     }
 
-    setMessages((current) =>
-      current.map((message) =>
-        message.id === humanId
-          ? { ...message, inlineInspector: inspection }
-          : message,
-      ),
-    );
     activeHumanIdRef.current = null;
     activeAssistantIdRef.current = null;
     activeInspectionRequestIdRef.current = null;
+    baselineAiIdsRef.current = null;
+    baselineReplyRef.current = null;
   }, [
     stream.isLoading,
+    stream.error,
     stream.values.inline_inspector,
     stream.values.inspection_request_id,
   ]);
@@ -257,7 +319,18 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
     activeAssistantIdRef.current = assistantId;
     const inspectionRequestId = crypto.randomUUID();
     activeInspectionRequestIdRef.current = inspectionRequestId;
+    baselineAiIdsRef.current = new Set(
+      stream.messages
+        .filter((item) => item.type === "ai" && item.id)
+        .map((item) => item.id as string),
+    );
+    baselineAiCountRef.current = stream.messages.filter(
+      (item) => item.type === "ai",
+    ).length;
+    baselineReplyRef.current = stream.values.reply ?? null;
     setSubmitError("");
+    setStreamedReplyText("");
+    setIsStreaming(true);
     setMessages((current) => [
       ...current,
       { id: humanId, type: "human", content: message },
@@ -269,8 +342,7 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
         {
           messages: [{ role: "user", content: message }],
           flashcard_set_id: flashcardSetId,
-          user_id: getUserIdFromAccessToken(accessToken),
-          thread_id: threadId ?? undefined,
+          thread_id: flashcardSetId,
           language_level: languageLevel,
           inspection_request_id: inspectionRequestId,
         },
@@ -278,9 +350,17 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
       );
     } catch (submitError) {
       setSubmitError(getStreamError(submitError));
+      setIsStreaming(false);
+      setMessages((current) =>
+        current.filter(
+          (item) => item.id !== assistantId || item.content !== "",
+        ),
+      );
       activeHumanIdRef.current = null;
       activeAssistantIdRef.current = null;
       activeInspectionRequestIdRef.current = null;
+      baselineAiIdsRef.current = null;
+      baselineReplyRef.current = null;
     }
   };
 
@@ -295,5 +375,7 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
     isReady: Boolean(accessToken),
     error,
     sendMessage,
+    streamedReplyText,
+    isStreaming,
   };
 }
