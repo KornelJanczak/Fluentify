@@ -199,8 +199,8 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
 
     const isNewTurn =
       aiMessages.length > baselineCount ||
-      aiMessages.some(
-        (message) => Boolean(message.id && !baselineAiIds?.has(message.id)),
+      aiMessages.some((message) =>
+        Boolean(message.id && !baselineAiIds?.has(message.id)),
       );
 
     const candidateAiMessages = aiMessages.filter(
@@ -209,7 +209,9 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
           Boolean(message.id && !baselineAiIds?.has(message.id))) &&
         !isInspectorPayload(getContent(message)),
     );
-    const currentAiMessage = isNewTurn ? (candidateAiMessages.at(-1) ?? null) : null;
+    const currentAiMessage = isNewTurn
+      ? (candidateAiMessages.at(-1) ?? null)
+      : null;
 
     const streamedContent = currentAiMessage
       ? getContent(currentAiMessage)

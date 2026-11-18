@@ -89,7 +89,7 @@ backend:
 	cd apps/backend && uv run python -m fastapi dev app/main.py
 
 graph:
-	cd apps/chat-graph && uv run langgraph dev --port 8123
+	cd apps/chat-graph && BROWSER=google-chrome uv run langgraph dev --port 8123 --tunnel
 
 dev:
 	$(MAKE) -j3 frontend backend graph

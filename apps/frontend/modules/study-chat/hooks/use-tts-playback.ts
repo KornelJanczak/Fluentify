@@ -15,6 +15,8 @@ export type UseTTSPlaybackOptions = {
   voiceId?: string;
   /** Cartesia Model ID. Defaults to sonic-3 */
   modelId?: string;
+  /** Callback fired with the completed WAV Blob when the TTS turn finishes receiving audio */
+  onAudioComplete?: (blob: Blob) => void;
 };
 
 export type UseTTSPlaybackResult = {
@@ -23,11 +25,51 @@ export type UseTTSPlaybackResult = {
   finish: () => void;
   cancel: () => void;
   error: string | null;
+  getRecordedWav: () => Blob | null;
 };
 
 export const DEFAULT_CARTESIA_VOICE_ID = "f786b574-daa5-4673-aa0c-cbe3e8534c02";
 export const DEFAULT_CARTESIA_MODEL_ID = "sonic-3";
 const SAMPLE_RATE = 44100;
+
+/**
+ * Encode an array of PCM Float32 chunks as a standard WAV (IEEE float, mono).
+ * The WAV header is 44 bytes; each sample is 4 bytes (little-endian float32).
+ */
+function encodeWav(chunks: Float32Array[], totalSamples: number, sampleRate: number): Blob {
+  const dataBytes = totalSamples * 4;
+  const buffer = new ArrayBuffer(44 + dataBytes);
+  const view = new DataView(buffer);
+
+  const writeStr = (offset: number, str: string) => {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  };
+
+  // RIFF chunk descriptor
+  writeStr(0, "RIFF");
+  view.setUint32(4, 36 + dataBytes, true);
+  writeStr(8, "WAVE");
+  // fmt sub-chunk
+  writeStr(12, "fmt ");
+  view.setUint32(16, 16, true);             // sub-chunk size
+  view.setUint16(20, 3, true);              // audio format: IEEE float
+  view.setUint16(22, 1, true);              // mono
+  view.setUint32(24, sampleRate, true);     // sample rate
+  view.setUint32(28, sampleRate * 4, true); // byte rate
+  view.setUint16(32, 4, true);              // block align
+  view.setUint16(34, 32, true);             // bits per sample
+  // data sub-chunk
+  writeStr(36, "data");
+  view.setUint32(40, dataBytes, true);
+  let offset = 44;
+  for (const chunk of chunks) {
+    for (const sample of chunk) {
+      view.setFloat32(offset, sample, true);
+      offset += 4;
+    }
+  }
+  return new Blob([buffer], { type: "audio/wav" });
+}
 
 function base64ToFloat32Array(base64: string): Float32Array {
   const binaryString = atob(base64);
@@ -43,9 +85,15 @@ export function useTTSPlayback({
   enabled,
   voiceId = DEFAULT_CARTESIA_VOICE_ID,
   modelId = DEFAULT_CARTESIA_MODEL_ID,
+  onAudioComplete,
 }: UseTTSPlaybackOptions): UseTTSPlaybackResult {
   const [state, setState] = useState<TTSPlaybackState>("idle");
   const [error, setError] = useState<string | null>(null);
+
+  const onAudioCompleteRef = useRef(onAudioComplete);
+  useEffect(() => {
+    onAudioCompleteRef.current = onAudioComplete;
+  }, [onAudioComplete]);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const nextStartTimeRef = useRef<number>(0);
@@ -57,6 +105,9 @@ export function useTTSPlayback({
   const contextRef = useRef<any>(null);
   const tokenCacheRef = useRef<{ token: string; expiresAt: number } | null>(null);
   const isReceivingRef = useRef<boolean>(false);
+  // Accumulates raw PCM chunks for the current TTS turn so they can be encoded
+  // as WAV and uploaded to storage after streaming completes.
+  const recordedChunksRef = useRef<Float32Array[]>([]);
 
   const getAudioContext = useCallback((): AudioContext => {
     if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
@@ -124,6 +175,7 @@ export function useTTSPlayback({
       wsRef.current = null;
     }
     isReceivingRef.current = false;
+    recordedChunksRef.current = [];
     setState("idle");
     setError(null);
   }, [stopAudio]);
@@ -182,6 +234,7 @@ export function useTTSPlayback({
             }
             if (floatArray) {
               schedulePlayback(floatArray);
+              recordedChunksRef.current.push(floatArray);
             }
           } else if (ev && ev.type === "error") {
             setError(ev.message || ev.title || "Cartesia TTS error");
@@ -201,6 +254,18 @@ export function useTTSPlayback({
         isReceivingRef.current = false;
         if (activeSourcesRef.current.size === 0) {
           setState("idle");
+        }
+
+        // When the Cartesia WebSocket stream finishes sending all audio chunks
+        // for this context, encode and notify the consumer (e.g. for S3 upload).
+        const chunks = recordedChunksRef.current;
+        if (chunks.length > 0) {
+          const totalSamples = chunks.reduce((sum, c) => sum + c.length, 0);
+          if (totalSamples > 0) {
+            const wav = encodeWav(chunks, totalSamples, SAMPLE_RATE);
+            recordedChunksRef.current = [];
+            onAudioCompleteRef.current?.(wav);
+          }
         }
       }
     },
@@ -270,11 +335,25 @@ export function useTTSPlayback({
     };
   }, [cancel]);
 
+  /**
+   * Encode all recorded PCM chunks from the current TTS turn as a WAV Blob,
+   * then reset the internal buffer. Returns null when nothing was recorded.
+   */
+  const getRecordedWav = useCallback((): Blob | null => {
+    const chunks = recordedChunksRef.current;
+    if (!chunks.length) return null;
+    const totalSamples = chunks.reduce((sum, c) => sum + c.length, 0);
+    const wav = encodeWav(chunks, totalSamples, SAMPLE_RATE);
+    recordedChunksRef.current = [];
+    return wav;
+  }, []);
+
   return {
     state,
     pushText,
     finish,
     cancel,
     error,
+    getRecordedWav,
   };
 }

@@ -91,9 +91,19 @@ class StudyChatInternalService:
             model_name=data.model_name,
             prompt_version=data.prompt_version,
         )
+        session = self.error_analysis_repository.session
         try:
-            async with self.error_analysis_repository.session.begin():
-                await self.error_analysis_repository.create(analysis)
+            if hasattr(session, "in_transaction") and session.in_transaction():
+                if hasattr(session, "begin_nested"):
+                    async with session.begin_nested():
+                        await self.error_analysis_repository.create(analysis)
+                else:
+                    await self.error_analysis_repository.create(analysis)
+                if hasattr(session, "commit"):
+                    await session.commit()
+            else:
+                async with session.begin():
+                    await self.error_analysis_repository.create(analysis)
         except IntegrityError:
             existing = await self.error_analysis_repository.get_by_inspection_request_id(
                 data.inspection_request_id,

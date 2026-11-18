@@ -44,17 +44,24 @@ class StudyChatHistoryService:
         history: list[StudyChatHistoryMessageSchema] = []
 
         for message in messages:
-            if not isinstance(message, (HumanMessage, AIMessage)):
+            if isinstance(message, dict):
+                role = message.get("role") or message.get("type")
+                content = message.get("content", "")
+            elif isinstance(message, (HumanMessage, AIMessage)):
+                role = "user" if isinstance(message, HumanMessage) else "assistant"
+                content = message.content
+            else:
                 continue
-            if not isinstance(message.content, str):
+
+            if not isinstance(content, str):
                 continue
 
             inline_inspector = None
-            if isinstance(message, HumanMessage):
+            if role in ("user", "human"):
                 while analysis_index < len(analyses):
                     analysis = analyses[analysis_index]
                     analysis_index += 1
-                    if analysis.original_message == message.content:
+                    if analysis.original_message == content:
                         inline_inspector = InlineInspectorSchema(
                             original_message=analysis.original_message,
                             corrected_message=analysis.corrected_message,
@@ -64,9 +71,8 @@ class StudyChatHistoryService:
 
             history.append(
                 StudyChatHistoryMessageSchema(
-                    role="user" if isinstance(
-                        message, HumanMessage) else "assistant",
-                    content=message.content,
+                    role="user" if role in ("user", "human") else "assistant",
+                    content=content,
                     inline_inspector=inline_inspector,
                 )
             )

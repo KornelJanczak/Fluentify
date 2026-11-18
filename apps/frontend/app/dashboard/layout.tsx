@@ -19,11 +19,11 @@ export default function DashboardLayout({
       <Suspense fallback={null}>
         <AppSidebar variant="inset" />
       </Suspense>
-      <SidebarInset>
+      <SidebarInset className="h-svh overflow-hidden md:h-[calc(100svh-1rem)] md:max-h-[calc(100svh-1rem)]">
         <SiteHeader />
-        <main className="flex min-h-[calc(100svh-var(--header-height))] flex-1 flex-col bg-[var(--fluent-paper)]">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-[var(--fluent-paper)]">
           {children}
-        </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

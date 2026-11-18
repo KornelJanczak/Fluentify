@@ -15,6 +15,7 @@ from app.modules.flashcard_sets.flashcard_sets_dependencies import (
 from app.modules.flashcard_sets.flashcard_set_service import (
     FlashcardSetService,
 )
+from app.modules.study_chat.study_chat_audio_service import StudyChatAudioService
 from app.modules.study_chat.study_chat_history_service import (
     StudyChatHistoryService,
 )
@@ -66,3 +67,14 @@ def get_study_chat_history_service(
 
 def get_study_chat_tts_service() -> StudyChatTTSService:
     return StudyChatTTSService(cartesia_api_key=settings.cartesia_api_key)
+
+
+def get_study_chat_audio_service() -> StudyChatAudioService:
+    bucket_name = settings.aws_s3_bucket_name or settings.neon_s3_bucket_name
+    return StudyChatAudioService(
+        endpoint_url=settings.aws_endpoint_url_s3,
+        aws_access_key_id=settings.aws_access_key_id,
+        aws_secret_access_key=settings.aws_secret_access_key,
+        region_name=settings.aws_region,
+        bucket_name=bucket_name,
+    )

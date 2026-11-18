@@ -22,28 +22,56 @@ def build_study_chat_graph(
 
     async def reply_node(state, runtime):
         del runtime
+        if not dependencies.access_token:
+            raise RuntimeError("Authenticated access token is required")
         return await generate_reply(state, dependencies)
 
     async def inspection_node(state, runtime):
         del runtime
+        if not dependencies.access_token:
+            raise RuntimeError("Authenticated access token is required")
         return await inspect_message(state, dependencies)
 
     builder.add_node("generate_reply", reply_node)
-    builder.add_node("inspect_message", inspection_node)
+    builder.add_node(
+        "inspect_message",
+        inspection_node,
+        metadata={"tags": ["nostream"]},
+    )
     builder.add_edge(START, "generate_reply")
     builder.add_edge("generate_reply", "inspect_message")
     builder.add_edge("inspect_message", END)
     return builder.compile(name="study_chat", checkpointer=checkpointer)
 
 
+def _extract_access_token(user: object | None) -> str | None:
+    if user is None:
+        return None
+    if hasattr(user, "get"):
+        token = user.get("access_token")
+        if isinstance(token, str) and token:
+            return token
+    token = getattr(user, "access_token", None)
+    if isinstance(token, str) and token:
+        return token
+    return None
+
+
 def make_study_chat_graph(
     runtime: ServerRuntime,
 ) -> CompiledStateGraph:
-    user = runtime.ensure_user()
-    access_token = user.get("access_token")
-    if not isinstance(access_token, str) or not access_token:
-        raise RuntimeError("Authenticated access token is required")
+    access_token: str | None = None
+    try:
+        if hasattr(runtime, "ensure_user"):
+            user = runtime.ensure_user()
+            access_token = _extract_access_token(user)
+    except Exception:
+        access_token = None
+
+    if not access_token:
+        user = getattr(runtime, "user", None)
+        access_token = _extract_access_token(user)
 
     return build_study_chat_graph(
-        dependencies=create_workflow_context(access_token),
+        dependencies=create_workflow_context(access_token or ""),
     )

@@ -5,11 +5,14 @@ from langgraph_sdk.client import LangGraphClient
 from pydantic import BaseModel
 
 from app.modules.study_chat.chat_schema import (
+    AudioUploadResponseSchema,
     StudyChatHistoryMessageSchema,
     StudyChatTranscriptionResponseSchema,
 )
+from app.modules.study_chat.study_chat_audio_service import StudyChatAudioService
 from app.modules.study_chat.study_chat_dependencies import (
     get_langgraph_client,
+    get_study_chat_audio_service,
     get_study_chat_history_service,
     get_study_chat_transcription_service,
     get_study_chat_tts_service,
@@ -32,6 +35,8 @@ logger = logging.getLogger(__name__)
 
 MAX_AUDIO_SIZE_BYTES = 25 * 1024 * 1024  # 25 MB limit for Whisper
 SUPPORTED_EXTENSIONS = {".webm", ".mp4", ".mp3", ".wav", ".ogg", ".m4a"}
+
+MAX_TTS_AUDIO_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB limit for TTS recordings
 
 
 class CartesiaTokenResponseSchema(BaseModel):
@@ -157,3 +162,55 @@ async def study_chat_history(
         thread_id=thread_id,
         messages=messages,
     )
+
+
+@router.post(
+    "/tts/audio",
+    response_model=AudioUploadResponseSchema,
+    status_code=status.HTTP_201_CREATED,
+)
+async def study_chat_upload_tts_audio(
+    flashcard_set_id: str = Form(...),
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    audio_service: StudyChatAudioService = Depends(get_study_chat_audio_service),
+) -> AudioUploadResponseSchema:
+    """Upload TTS audio (WAV) to Neon Object Storage after a successful stream."""
+    audio_bytes = await file.read()
+
+    if not audio_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Audio file is empty.",
+        )
+    if len(audio_bytes) > MAX_TTS_AUDIO_SIZE_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Audio file too large (max 10 MB).",
+        )
+
+    try:
+        result = await audio_service.upload_wav(
+            audio_bytes=audio_bytes,
+            user_id=str(current_user.id),
+            flashcard_set_id=flashcard_set_id,
+        )
+    except Exception as exc:
+        logger.error(
+            "TTS audio upload failed: user_id=%s flashcard_set_id=%s error=%s",
+            current_user.id,
+            flashcard_set_id,
+            exc,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Object storage is temporarily unavailable.",
+        ) from exc
+
+    logger.info(
+        "TTS audio uploaded: user_id=%s flashcard_set_id=%s key=%s",
+        current_user.id,
+        flashcard_set_id,
+        result.key,
+    )
+    return AudioUploadResponseSchema(key=result.key, url=result.url)

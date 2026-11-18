@@ -1,6 +1,7 @@
 import asyncio
 import os
 from logging.config import fileConfig
+from pathlib import Path
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -23,10 +24,13 @@ from alembic import context
 config = context.config
 
 
+ROOT_DIR = Path(__file__).resolve().parents[3]
+
+
 class AlembicSettings(BaseSettings):
     database_url: str
     model_config = SettingsConfigDict(
-        env_file=(".env", "apps/backend/.env"),
+        env_file=(ROOT_DIR / ".env", ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )

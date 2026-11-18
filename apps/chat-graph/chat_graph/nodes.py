@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from chat_graph.backend_api import (
@@ -16,6 +18,8 @@ def _require_last_human_message(state: StudyChatState) -> HumanMessage:
     for message in reversed(state.get("messages", [])):
         if isinstance(message, HumanMessage):
             return message
+        if isinstance(message, dict) and message.get("role") in ("user", "human"):
+            return HumanMessage(content=str(message.get("content", "")))
     raise ValueError("Study chat state must contain a human message")
 
 
@@ -29,7 +33,7 @@ def _require_flashcard_set_id(state: StudyChatState) -> str:
 def _require_inspection_request_id(state: StudyChatState) -> str:
     request_id = state.get("inspection_request_id")
     if not request_id:
-        raise ValueError("Study chat state requires inspection_request_id")
+        return str(uuid4())
     return request_id
 
 
@@ -68,15 +72,18 @@ async def generate_reply(
         HumanMessage(content=user_message.content),
     ]
 
-    response_parts: list[str] = []
-    async for chunk in context.ai_client.astream(messages):
-        if isinstance(chunk.content, str) and chunk.content:
-            response_parts.append(chunk.content)
+    response = await context.chat_ai_client.ainvoke(messages)
+    reply = str(response.content) if isinstance(response.content, str) else ""
 
-    reply = "".join(response_parts)
+    message = (
+        response
+        if isinstance(response, AIMessage)
+        else AIMessage(content=reply)
+    )
+
     return {
         "reply": reply,
-        "messages": [AIMessage(content=reply)],
+        "messages": [message],
     }
 
 
@@ -90,9 +97,9 @@ async def inspect_message(
     if not isinstance(user_message.content, str):
         raise ValueError("Study chat messages must contain text content")
 
-    inspector = context.ai_client.with_structured_output(
+    inspector = context.inline_inspector_ai_client.with_structured_output(
         InlineInspectorSchema,
-    )
+    ).with_config(tags=["nostream"])
     inspection = await inspector.ainvoke([
         SystemMessage(
             content=INLINE_INSPECTOR_SYSTEM_PROMPT.format(

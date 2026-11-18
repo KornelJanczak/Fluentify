@@ -162,3 +162,35 @@ export async function getCartesiaTTSToken(
 
   return response.json() as Promise<CartesiaTokenResponse>;
 }
+
+export type TTSAudioUploadResponse = {
+  key: string;
+  url: string;
+};
+
+export async function uploadTTSAudio(
+  flashcardSetId: string,
+  audioBlob: Blob,
+  accessToken: string,
+): Promise<TTSAudioUploadResponse> {
+  const formData = new FormData();
+  formData.append("flashcard_set_id", flashcardSetId);
+  formData.append("file", audioBlob, "tts.wav");
+
+  const response = await fetch(`${apiUrl}/study-chat/tts/audio`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as {
+      detail?: string;
+    } | null;
+    throw new Error(payload?.detail ?? "Failed to upload TTS audio.");
+  }
+
+  return response.json() as Promise<TTSAudioUploadResponse>;
+}

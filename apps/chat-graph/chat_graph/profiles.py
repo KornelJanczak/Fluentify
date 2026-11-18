@@ -12,5 +12,12 @@ class AiProfile:
 ENGLISH_CHAT_PROFILE = AiProfile(
     model="gpt-4o",
     temperature=0.7,
-    timeout=60,
+    timeout=30,
+)
+
+
+INLINE_INSPECTOR_PROFILE = AiProfile(
+    model="gpt-4o",
+    temperature=0.0,
+    timeout=45,
 )

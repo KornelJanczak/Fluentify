@@ -3,9 +3,9 @@
   "graphs": {
     "study_chat": "./chat_graph/graph.py:make_study_chat_graph"
   },
-  "env": ".env",
+  "env": "../../.env",
   "auth": {
     "path": "./chat_graph/auth.py:auth",
-    "disable_studio_auth": true
+    "disable_studio_auth": false
   }
 }

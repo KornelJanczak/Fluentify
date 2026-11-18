@@ -27,9 +27,19 @@ class FakeTransaction:
 
 
 class FakeRepository:
-    def __init__(self) -> None:
-        self.session = SimpleNamespace(begin=lambda: FakeTransaction())
+    def __init__(self, in_transaction: bool = False) -> None:
+        self._in_transaction = in_transaction
+        self.committed = False
+        self.session = SimpleNamespace(
+            begin=lambda: FakeTransaction(),
+            begin_nested=lambda: FakeTransaction(),
+            commit=self._commit,
+            in_transaction=lambda: self._in_transaction,
+        )
         self.analysis = None
+
+    async def _commit(self) -> None:
+        self.committed = True
 
     async def get_by_inspection_request_id(self, _request_id: str):
         return self.analysis
@@ -71,6 +81,25 @@ async def test_persist_inspection_is_idempotent() -> None:
             "user-123",
             request,
         )
+
+
+@pytest.mark.asyncio
+async def test_persist_inspection_when_transaction_already_in_progress() -> None:
+    repository = FakeRepository(in_transaction=True)
+    service = StudyChatInternalService(
+        flashcard_set_service=SimpleNamespace(
+            get_flashcard_set=_get_flashcard_set,
+        ),
+        analysis_summary_service=SimpleNamespace(),
+        error_analysis_repository=repository,
+    )
+    request = _inspection_request("I has a car.")
+
+    result = await service.persist_inspection("set-123", "user-123", request)
+
+    assert result.original_message == "I has a car."
+    assert repository.committed is True
+
 
 
 async def _get_flashcard_set(

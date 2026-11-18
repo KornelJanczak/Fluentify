@@ -45,18 +45,15 @@ backend/app/
 │   └── study_chat/
 │       ├── study_chat_router.py
 │       ├── study_chat_dependencies.py
-│       ├── chat_schema.py
-│       └── study_chat_service.py
-├── workflows/
-│   └── study_chat/
-│       ├── dependencies.py
-│       ├── graph.py
-│       ├── nodes.py
-│       └── state.py
+│       ├── study_chat_history_service.py
+│       ├── study_chat_internal_router.py
+│       ├── study_chat_internal_service.py
+│       ├── study_chat_internal_schema.py
+│       ├── study_chat_thread.py
+│       └── chat_schema.py
 ├── infrastructure/
 ├── config.py
 ├── database.py
-├── graph.py
 └── main.py
 ```
 
@@ -64,9 +61,9 @@ The `flashcard_sets` module owns set-level operations and the set aggregate.
 The `flashcards` module owns individual card operations. The
 `example_sentences` module owns AI-generated examples and may use both
 flashcard modules. The `error_analysis` module owns persisted language-error
-analysis and its summary. The `study_chat` module owns chat transport and
-application service behavior, while its LangGraph workflow lives under the
-global `app/workflows/study_chat/` boundary.
+analysis and its summary. The `study_chat` module owns history aggregation and
+internal endpoints for inspection persistence and context, while the LangGraph
+workflow lives under the separate `apps/chat-graph/` service.
 
 ## Responsibilities
 

@@ -25,7 +25,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/modules/auth/api";
-import { transcribeStudyChatAudio } from "../api";
+import { transcribeStudyChatAudio, uploadTTSAudio } from "../api";
 import { useAudioRecorder } from "../hooks/use-audio-recorder";
 import { useStudyChat } from "../hooks/use-study-chat";
 import { useTTSPlayback } from "../hooks/use-tts-playback";
@@ -68,6 +68,14 @@ export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
     error: ttsError,
   } = useTTSPlayback({
     enabled: ttsEnabled,
+    onAudioComplete: (wav) => {
+      const token = getAccessToken();
+      if (token) {
+        void uploadTTSAudio(flashcardSetId, wav, token).catch((err: unknown) =>
+          console.warn("TTS audio upload failed:", err),
+        );
+      }
+    },
   });
 
   const {

@@ -26,5 +26,12 @@ class Settings(BaseSettings):
     # Cartesia TTS
     cartesia_api_key: str
 
+    # Neon Object Storage (S3-compatible)
+    aws_endpoint_url_s3: str = ""
+    aws_access_key_id: str = ""
+    aws_secret_access_key: str = ""
+    aws_region: str = "us-east-2"
+    aws_s3_bucket_name: str = "fluentify-bucket"
+
 
 settings = Settings()

@@ -1,5 +1,8 @@
+from typing import Any
+
 import jwt
 from langgraph_sdk import Auth
+from langgraph_sdk.auth.types import StudioUser
 
 from chat_graph.config import settings
 
@@ -48,23 +51,30 @@ async def allow_authenticated_requests(
     value: object,
 ) -> bool:
     del value
-    return ctx.user is not None and ctx.user.is_authenticated
+    if ctx.user is None:
+        return False
+    if isinstance(ctx.user, StudioUser) or getattr(ctx.user, "identity", None) == "langgraph-studio-user":
+        return True
+    return bool(ctx.user.is_authenticated)
 
 
-@auth.on.threads.create
+@auth.on(resources=["threads", "runs"], actions=["create_run", "create"])
 async def set_thread_owner(
     ctx: Auth.types.AuthContext,
-    value: Auth.types.on.threads.create.value,
-) -> bool:
+    value: dict[str, Any],
+) -> Auth.types.FilterType:
     metadata = value.setdefault("metadata", {})
-    metadata["owner"] = ctx.user.identity
-    return True
+    if isinstance(metadata, dict):
+        metadata["owner"] = ctx.user.identity
+    return {"owner": ctx.user.identity}
 
 
-@auth.on.threads
-async def scope_thread_access(
+@auth.on(resources=["threads", "runs"])
+async def scope_resource_access(
     ctx: Auth.types.AuthContext,
     value: object,
 ) -> Auth.types.FilterType:
     del value
+    if isinstance(ctx.user, StudioUser) or getattr(ctx.user, "identity", None) == "langgraph-studio-user":
+        return {}
     return {"owner": ctx.user.identity}
