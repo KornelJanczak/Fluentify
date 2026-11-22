@@ -16,9 +16,11 @@ const mockContext = vi.fn().mockReturnValue({
 });
 
 const mockWsClose = vi.fn();
+const mockWsOn = vi.fn();
 const mockWebsocket = vi.fn().mockResolvedValue({
   context: mockContext,
   close: mockWsClose,
+  on: mockWsOn,
 });
 
 vi.mock("@cartesia/cartesia-js", () => {
@@ -33,6 +35,12 @@ vi.mock("@cartesia/cartesia-js", () => {
         websocket: mockWebsocket,
       };
     },
+  };
+});
+
+vi.mock("@/modules/auth/api", () => {
+  return {
+    getAccessToken: () => "mock-jwt-token",
   };
 });
 
@@ -88,7 +96,16 @@ describe("useTTSPlayback hook", () => {
     mockReceive.mockClear();
     mockContext.mockClear();
     mockWsClose.mockClear();
+    mockWsOn.mockClear();
     mockWebsocket.mockClear();
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        access_token: "cartesia-token",
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+      }),
+    });
 
     // Mock AudioContext
     class MockAudioContext {
@@ -133,6 +150,27 @@ describe("useTTSPlayback hook", () => {
 
     expect(mockPush).not.toHaveBeenCalled();
     expect(result.current.state).toBe("idle");
+  });
+
+  it("binds error listener and pushes text into context", async () => {
+    const { result } = renderHook(() =>
+      useTTSPlayback({ enabled: true, voiceId: "test-voice-id" }),
+    );
+
+    await act(async () => {
+      result.current.pushText("Hello world");
+    });
+
+    expect(mockWebsocket).toHaveBeenCalled();
+    expect(mockWsOn).toHaveBeenCalledWith("error", expect.any(Function));
+    expect(mockPush).toHaveBeenCalledWith({ transcript: "Hello world" });
+
+    // Calling finish after pushing text should call no_more_inputs
+    await act(async () => {
+      result.current.finish();
+    });
+
+    expect(mockNoMoreInputs).toHaveBeenCalled();
   });
 
   it("cancels playback and resets state", async () => {

@@ -22,6 +22,18 @@ vi.mock("@langchain/react", () => ({
 
 vi.mock("@/modules/auth/api", () => ({
   getAccessToken: getAccessTokenMock,
+  getCurrentUserId: (token?: string) => {
+    const jwt = token ?? getAccessTokenMock();
+    if (!jwt) return null;
+    try {
+      const parts = jwt.split(".");
+      if (parts.length < 2) return null;
+      const payload = JSON.parse(atob(parts[1]));
+      return typeof payload.sub === "string" ? payload.sub : null;
+    } catch {
+      return null;
+    }
+  },
 }));
 
 vi.mock("../api", () => ({
@@ -29,6 +41,7 @@ vi.mock("../api", () => ({
 }));
 
 import { useStudyChat } from "../hooks/use-study-chat";
+import { getStudyChatThreadId } from "../utils/thread";
 
 function accessToken(userId: string): string {
   const payload = btoa(JSON.stringify({ sub: userId }));
@@ -67,24 +80,28 @@ describe("useStudyChat", () => {
       await result.current.sendMessage("I has a car.", "B2");
     });
 
+    const expectedThreadId = getStudyChatThreadId("user-123", "set-123");
     expect(streamState.submit).toHaveBeenCalledWith(
       expect.objectContaining({
         flashcard_set_id: "set-123",
-        thread_id: "set-123",
+        thread_id: expectedThreadId,
         language_level: "B2",
         inspection_request_id: expect.any(String),
       }),
-      { multitaskStrategy: "reject" },
+      {
+        threadId: expectedThreadId,
+        multitaskStrategy: "reject",
+      },
     );
     expect(result.current.messages.at(-2)?.content).toBe("I has a car.");
   });
 
-  it("passes flashcardSetId directly as threadId to useStream", async () => {
+  it("passes deterministic user-scoped threadId to useStream", async () => {
     const { useStream } = await import("@langchain/react");
     renderHook(() => useStudyChat("set-123"));
 
     const call = vi.mocked(useStream).mock.calls.at(-1)?.[0];
-    expect(call?.threadId).toBe("set-123");
+    expect(call?.threadId).toBe(getStudyChatThreadId("user-123", "set-123"));
     expect(call?.defaultHeaders).toEqual({
       Authorization: `Bearer ${accessToken("user-123")}`,
     });

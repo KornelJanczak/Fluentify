@@ -1,4 +1,4 @@
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+import { resolveApiUrl } from "@/infrastructure/http/client";
 
 export type InspectorError = {
   original_fragment: string;
@@ -28,7 +28,7 @@ export async function getStudyChatHistory(
   accessToken: string,
 ): Promise<StudyChatHistoryMessage[]> {
   const response = await fetch(
-    `${apiUrl}/study-chat/${encodeURIComponent(flashcardSetId)}/history`,
+    resolveApiUrl(`/study-chat/${encodeURIComponent(flashcardSetId)}/history`),
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -53,7 +53,7 @@ export async function sendStudyChatMessage(
   accessToken: string,
 ): Promise<StudyChatResponse> {
   const response = await fetch(
-    `${apiUrl}/study-chat/${flashcardSetId}/message`,
+    resolveApiUrl(`/study-chat/${flashcardSetId}/message`),
     {
       method: "POST",
       headers: {
@@ -92,7 +92,7 @@ export async function transcribeStudyChatAudio(
   formData.append("file", audioBlob, filename);
   formData.append("language_level", languageLevel);
 
-  const response = await fetch(`${apiUrl}/study-chat/transcribe`, {
+  const response = await fetch(resolveApiUrl("/study-chat/transcribe"), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -147,7 +147,7 @@ export type CartesiaTokenResponse = {
 export async function getCartesiaTTSToken(
   accessToken: string,
 ): Promise<CartesiaTokenResponse> {
-  const response = await fetch(`${apiUrl}/study-chat/tts/token`, {
+  const response = await fetch(resolveApiUrl("/study-chat/tts/token"), {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -177,7 +177,7 @@ export async function uploadTTSAudio(
   formData.append("flashcard_set_id", flashcardSetId);
   formData.append("file", audioBlob, "tts.wav");
 
-  const response = await fetch(`${apiUrl}/study-chat/tts/audio`, {
+  const response = await fetch(resolveApiUrl("/study-chat/tts/audio"), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,

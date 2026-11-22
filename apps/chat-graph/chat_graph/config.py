@@ -1,12 +1,21 @@
 from pathlib import Path
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
-    backend_api_url: str = "http://localhost:8000"
+    backend_api_url: str = Field(
+        default="http://localhost:8000",
+        validation_alias=AliasChoices(
+            "BACKEND_API_URL",
+            "BACKEND_URL",
+            "backend_api_url",
+            "backend_url",
+        ),
+    )
     database_url: str
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"

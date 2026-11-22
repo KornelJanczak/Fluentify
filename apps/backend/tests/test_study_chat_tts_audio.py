@@ -6,11 +6,14 @@ User journeys:
   object storage, so it can be referenced later (e.g. pronunciation review).
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi import HTTPException
 
+from app.infrastructure.storage.s3_storage_client import S3StorageClient
+from app.modules.flashcard_sets.flashcard_set_model import FlashcardSet
+from app.modules.flashcard_sets.flashcard_set_service import FlashcardSetService
 from app.modules.study_chat.study_chat_audio_service import (
     AudioUploadResult,
     StudyChatAudioService,
@@ -31,6 +34,19 @@ def test_user() -> User:
         email="student@example.com",
         password_hash="hash",
     )
+
+
+@pytest.fixture
+def mock_flashcard_set_service() -> FlashcardSetService:
+    service = MagicMock(spec=FlashcardSetService)
+    service.get_flashcard_set_by_id = AsyncMock(
+        return_value=FlashcardSet(
+            id="set-1",
+            user_id="user-abc",
+            name="Vocabulary",
+        )
+    )
+    return service
 
 
 @pytest.fixture
@@ -58,12 +74,12 @@ def tiny_wav() -> bytes:
         b"WAVE",
         b"fmt ",
         16,
-        3,       # IEEE float
-        1,       # mono
-        44100,   # sample rate
+        3,  # IEEE float
+        1,  # mono
+        44100,  # sample rate
         44100 * 4,  # byte rate
-        4,       # block align
-        32,      # bits per sample
+        4,  # block align
+        32,  # bits per sample
         b"data",
         data_bytes,
     )
@@ -77,37 +93,29 @@ def tiny_wav() -> bytes:
 
 @pytest.mark.asyncio
 async def test_audio_service_uploads_to_correct_bucket():
-    """Service calls put_object with the configured bucket name."""
-    mock_s3 = AsyncMock()
-    mock_s3.put_object = AsyncMock()
-    mock_s3.generate_presigned_url = AsyncMock(return_value="https://example.com/signed")
-    mock_s3.__aenter__ = AsyncMock(return_value=mock_s3)
-    mock_s3.__aexit__ = AsyncMock(return_value=False)
+    """Service calls storage_client.put_object with the configured bucket name."""
+    mock_storage_client = MagicMock(spec=S3StorageClient)
+    mock_storage_client.put_object = AsyncMock()
+    mock_storage_client.generate_presigned_url = AsyncMock(
+        return_value="https://example.com/signed"
+    )
 
-    mock_session = MagicMock()
-    mock_session.client.return_value = mock_s3
+    service = StudyChatAudioService(
+        storage_client=mock_storage_client,
+        bucket_name="tts-audio",
+    )
+    result = await service.upload_wav(
+        audio_bytes=b"\x00" * 100,
+        user_id="user-1",
+        flashcard_set_id="set-1",
+    )
 
-    with patch(
-        "app.modules.study_chat.study_chat_audio_service.aioboto3.Session",
-        return_value=mock_session,
-    ):
-        service = StudyChatAudioService(
-            endpoint_url="https://storage.example.com",
-            aws_access_key_id="key",
-            aws_secret_access_key="secret",
-            region_name="us-east-2",
-            bucket_name="tts-audio",
-        )
-        result = await service.upload_wav(
-            audio_bytes=b"\x00" * 100,
-            user_id="user-1",
-            flashcard_set_id="set-1",
-        )
-
-    mock_s3.put_object.assert_awaited_once()
-    call_kwargs = mock_s3.put_object.call_args.kwargs
-    assert call_kwargs["Bucket"] == "tts-audio"
-    assert call_kwargs["ContentType"] == "audio/wav"
+    mock_storage_client.put_object.assert_awaited_once_with(
+        bucket="tts-audio",
+        key=result.key,
+        body=b"\x00" * 100,
+        content_type="audio/wav",
+    )
     assert isinstance(result.key, str)
     assert result.key.startswith("tts-audio/user-1/set-1/")
     assert result.key.endswith(".wav")
@@ -116,31 +124,21 @@ async def test_audio_service_uploads_to_correct_bucket():
 @pytest.mark.asyncio
 async def test_audio_service_key_contains_user_and_set():
     """Object key embeds user_id and flashcard_set_id."""
-    mock_s3 = AsyncMock()
-    mock_s3.put_object = AsyncMock()
-    mock_s3.generate_presigned_url = AsyncMock(return_value="https://example.com/signed")
-    mock_s3.__aenter__ = AsyncMock(return_value=mock_s3)
-    mock_s3.__aexit__ = AsyncMock(return_value=False)
+    mock_storage_client = MagicMock(spec=S3StorageClient)
+    mock_storage_client.put_object = AsyncMock()
+    mock_storage_client.generate_presigned_url = AsyncMock(
+        return_value="https://example.com/signed"
+    )
 
-    mock_session = MagicMock()
-    mock_session.client.return_value = mock_s3
-
-    with patch(
-        "app.modules.study_chat.study_chat_audio_service.aioboto3.Session",
-        return_value=mock_session,
-    ):
-        service = StudyChatAudioService(
-            endpoint_url="https://storage.example.com",
-            aws_access_key_id="key",
-            aws_secret_access_key="secret",
-            region_name="us-east-2",
-            bucket_name="tts-audio",
-        )
-        result = await service.upload_wav(
-            audio_bytes=b"\x00" * 10,
-            user_id="u-xyz",
-            flashcard_set_id="fs-abc",
-        )
+    service = StudyChatAudioService(
+        storage_client=mock_storage_client,
+        bucket_name="tts-audio",
+    )
+    result = await service.upload_wav(
+        audio_bytes=b"\x00" * 10,
+        user_id="u-xyz",
+        flashcard_set_id="fs-abc",
+    )
 
     assert "/u-xyz/" in result.key
     assert "/fs-abc/" in result.key
@@ -151,31 +149,21 @@ async def test_audio_service_returns_presigned_url():
     """Service returns the pre-signed URL produced by generate_presigned_url."""
     expected_url = "https://storage.example.com/signed?token=abc"
 
-    mock_s3 = AsyncMock()
-    mock_s3.put_object = AsyncMock()
-    mock_s3.generate_presigned_url = AsyncMock(return_value=expected_url)
-    mock_s3.__aenter__ = AsyncMock(return_value=mock_s3)
-    mock_s3.__aexit__ = AsyncMock(return_value=False)
+    mock_storage_client = MagicMock(spec=S3StorageClient)
+    mock_storage_client.put_object = AsyncMock()
+    mock_storage_client.generate_presigned_url = AsyncMock(
+        return_value=expected_url
+    )
 
-    mock_session = MagicMock()
-    mock_session.client.return_value = mock_s3
-
-    with patch(
-        "app.modules.study_chat.study_chat_audio_service.aioboto3.Session",
-        return_value=mock_session,
-    ):
-        service = StudyChatAudioService(
-            endpoint_url="https://storage.example.com",
-            aws_access_key_id="key",
-            aws_secret_access_key="secret",
-            region_name="us-east-2",
-            bucket_name="tts-audio",
-        )
-        result = await service.upload_wav(
-            audio_bytes=b"\x00" * 10,
-            user_id="u",
-            flashcard_set_id="fs",
-        )
+    service = StudyChatAudioService(
+        storage_client=mock_storage_client,
+        bucket_name="tts-audio",
+    )
+    result = await service.upload_wav(
+        audio_bytes=b"\x00" * 10,
+        user_id="u",
+        flashcard_set_id="fs",
+    )
 
     assert result.url == expected_url
 
@@ -188,6 +176,7 @@ async def test_audio_service_returns_presigned_url():
 @pytest.mark.asyncio
 async def test_router_upload_returns_201_with_key_and_url(
     test_user: User,
+    mock_flashcard_set_service: FlashcardSetService,
     mock_audio_service: StudyChatAudioService,
     tiny_wav: bytes,
 ):
@@ -199,6 +188,7 @@ async def test_router_upload_returns_201_with_key_and_url(
         flashcard_set_id="set-1",
         file=mock_file,
         current_user=test_user,
+        flashcard_set_service=mock_flashcard_set_service,
         audio_service=mock_audio_service,
     )
 
@@ -209,6 +199,7 @@ async def test_router_upload_returns_201_with_key_and_url(
 @pytest.mark.asyncio
 async def test_router_upload_calls_service_with_user_and_set(
     test_user: User,
+    mock_flashcard_set_service: FlashcardSetService,
     mock_audio_service: StudyChatAudioService,
     tiny_wav: bytes,
 ):
@@ -220,6 +211,7 @@ async def test_router_upload_calls_service_with_user_and_set(
         flashcard_set_id="set-42",
         file=mock_file,
         current_user=test_user,
+        flashcard_set_service=mock_flashcard_set_service,
         audio_service=mock_audio_service,
     )
 
@@ -231,8 +223,57 @@ async def test_router_upload_calls_service_with_user_and_set(
 
 
 @pytest.mark.asyncio
+async def test_router_upload_rejects_unowned_set(
+    test_user: User,
+    mock_audio_service: StudyChatAudioService,
+    tiny_wav: bytes,
+):
+    """Upload to non-existent or unowned flashcard set returns 404."""
+    unowned_service = MagicMock(spec=FlashcardSetService)
+    unowned_service.get_flashcard_set_by_id = AsyncMock(return_value=None)
+
+    mock_file = MagicMock()
+    mock_file.read = AsyncMock(return_value=tiny_wav)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await study_chat_upload_tts_audio(
+            flashcard_set_id="foreign-set",
+            file=mock_file,
+            current_user=test_user,
+            flashcard_set_service=unowned_service,
+            audio_service=mock_audio_service,
+        )
+
+    assert exc_info.value.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_router_upload_rejects_invalid_wav_signature(
+    test_user: User,
+    mock_flashcard_set_service: FlashcardSetService,
+    mock_audio_service: StudyChatAudioService,
+):
+    """Audio that is not a valid WAV file returns 400."""
+    mock_file = MagicMock()
+    mock_file.read = AsyncMock(return_value=b"NOT_A_WAV_FILE_HEADER")
+
+    with pytest.raises(HTTPException) as exc_info:
+        await study_chat_upload_tts_audio(
+            flashcard_set_id="set-1",
+            file=mock_file,
+            current_user=test_user,
+            flashcard_set_service=mock_flashcard_set_service,
+            audio_service=mock_audio_service,
+        )
+
+    assert exc_info.value.status_code == 400
+    assert "WAV" in exc_info.value.detail
+
+
+@pytest.mark.asyncio
 async def test_router_upload_rejects_empty_file(
     test_user: User,
+    mock_flashcard_set_service: FlashcardSetService,
     mock_audio_service: StudyChatAudioService,
 ):
     """Empty upload body returns 400."""
@@ -244,6 +285,7 @@ async def test_router_upload_rejects_empty_file(
             flashcard_set_id="set-1",
             file=mock_file,
             current_user=test_user,
+            flashcard_set_service=mock_flashcard_set_service,
             audio_service=mock_audio_service,
         )
 
@@ -253,6 +295,7 @@ async def test_router_upload_rejects_empty_file(
 @pytest.mark.asyncio
 async def test_router_upload_rejects_oversized_file(
     test_user: User,
+    mock_flashcard_set_service: FlashcardSetService,
     mock_audio_service: StudyChatAudioService,
 ):
     """Files larger than 10 MB return 413."""
@@ -264,6 +307,7 @@ async def test_router_upload_rejects_oversized_file(
             flashcard_set_id="set-1",
             file=mock_file,
             current_user=test_user,
+            flashcard_set_service=mock_flashcard_set_service,
             audio_service=mock_audio_service,
         )
 
@@ -273,6 +317,7 @@ async def test_router_upload_rejects_oversized_file(
 @pytest.mark.asyncio
 async def test_router_upload_maps_service_error_to_502(
     test_user: User,
+    mock_flashcard_set_service: FlashcardSetService,
     tiny_wav: bytes,
 ):
     """When the audio service raises an unexpected error, the router returns 502."""
@@ -287,8 +332,8 @@ async def test_router_upload_maps_service_error_to_502(
             flashcard_set_id="set-1",
             file=mock_file,
             current_user=test_user,
+            flashcard_set_service=mock_flashcard_set_service,
             audio_service=failing_service,
         )
 
     assert exc_info.value.status_code == 502
-

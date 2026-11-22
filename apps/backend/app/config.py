@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
@@ -11,7 +12,15 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expiration_minutes: int = 60
     log_level: str = "INFO"
-    langgraph_api_url: str = "http://127.0.0.1:8123"
+    langgraph_api_url: str = Field(
+        default="http://127.0.0.1:8123",
+        validation_alias=AliasChoices(
+            "LANGGRAPH_API_URL",
+            "CHAT_GRAPH_URL",
+            "langgraph_api_url",
+            "chat_graph_url",
+        ),
+    )
     model_config = SettingsConfigDict(
         env_file=(ROOT_DIR / ".env", ".env"),
         env_file_encoding="utf-8",

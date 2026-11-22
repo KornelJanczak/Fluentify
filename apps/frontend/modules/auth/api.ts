@@ -1,4 +1,4 @@
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+import { resolveApiUrl } from "@/infrastructure/http/client";
 
 export type User = {
   id: string;
@@ -13,7 +13,7 @@ type TokenResponse = {
 };
 
 async function request<T>(path: string, body: object): Promise<T> {
-  const response = await fetch(`${apiUrl}${path}`, {
+  const response = await fetch(resolveApiUrl(path), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -44,4 +44,26 @@ export function saveAccessToken(token: string): void {
 export function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
   return window.localStorage.getItem("access_token");
+}
+
+function decodeBase64Url(base64Url: string): string {
+  let base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4 !== 0) {
+    base64 += "=";
+  }
+  return atob(base64);
+}
+
+export function getCurrentUserId(token?: string): string | null {
+  const jwt = token ?? getAccessToken();
+  if (!jwt) return null;
+  try {
+    const parts = jwt.split(".");
+    if (parts.length < 2) return null;
+    const jsonString = decodeBase64Url(parts[1]);
+    const payload = JSON.parse(jsonString) as Record<string, unknown>;
+    return typeof payload.sub === "string" ? payload.sub : null;
+  } catch {
+    return null;
+  }
 }

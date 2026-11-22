@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db
+from app.infrastructure.storage.s3_storage_client import S3StorageClient
 from app.modules.error_analysis.error_analysis_repository import (
     StudyChatErrorAnalysisRepository,
 )
@@ -69,12 +70,19 @@ def get_study_chat_tts_service() -> StudyChatTTSService:
     return StudyChatTTSService(cartesia_api_key=settings.cartesia_api_key)
 
 
-def get_study_chat_audio_service() -> StudyChatAudioService:
-    bucket_name = settings.aws_s3_bucket_name or settings.neon_s3_bucket_name
-    return StudyChatAudioService(
+def get_s3_storage_client() -> S3StorageClient:
+    return S3StorageClient(
         endpoint_url=settings.aws_endpoint_url_s3,
         aws_access_key_id=settings.aws_access_key_id,
         aws_secret_access_key=settings.aws_secret_access_key,
         region_name=settings.aws_region,
-        bucket_name=bucket_name,
+    )
+
+
+def get_study_chat_audio_service(
+    storage_client: S3StorageClient = Depends(get_s3_storage_client),
+) -> StudyChatAudioService:
+    return StudyChatAudioService(
+        storage_client=storage_client,
+        bucket_name=settings.aws_s3_bucket_name,
     )

@@ -20,16 +20,18 @@ def build_study_chat_graph(
         StudyChatState,
     )
 
-    async def reply_node(state, runtime):
-        del runtime
+    def _ensure_access_token() -> None:
         if not dependencies.access_token:
             raise RuntimeError("Authenticated access token is required")
+
+    async def reply_node(state, runtime):
+        del runtime
+        _ensure_access_token()
         return await generate_reply(state, dependencies)
 
     async def inspection_node(state, runtime):
         del runtime
-        if not dependencies.access_token:
-            raise RuntimeError("Authenticated access token is required")
+        _ensure_access_token()
         return await inspect_message(state, dependencies)
 
     builder.add_node("generate_reply", reply_node)

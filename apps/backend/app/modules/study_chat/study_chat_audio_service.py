@@ -2,7 +2,7 @@ import logging
 import uuid
 from dataclasses import dataclass
 
-import aioboto3
+from app.infrastructure.storage.s3_storage_client import S3StorageClient
 
 logger = logging.getLogger(__name__)
 
@@ -18,18 +18,10 @@ class StudyChatAudioService:
 
     def __init__(
         self,
-        endpoint_url: str,
-        aws_access_key_id: str,
-        aws_secret_access_key: str,
-        region_name: str,
+        storage_client: S3StorageClient,
         bucket_name: str,
     ) -> None:
-        self._session = aioboto3.Session(
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            region_name=region_name,
-        )
-        self._endpoint_url = endpoint_url
+        self._storage_client = storage_client
         self._bucket = bucket_name
 
     async def upload_wav(
@@ -46,20 +38,15 @@ class StudyChatAudioService:
             key,
             len(audio_bytes),
         )
-        async with self._session.client(
-            "s3",
-            endpoint_url=self._endpoint_url,
-        ) as s3:
-            await s3.put_object(
-                Bucket=self._bucket,
-                Key=key,
-                Body=audio_bytes,
-                ContentType="audio/wav",
-            )
-            url: str = await s3.generate_presigned_url(
-                "get_object",
-                Params={"Bucket": self._bucket, "Key": key},
-                ExpiresIn=3600,
-            )
-
+        await self._storage_client.put_object(
+            bucket=self._bucket,
+            key=key,
+            body=audio_bytes,
+            content_type="audio/wav",
+        )
+        url = await self._storage_client.generate_presigned_url(
+            bucket=self._bucket,
+            key=key,
+            expires_in=3600,
+        )
         return AudioUploadResult(key=key, url=url)
