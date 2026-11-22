@@ -1,0 +1,68 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "backend": {
+      "root": "apps/backend",
+      "framework": "fastapi",
+      "entrypoint": "app.main:app",
+      "routes": [
+        {
+          "src": "/api/(.*)",
+          "transforms": [
+            {
+              "type": "request.path",
+              "op": "set",
+              "args": "/$1"
+            }
+          ]
+        }
+      ],
+      "bindings": [
+        {
+          "type": "service",
+          "service": "chat-graph",
+          "format": "url",
+          "env": "LANGGRAPH_API_URL"
+        }
+      ]
+    },
+    "chat-graph": {
+      "root": "apps/chat-graph",
+      "runtime": "python",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "backend",
+          "format": "url",
+          "env": "BACKEND_API_URL"
+        }
+      ]
+    },
+    "frontend": {
+      "root": "apps/frontend",
+      "framework": "nextjs",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "backend",
+          "format": "url",
+          "env": "BACKEND_URL"
+        }
+      ]
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "frontend"
+      }
+    }
+  ]
+}

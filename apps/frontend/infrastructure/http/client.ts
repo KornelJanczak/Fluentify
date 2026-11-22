@@ -1,4 +1,28 @@
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+/**
+ * Resolve the backend API base URL.
+ *
+ * Priority:
+ *  1. NEXT_PUBLIC_API_URL  – explicit override (works both client & server).
+ *     Set this to "/api" in Vercel project settings so the browser uses the
+ *     public rewrite, and leave it unset locally so the fallback kicks in.
+ *  2. BACKEND_URL          – Vercel service binding (server-side only).
+ *  3. http://127.0.0.1:8000 – local development fallback.
+ */
+export function getApiUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
+  }
+  if (typeof window === "undefined" && process.env.BACKEND_URL) {
+    return process.env.BACKEND_URL.replace(/\/+$/, "");
+  }
+  return "http://127.0.0.1:8000";
+}
+
+export function resolveApiUrl(path: string): string {
+  const base = getApiUrl();
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${base}${normalizedPath}`;
+}
 
 type ApiError = { detail?: string };
 
@@ -14,7 +38,7 @@ export async function http<T>(
   headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  const response = await fetch(`${apiUrl}${path}`, { ...init, headers });
+  const response = await fetch(resolveApiUrl(path), { ...init, headers });
   if (!response.ok) {
     const payload = (await response
       .json()

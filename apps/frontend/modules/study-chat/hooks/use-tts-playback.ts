@@ -25,7 +25,6 @@ export type UseTTSPlaybackResult = {
   finish: () => void;
   cancel: () => void;
   error: string | null;
-  getRecordedWav: () => Blob | null;
 };
 
 export const DEFAULT_CARTESIA_VOICE_ID = "f786b574-daa5-4673-aa0c-cbe3e8534c02";
@@ -109,6 +108,10 @@ export function useTTSPlayback({
   // as WAV and uploaded to storage after streaming completes.
   const recordedChunksRef = useRef<Float32Array[]>([]);
 
+  // Promise queue to serialize connection, context initialization, and text chunks
+  const pushQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const hasPushedTranscriptRef = useRef<boolean>(false);
+
   const getAudioContext = useCallback((): AudioContext => {
     if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
       const AudioContextClass =
@@ -158,6 +161,8 @@ export function useTTSPlayback({
 
   const cancel = useCallback(() => {
     stopAudio();
+    pushQueueRef.current = Promise.resolve();
+    hasPushedTranscriptRef.current = false;
     if (contextRef.current) {
       try {
         void contextRef.current.cancel();
@@ -276,17 +281,35 @@ export function useTTSPlayback({
     (text: string) => {
       if (!enabled || !text.trim()) return;
 
-      void (async () => {
-        try {
+      pushQueueRef.current = pushQueueRef.current
+        .then(async () => {
+          if (!enabled) return;
+
           if (!wsRef.current) {
             setState("buffering");
             const token = await ensureToken();
             const client = new Cartesia({ apiKey: token });
-            wsRef.current = await client.tts.websocket();
+            const ws = await client.tts.websocket();
+
+            // Bind error callback to prevent unhandled promise rejections from the SDK
+            if (typeof ws?.on === "function") {
+              ws.on("error", (wsErr: unknown) => {
+                const errMsg =
+                  wsErr instanceof Error
+                    ? wsErr.message
+                    : typeof wsErr === "object" && wsErr !== null && "message" in wsErr
+                      ? String((wsErr as { message: unknown }).message)
+                      : "Cartesia WebSocket error";
+                setError(errMsg);
+                setState("error");
+              });
+            }
+            wsRef.current = ws;
           }
 
           if (!contextRef.current && wsRef.current) {
             setState("buffering");
+            hasPushedTranscriptRef.current = false;
             const ctx = wsRef.current.context({
               model_id: modelId,
               voice: { mode: "id", id: voiceId },
@@ -303,27 +326,40 @@ export function useTTSPlayback({
 
           if (contextRef.current) {
             await contextRef.current.push({ transcript: text });
+            hasPushedTranscriptRef.current = true;
           }
-        } catch (pushErr) {
+        })
+        .catch((pushErr) => {
           setError(
             pushErr instanceof Error ? pushErr.message : "Failed to stream audio",
           );
           setState("error");
-        }
-      })();
+        });
     },
     [enabled, modelId, voiceId, ensureToken, startReceiving],
   );
 
   const finish = useCallback(() => {
-    if (contextRef.current) {
-      try {
-        void contextRef.current.no_more_inputs();
-      } catch {
-        // Ignore
-      }
-      contextRef.current = null;
-    }
+    pushQueueRef.current = pushQueueRef.current
+      .then(async () => {
+        if (contextRef.current) {
+          try {
+            if (hasPushedTranscriptRef.current) {
+              await contextRef.current.no_more_inputs();
+            } else if (typeof contextRef.current.cancel === "function") {
+              await contextRef.current.cancel();
+            }
+          } catch {
+            // Ignore
+          }
+          contextRef.current = null;
+          hasPushedTranscriptRef.current = false;
+        }
+      })
+      .catch(() => {
+        contextRef.current = null;
+        hasPushedTranscriptRef.current = false;
+      });
   }, []);
 
   useEffect(() => {
@@ -335,25 +371,11 @@ export function useTTSPlayback({
     };
   }, [cancel]);
 
-  /**
-   * Encode all recorded PCM chunks from the current TTS turn as a WAV Blob,
-   * then reset the internal buffer. Returns null when nothing was recorded.
-   */
-  const getRecordedWav = useCallback((): Blob | null => {
-    const chunks = recordedChunksRef.current;
-    if (!chunks.length) return null;
-    const totalSamples = chunks.reduce((sum, c) => sum + c.length, 0);
-    const wav = encodeWav(chunks, totalSamples, SAMPLE_RATE);
-    recordedChunksRef.current = [];
-    return wav;
-  }, []);
-
   return {
     state,
     pushText,
     finish,
     cancel,
     error,
-    getRecordedWav,
   };
 }

@@ -71,9 +71,9 @@ export function StudyChatView({ flashcardSetId }: StudyChatViewProps) {
     onAudioComplete: (wav) => {
       const token = getAccessToken();
       if (token) {
-        void uploadTTSAudio(flashcardSetId, wav, token).catch((err: unknown) =>
-          console.warn("TTS audio upload failed:", err),
-        );
+        void uploadTTSAudio(flashcardSetId, wav, token).catch((err: unknown) => {
+          console.error("TTS audio upload failed:", err);
+        });
       }
     },
   });

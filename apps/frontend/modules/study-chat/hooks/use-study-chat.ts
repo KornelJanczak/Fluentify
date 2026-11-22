@@ -8,9 +8,11 @@ import {
   useSyncExternalStore,
 } from "react";
 import { useStream } from "@langchain/react";
+import { Client } from "@langchain/langgraph-sdk/client";
 
-import { getAccessToken } from "@/modules/auth/api";
+import { getAccessToken, getCurrentUserId } from "@/modules/auth/api";
 import { getStudyChatHistory, type Inspector } from "../api";
+import { getStudyChatThreadId } from "../utils/thread";
 
 export type StudyChatInspector = {
   original_message: string;
@@ -108,13 +110,33 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
     [accessToken],
   );
 
+  const currentUserId = useMemo(
+    () => getCurrentUserId(accessToken ?? undefined),
+    [accessToken],
+  );
+
+  const calculatedThreadId = useMemo(() => {
+    if (!accessToken || !currentUserId) return null;
+    return getStudyChatThreadId(currentUserId, flashcardSetId);
+  }, [accessToken, currentUserId, flashcardSetId]);
+
   const langGraphApiUrl =
     process.env.NEXT_PUBLIC_LANGGRAPH_API_URL ?? "http://127.0.0.1:8123";
 
+  const client = useMemo(
+    () =>
+      new Client({
+        apiUrl: langGraphApiUrl,
+        defaultHeaders,
+      }),
+    [langGraphApiUrl, defaultHeaders],
+  );
+
   const stream = useStream<StudyChatState>({
     assistantId: "study_chat",
+    client,
     apiUrl: langGraphApiUrl,
-    threadId: accessToken ? flashcardSetId : null,
+    threadId: calculatedThreadId,
     defaultHeaders,
     optimistic: false,
     streamIdleReconnect: "auto",
@@ -344,11 +366,14 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
         {
           messages: [{ role: "user", content: message }],
           flashcard_set_id: flashcardSetId,
-          thread_id: flashcardSetId,
+          thread_id: calculatedThreadId ?? flashcardSetId,
           language_level: languageLevel,
           inspection_request_id: inspectionRequestId,
         },
-        { multitaskStrategy: "reject" },
+        {
+          threadId: calculatedThreadId ?? undefined,
+          multitaskStrategy: "reject",
+        },
       );
     } catch (submitError) {
       setSubmitError(getStreamError(submitError));

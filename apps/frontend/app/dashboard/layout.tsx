@@ -21,9 +21,9 @@ export default function DashboardLayout({
       </Suspense>
       <SidebarInset className="h-svh overflow-hidden md:h-[calc(100svh-1rem)] md:max-h-[calc(100svh-1rem)]">
         <SiteHeader />
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-[var(--fluent-paper)]">
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-[var(--fluent-paper)]">
           {children}
-        </div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

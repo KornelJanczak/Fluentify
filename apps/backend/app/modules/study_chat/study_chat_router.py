@@ -4,6 +4,12 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, s
 from langgraph_sdk.client import LangGraphClient
 from pydantic import BaseModel
 
+from app.modules.flashcard_sets.flashcard_sets_dependencies import (
+    get_flashcard_set_service,
+)
+from app.modules.flashcard_sets.flashcard_set_service import (
+    FlashcardSetService,
+)
 from app.modules.study_chat.chat_schema import (
     AudioUploadResponseSchema,
     StudyChatHistoryMessageSchema,
@@ -63,19 +69,21 @@ async def study_chat_tts_token(
 @router.post(
     "/transcribe",
     response_model=StudyChatTranscriptionResponseSchema,
+    status_code=status.HTTP_200_OK,
 )
 async def study_chat_transcribe(
     file: UploadFile = File(...),
-    language_level: str = Form("B2"),
+    language_level: str = Form("B1"),
     current_user: User = Depends(get_current_user),
     transcription_service: StudyChatTranscriptionService = Depends(
         get_study_chat_transcription_service
     ),
 ) -> StudyChatTranscriptionResponseSchema:
-    filename = file.filename or "recording.webm"
-    extension = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    """Accept an audio recording from the user and transcribe it via Whisper."""
+    filename = file.filename or "recording.wav"
+    ext = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
 
-    if extension not in SUPPORTED_EXTENSIONS:
+    if ext not in SUPPORTED_EXTENSIONS:
         logger.warning(
             "Unsupported audio file uploaded: filename=%s content_type=%s user_id=%s",
             filename,
@@ -96,7 +104,7 @@ async def study_chat_transcribe(
 
     if len(audio_bytes) > MAX_AUDIO_SIZE_BYTES:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail="The audio file exceeds the maximum allowed size of 25 MB.",
         )
 
@@ -142,7 +150,10 @@ async def study_chat_history(
         flashcard_set_id,
     )
 
-    thread_id = get_study_chat_thread_id(flashcard_set_id)
+    thread_id = get_study_chat_thread_id(
+        user_id=str(current_user.id),
+        flashcard_set_id=flashcard_set_id,
+    )
     messages: list[object] = []
 
     try:
@@ -173,9 +184,23 @@ async def study_chat_upload_tts_audio(
     flashcard_set_id: str = Form(...),
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
+    flashcard_set_service: FlashcardSetService = Depends(
+        get_flashcard_set_service
+    ),
     audio_service: StudyChatAudioService = Depends(get_study_chat_audio_service),
 ) -> AudioUploadResponseSchema:
     """Upload TTS audio (WAV) to Neon Object Storage after a successful stream."""
+    # Verify that the current user owns or has access to this flashcard set
+    flashcard_set = await flashcard_set_service.get_flashcard_set_by_id(
+        flashcard_set_id=flashcard_set_id,
+        user_id=str(current_user.id),
+    )
+    if not flashcard_set:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Flashcard set not found.",
+        )
+
     audio_bytes = await file.read()
 
     if not audio_bytes:
@@ -185,8 +210,19 @@ async def study_chat_upload_tts_audio(
         )
     if len(audio_bytes) > MAX_TTS_AUDIO_SIZE_BYTES:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail="Audio file too large (max 10 MB).",
+        )
+
+    # Validate WAV signature (RIFF header + WAVE format marker)
+    if (
+        len(audio_bytes) < 12
+        or audio_bytes[:4] != b"RIFF"
+        or audio_bytes[8:12] != b"WAVE"
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid audio format. Expected a valid WAV audio file.",
         )
 
     try:
