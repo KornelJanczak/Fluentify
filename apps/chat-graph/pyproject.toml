@@ -1,0 +1,25 @@
+[project]
+name = "english-ai-tutor-chat-graph"
+version = "0.1.0"
+description = "LangGraph orchestration service for the English AI Tutor study chat"
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "langchain>=1.4.4",
+    "langchain-openai>=1.7.2",
+    "langgraph>=1.2.14",
+    "langgraph-cli[inmem]>=0.4.0",
+    "langgraph-checkpoint-postgres>=3.2.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.2.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_default_fixture_loop_scope = "function"

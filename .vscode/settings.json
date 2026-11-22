@@ -1,0 +1,11 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/apps/backend/.venv/bin/python",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/apps/backend",
+    "${workspaceFolder}/apps/chat-graph"
+  ],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/apps/backend",
+    "${workspaceFolder}/apps/chat-graph"
+  ]
+}

@@ -1,0 +1,30 @@
+[project]
+name = "english-ai-tutor"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aioboto3>=13.0.0",
+    "alembic>=1.20.0",
+    "asyncpg>=0.30.0",
+    "fastapi[standard]>=0.143.0",
+    "langchain>=1.4.4",
+    "langchain-openai>=1.7.2",
+    "langgraph-sdk>=0.1.0",
+    "pydantic-settings>=2.15.0",
+    "pyjwt>=2.10.1",
+    "pwdlib[argon2]>=0.2.1",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "cartesia>=4.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx==0.28.1",
+    "pytest==9.1.1",
+    "pytest-asyncio>=1.2.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
