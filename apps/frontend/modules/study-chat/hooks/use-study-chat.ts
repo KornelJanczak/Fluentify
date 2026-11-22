@@ -121,7 +121,12 @@ export function useStudyChat(flashcardSetId: string): UseStudyChatResult {
   }, [accessToken, currentUserId, flashcardSetId]);
 
   const langGraphApiUrl =
-    process.env.NEXT_PUBLIC_LANGGRAPH_API_URL ?? "http://127.0.0.1:8123";
+    process.env.NEXT_PUBLIC_LANGGRAPH_API_URL ??
+    (typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+      ? "/chat-graph"
+      : "http://127.0.0.1:8123");
 
   const client = useMemo(
     () =>

@@ -29,6 +29,19 @@
     "chat-graph": {
       "root": "apps/chat-graph",
       "runtime": "python",
+      "entrypoint": "main:app",
+      "routes": [
+        {
+          "src": "/chat-graph/(.*)",
+          "transforms": [
+            {
+              "type": "request.path",
+              "op": "set",
+              "args": "/$1"
+            }
+          ]
+        }
+      ],
       "bindings": [
         {
           "type": "service",
@@ -56,6 +69,12 @@
       "source": "/api/(.*)",
       "destination": {
         "service": "backend"
+      }
+    },
+    {
+      "source": "/chat-graph/(.*)",
+      "destination": {
+        "service": "chat-graph"
       }
     },
     {
